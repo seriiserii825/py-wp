@@ -1,4 +1,8 @@
+from classes.acf.AcfTransfer import AcfTransfer
+
+
 def acf_func():
+    AcfTransfer.wp_export()
     # wpExport()
     #
     # print(colored("Welcome to ACF CLI", "green"))
