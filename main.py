@@ -1,11 +1,12 @@
 #!/usr/bin/python3
 
-from init import init
+from main_menu.acf_func import acf_func
+from main_menu.init import init
 
 
 def menu():
     init()
-    # acfFunc()
+    acf_func()
 
 
 if __name__ == "__main__":
