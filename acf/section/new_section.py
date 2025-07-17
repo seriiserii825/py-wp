@@ -1,8 +1,8 @@
-from classes.acf.section.SectionCreate import SectionCreate
+from classes.acf.section.Section import Section
 
 
 def new_section():
-    SectionCreate.add_name_and_file_path()
+    Section.add_name_and_file_path()
     # choice = Section.choose_type()
     #
     # if choice == 1:
