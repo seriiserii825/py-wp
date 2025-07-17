@@ -1,3 +1,4 @@
+from acf.section.new_section import new_section
 from classes.acf.AcfTransfer import AcfTransfer
 from classes.utils.Menu import Menu
 from classes.utils.Print import Print
@@ -19,6 +20,8 @@ def acf_func():
 
     if choice == 0:
         Print.info("Create new section selected.")
+        new_section()
+
     elif choice == 1:
         Print.info("Select section selected.")
         # wpImport()
