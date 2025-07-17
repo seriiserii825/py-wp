@@ -2,7 +2,7 @@ from dataclasses import dataclass
 
 
 @dataclass
-class SectionDTO():
+class SectionDTO:
     ID: int
     post_title: str
     post_name: str

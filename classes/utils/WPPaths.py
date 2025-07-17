@@ -1,7 +1,7 @@
-from pathlib import Path
-import json
 import inspect
+import json
 from enum import Enum
+from pathlib import Path
 from typing import Dict, Optional
 
 
@@ -49,7 +49,6 @@ class WPPaths:
         if cls._paths_file is None:
             cls._paths_file = cls._get_script_dir() / ".paths.json"
 
-
     @classmethod
     def load(cls):
         """Загружает пути из .paths.json"""
@@ -59,7 +58,8 @@ class WPPaths:
         if not cls._paths:
             if not cls._paths_file.exists():
                 raise FileNotFoundError(
-                    f"{cls._paths_file} not found. Run initialize() first.")
+                    f"{cls._paths_file} not found. Run initialize() first."
+                )
             with open(cls._paths_file) as f:
                 cls._paths = json.load(f)
 

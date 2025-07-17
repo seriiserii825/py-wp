@@ -9,11 +9,7 @@ def acf_func():
 
     header = ["Index", "Option"]
 
-    rows = [
-        ["0", "Create new section"],
-        ["1", "Select section"],
-        ["2", "Exit"]
-    ]
+    rows = [["0", "Create new section"], ["1", "Select section"], ["2", "Exit"]]
 
     Menu.display("Welcome to ACF CLI", header, rows)
     choice = Menu.choose_option()
