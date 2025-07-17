@@ -1,0 +1,2 @@
+class NewSectionException(Exception):
+    pass

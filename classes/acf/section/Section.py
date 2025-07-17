@@ -4,6 +4,7 @@ from typing import Any, List
 
 from classes.acf.section.SectionMenu import SectionMenu
 from classes.data.WpData import WpData
+from classes.exception.NewSectionException import NewSectionException
 from classes.utils.Generate import Generate
 from classes.utils.InputValidator import InputValidator
 from classes.utils.Print import Print
@@ -30,9 +31,9 @@ class Section:
     def _set_file_path(file_name: str):
         Section.file_path = f"acf/{file_name}"
         if not os.path.exists("acf"):
-            raise FileNotFoundError("The 'acf' directory does not exist.")
+            raise NewSectionException("The 'acf' directory does not exist.")
         if os.path.exists(Section.file_path):
-            raise FileExistsError(
+            raise NewSectionException(
                 f"The file '{file_name}' already exists in the 'acf' directory."
             )
 
@@ -52,7 +53,6 @@ class Section:
     @staticmethod
     def new_acf_page():
         page = Section.select_page()
-        Print.info(f"page: {page}")
         Section._create_file(page_id=page.ID)
 
     @staticmethod
@@ -80,7 +80,6 @@ class Section:
     @staticmethod
     def new_acf_custom_post_type():
         post_type = Section._select_custom_post_type()
-        Print.info(f"post_type: {post_type}")
         Section._create_file(post_type=post_type)
 
     @staticmethod
@@ -96,7 +95,6 @@ class Section:
     @staticmethod
     def new_acf_taxonomy():
         taxonomy = Section._select_taxonomy()
-        Print.info(f"taxonomy: {taxonomy}")
         Section._create_file(taxonomy=taxonomy)
 
     @staticmethod
@@ -164,3 +162,14 @@ class Section:
         with open(Section.file_path, "w") as file:
             # write
             file.write(json_data)
+
+    @staticmethod
+    def show_all_files():
+        files = os.listdir("acf")
+        if not files:
+            Print.info("No ACF files found.")
+            return
+        Print.info("ACF Files:")
+        for file in files:
+            Print.info(f"- {file}")
+        Print.info("End of ACF files list.")
