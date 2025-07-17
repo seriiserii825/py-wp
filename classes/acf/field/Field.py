@@ -15,9 +15,9 @@ class Field(ABC):
         pass
 
     @abstractmethod
-    def print_field(self, color, index):
+    def print_field(self, color, index, indent=0):
         pass
 
     @abstractmethod
-    def print_field_with_subfields(self, color, index):
+    def print_field_with_subfields(self, color, index, indent=0):
         pass
