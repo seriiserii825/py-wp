@@ -169,7 +169,6 @@ class Section:
         if not files:
             Print.info("No ACF files found.")
             return
-        Print.info("ACF Files:")
+        Print.info("show_all_files:")
         for file in files:
-            Print.info(f"- {file}")
-        Print.info("End of ACF files list.")
+            print(f"- {file}")
