@@ -8,6 +8,7 @@ from classes.exception.NewSectionException import NewSectionException
 from classes.utils.Generate import Generate
 from classes.utils.InputValidator import InputValidator
 from classes.utils.Print import Print
+from classes.utils.Select import Select
 from dto.SectionDto import SectionDTO
 
 
@@ -172,3 +173,14 @@ class Section:
         Print.info("show_all_files:")
         for file in files:
             print(f"- {file}")
+
+    @staticmethod
+    def get_sections_files() -> List[str]:
+        if not os.path.exists("acf"):
+            raise NewSectionException("The 'acf' directory does not exist.")
+        files = [f for f in os.listdir("acf") if f.endswith(".json")]
+        return files
+
+    @staticmethod
+    def select_section() -> str:
+        return Select.select_one(Section.get_sections_files())
