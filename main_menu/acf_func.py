@@ -4,7 +4,7 @@ from classes.utils.Print import Print
 
 
 def acf_func():
-    # AcfTransfer.wp_export()
+    AcfTransfer.wp_export()
 
     header = ["Index", "Option"]
 
@@ -19,7 +19,6 @@ def acf_func():
 
     if choice == 0:
         Print.info("Create new section selected.")
-        # newSection()
     elif choice == 1:
         Print.info("Select section selected.")
         # wpImport()
