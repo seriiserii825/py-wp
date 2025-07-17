@@ -8,8 +8,7 @@ from classes.utils.Print import Print
 def acf_func():
     AcfTransfer.wp_export()
     header = ["Index", "Option"]
-    rows = [["0", "Create new section"], [
-        "1", "Select section"], ["2", "Exit"]]
+    rows = [["0", "Create new section"], ["1", "Select section"], ["2", "Exit"]]
     Menu.display("Welcome to ACF CLI", header, rows)
     choice = Menu.choose_option()
 

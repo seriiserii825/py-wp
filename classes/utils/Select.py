@@ -1,7 +1,8 @@
-from simple_term_menu import TerminalMenu
-import questionary
 import subprocess
 from typing import List
+
+import questionary
+from simple_term_menu import TerminalMenu
 
 
 class Select:

@@ -12,28 +12,28 @@ from classes.utils.Select import Select
 from dto.SectionDto import SectionDTO
 
 
-class Section:
+class CreateSection:
     section_name: str = ""
     file_name: str = ""
     file_path: str = ""
 
-    @staticmethod
-    def add_name_and_file_path():
+    @classmethod
+    def add_name_and_file_path(cls):
         name = InputValidator.get_string("Enter section name: ")
-        Section.section_name = name
-        Section._set_file_name(name)
-        Section._set_file_path(Section.file_name)
+        cls.section_name = name
+        cls._set_file_name(name)
+        cls._set_file_path(cls.file_name)
 
-    @staticmethod
-    def _set_file_name(section_name: str) -> None:
-        Section.file_name = section_name.replace(" ", "-").lower() + ".json"
+    @classmethod
+    def _set_file_name(cls, section_name: str) -> None:
+        cls.file_name = section_name.replace(" ", "-").lower() + ".json"
 
-    @staticmethod
-    def _set_file_path(file_name: str):
-        Section.file_path = f"acf/{file_name}"
+    @classmethod
+    def _set_file_path(cls, file_name: str):
+        cls.file_path = f"acf/{file_name}"
         if not os.path.exists("acf"):
             raise NewSectionException("The 'acf' directory does not exist.")
-        if os.path.exists(Section.file_path):
+        if os.path.exists(cls.file_path):
             raise NewSectionException(
                 f"The file '{file_name}' already exists in the 'acf' directory."
             )
@@ -51,10 +51,10 @@ class Section:
         choice = SectionMenu.choose_option()
         return choice
 
-    @staticmethod
-    def new_acf_page():
-        page = Section.select_page()
-        Section._create_file(page_id=page.ID)
+    @classmethod
+    def new_acf_page(cls):
+        page = cls.select_page()
+        cls._create_file(page_id=page.ID)
 
     @staticmethod
     def select_page() -> SectionDTO:
@@ -78,10 +78,10 @@ class Section:
         index = SectionMenu.choose_option()
         return pages[index]
 
-    @staticmethod
-    def new_acf_custom_post_type():
-        post_type = Section._select_custom_post_type()
-        Section._create_file(post_type=post_type)
+    @classmethod
+    def new_acf_custom_post_type(cls):
+        post_type = cls._select_custom_post_type()
+        cls._create_file(post_type=post_type)
 
     @staticmethod
     def _select_custom_post_type() -> str:
@@ -93,10 +93,10 @@ class Section:
         post_type = row_post_types[index]
         return post_type
 
-    @staticmethod
-    def new_acf_taxonomy():
-        taxonomy = Section._select_taxonomy()
-        Section._create_file(taxonomy=taxonomy)
+    @classmethod
+    def new_acf_taxonomy(cls):
+        taxonomy = cls._select_taxonomy()
+        cls._create_file(taxonomy=taxonomy)
 
     @staticmethod
     def _select_taxonomy() -> str:
@@ -108,14 +108,14 @@ class Section:
         taxonomy = taxonomies[index]
         return taxonomy
 
-    @staticmethod
-    def _create_file(page_id: int = 0, post_type: str = "", taxonomy: str = ""):
+    @classmethod
+    def _create_file(cls, page_id: int = 0, post_type: str = "", taxonomy: str = ""):
         group_id = Generate.get_group_id()
-        os.system(f"touch {Section.file_path}")
+        os.system(f"touch {cls.file_path}")
         new_data = {}
         new_data["ID"] = False
         new_data["key"] = group_id
-        new_data["title"] = Section.section_name
+        new_data["title"] = cls.section_name
         new_data["fields"] = []
         if post_type:
             new_data["location"] = [
@@ -160,7 +160,7 @@ class Section:
 
         json_data = json.dumps(new_data, indent=4)
         json_data = f"[{json_data}]\n"  # Wrap in a list for ACF compatibility
-        with open(Section.file_path, "w") as file:
+        with open(cls.file_path, "w") as file:
             # write
             file.write(json_data)
 
@@ -181,6 +181,7 @@ class Section:
         files = [f for f in os.listdir("acf") if f.endswith(".json")]
         return files
 
-    @staticmethod
-    def select_section() -> str:
-        return Select.select_one(Section.get_sections_files())
+    @classmethod
+    def select_section(cls) -> str:
+        file_name = Select.select_one(cls.get_sections_files())
+        return f"acf/{file_name}"
