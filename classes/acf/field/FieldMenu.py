@@ -3,8 +3,8 @@ import os
 
 from classes.acf.enum.EFieldType import EFieldType
 from classes.acf.field.dto.FieldDTO import FieldDTO
-from classes.acf.field.FieldFactory import create_field
-from classes.acf.field.FieldTemplateFactory import FieldTemplateFactory
+from classes.acf.field.factories.FieldFactory import create_field
+from classes.acf.field.factories.FieldTemplateFactory import FieldTemplateFactory
 from classes.utils.Generate import Generate
 from classes.utils.InputValidator import InputValidator
 from classes.utils.Select import Select
@@ -33,7 +33,7 @@ class FieldMenu:
         self._save_data(data)
 
     def move_field(self):
-        fields, data = self._get_fields()
+        fields, _ = self._get_fields()
 
         if not fields:
             print("No fields available to move.")

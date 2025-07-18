@@ -18,7 +18,7 @@ class GroupField(Field):
     def print_field_with_subfields(self, index, indent=0):
         self.print_field(index, indent)
 
-        from classes.acf.field.FieldFactory import create_field
+        from classes.acf.field.factories.FieldFactory import create_field
 
         for i, sub_field_data in enumerate(self.sub_fields):
             sub_field = create_field(sub_field_data)
