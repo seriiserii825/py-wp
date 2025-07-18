@@ -1,6 +1,6 @@
-from classes.acf.field.Field import Field
-
 from rich import print
+
+from classes.acf.field.Field import Field
 
 
 class ImageField(Field):

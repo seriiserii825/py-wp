@@ -1,8 +1,5 @@
-from acf.section.new_section import new_section
 from acf.section.select_section import select_section
 from classes.acf.AcfTransfer import AcfTransfer
-from classes.utils.Menu import Menu
-from classes.utils.Print import Print
 
 
 def acf_func():

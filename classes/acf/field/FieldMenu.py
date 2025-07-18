@@ -2,9 +2,9 @@ import json
 import os
 
 from classes.acf.enum.EFieldType import EFieldType
+from classes.acf.field.dto.FieldDTO import FieldDTO
 from classes.acf.field.FieldFactory import create_field
 from classes.acf.field.FieldTemplateFactory import FieldTemplateFactory
-from classes.acf.field.dto.FieldDTO import FieldDTO
 from classes.utils.Generate import Generate
 from classes.utils.InputValidator import InputValidator
 from classes.utils.Select import Select
@@ -17,8 +17,7 @@ class FieldMenu:
     def init(cls, section_file_json_path: str):
         cls.file_path = section_file_json_path
         if not os.path.exists(cls.file_path):
-            raise FileNotFoundError(
-                f"The file '{cls.file_path}' does not exist.")
+            raise FileNotFoundError(f"The file '{cls.file_path}' does not exist.")
 
     @staticmethod
     def show_all():

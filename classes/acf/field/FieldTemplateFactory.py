@@ -15,11 +15,7 @@ class FieldTemplateFactory:
             "instructions": dto.instructions,
             "required": dto.required,
             "conditional_logic": 0,
-            "wrapper": {
-                "width": "",
-                "class": "",
-                "id": ""
-            }
+            "wrapper": {"width": "", "class": "", "id": ""},
         }
 
         match dto.type:
@@ -27,26 +23,25 @@ class FieldTemplateFactory:
                 base["layout"] = dto.layout
                 base["sub_fields"] = []
             case EFieldType.GALLERY.value:
-                base.update({
-                    "return_format": "url",
-                    "library": "all",
-                    "min": "",
-                    "max": "",
-                    "min_width": "",
-                    "min_height": "",
-                    "min_size": "",
-                    "max_width": "",
-                    "max_height": "",
-                    "max_size": "",
-                    "mime_types": "",
-                    "insert": "append",
-                    "preview_size": "thumbnail"
-                })
+                base.update(
+                    {
+                        "return_format": "url",
+                        "library": "all",
+                        "min": "",
+                        "max": "",
+                        "min_width": "",
+                        "min_height": "",
+                        "min_size": "",
+                        "max_width": "",
+                        "max_height": "",
+                        "max_size": "",
+                        "mime_types": "",
+                        "insert": "append",
+                        "preview_size": "thumbnail",
+                    }
+                )
             case EFieldType.TAB.value:
-                base.update({
-                    "placement": "top",
-                    "endpoint": 0
-                })
+                base.update({"placement": "top", "endpoint": 0})
             # Add other types here
 
         return base

@@ -10,9 +10,7 @@ class GroupField(Field):
 
     def print_field(self, index, indent=0):
         prefix = "--" * indent
-        print(
-            f"[yellow]{prefix}{index}) {self.label} - {self.name} - {self.type}"
-        )
+        print(f"[yellow]{prefix}{index}) {self.label} - {self.name} - {self.type}")
 
     def parse_fields(self, fields, parent_key):
         return super().parse_fields(fields, parent_key)
