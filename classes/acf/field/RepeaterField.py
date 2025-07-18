@@ -1,6 +1,6 @@
 from rich import print
 
-from classes.acf.field.Field import Field
+from classes.acf.field.abc_dir.Field import Field
 
 
 class RepeaterField(Field):
@@ -21,7 +21,7 @@ class RepeaterField(Field):
     def print_field_with_subfields(self, index, indent=0):
         self.print_field(index, indent)
 
-        from classes.acf.field.FieldFactory import create_field
+        from classes.acf.field.abc_dir.FieldFactory import create_field
 
         for i, sub_field_data in enumerate(self.sub_fields):
             sub_field = create_field(sub_field_data)

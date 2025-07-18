@@ -16,19 +16,6 @@ class FieldMenu:
             raise FileNotFoundError(f"The file '{file_path}' does not exist.")
         self.file_path = file_path
 
-    def _load_data(self) -> list:
-        with open(self.file_path, "r", encoding="utf-8") as f:
-            return json.load(f)
-
-    def _save_data(self, data: list):
-        with open(self.file_path, "w", encoding="utf-8") as f:
-            json.dump(data, f, indent=4)
-
-    def _get_fields(self) -> tuple:
-        data = self._load_data()
-        parent = data[0]  # Assuming one section
-        return parent.get("fields", []), data
-
     def show_all(self):
         fields, _ = self._get_fields()
         for index, field_data in enumerate(fields):
@@ -44,6 +31,13 @@ class FieldMenu:
         fields.append(new_field)
 
         self._save_data(data)
+
+    def move_field(self):
+        fields, data = self._get_fields()
+
+        if not fields:
+            print("No fields available to move.")
+            return
 
     def _input_field_metadata(self) -> FieldDTO:
         key = Generate.get_field_id()
@@ -76,6 +70,19 @@ class FieldMenu:
             return "row" if layout == "r" else "block"
         print(f"Creating field of type: {field_type}")
         return "block"
+
+    def _load_data(self) -> list:
+        with open(self.file_path, "r", encoding="utf-8") as f:
+            return json.load(f)
+
+    def _save_data(self, data: list):
+        with open(self.file_path, "w", encoding="utf-8") as f:
+            json.dump(data, f, indent=4)
+
+    def _get_fields(self) -> tuple:
+        data = self._load_data()
+        parent = data[0]  # Assuming one section
+        return parent.get("fields", []), data
 
     @staticmethod
     def _is_simple_field(field_type: str) -> bool:
