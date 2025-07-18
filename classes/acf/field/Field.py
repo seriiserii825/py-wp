@@ -10,10 +10,12 @@ class Field(ABC):
         self.instructions = field_data.get("instructions", "")
         self.required = field_data.get("required", False)
 
-    @abstractmethod
     def parse_fields(self, fields, parent_key):
         pass
 
     @abstractmethod
-    def print_field(self, color, index, indent):
+    def print_field(self, index, indent):
         pass
+
+    def print_field_with_subfields(self, index, indent):
+        self.print_field(index, indent)

@@ -22,4 +22,4 @@ class FieldMenu:
         for index, field_data in enumerate(fields):
             field = create_field(field_data)
             if field:
-                field.print_field_with_subfields(color="blue", index=index, indent=0)
+                field.print_field_with_subfields(index=index, indent=0)
