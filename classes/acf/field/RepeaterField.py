@@ -3,13 +3,13 @@ from rich import print
 from classes.acf.field.Field import Field
 
 
-class GroupField(Field):
+class RepeaterField(Field):
     def __init__(self, field_data):
         super().__init__(field_data)
         self.sub_fields = field_data.get("sub_fields", [])
 
     def print_field(self, color, index, indent=0):
-        prefix = "--" * indent
+        prefix = " -- " * indent
         print(
             f"[yellow]{prefix}{index}) {self.label} - {self.name} - {self.type}"
         )

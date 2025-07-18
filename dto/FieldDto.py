@@ -1,10 +1,8 @@
-
 from dataclasses import dataclass
-from typing import List
 
 
 @dataclass
-class FieldDto():
+class FieldDto:
     key: str
     label: str
     name: str

@@ -8,7 +8,6 @@ from classes.exception.NewSectionException import NewSectionException
 from classes.utils.Generate import Generate
 from classes.utils.InputValidator import InputValidator
 from classes.utils.Print import Print
-from classes.utils.Select import Select
 from dto.SectionDto import SectionDTO
 
 

@@ -3,7 +3,7 @@ from classes.acf.field.Field import Field
 from rich import print
 
 
-class TextField(Field):
+class TrueFalse(Field):
     def parse_fields(self, fields, parent_key):
         pass  # No subfields for basic text
 
