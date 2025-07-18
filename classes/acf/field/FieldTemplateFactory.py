@@ -15,7 +15,7 @@ class FieldTemplateFactory:
             "instructions": dto.instructions,
             "required": dto.required,
             "conditional_logic": 0,
-            "wrapper": {"width": "", "class": "", "id": ""},
+            "wrapper": {"width": dto.width, "class": "", "id": ""},
         }
 
         match dto.type:

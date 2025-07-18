@@ -11,68 +11,75 @@ from classes.utils.Select import Select
 
 
 class FieldMenu:
-    file_path = ""
+    def __init__(self, file_path: str):
+        if not os.path.exists(file_path):
+            raise FileNotFoundError(f"The file '{file_path}' does not exist.")
+        self.file_path = file_path
 
-    @classmethod
-    def init(cls, section_file_json_path: str):
-        cls.file_path = section_file_json_path
-        if not os.path.exists(cls.file_path):
-            raise FileNotFoundError(f"The file '{cls.file_path}' does not exist.")
+    def _load_data(self) -> list:
+        with open(self.file_path, "r", encoding="utf-8") as f:
+            return json.load(f)
 
-    @staticmethod
-    def show_all():
-        with open(FieldMenu.file_path, "r", encoding="utf-8") as file:
-            data = json.load(file)
+    def _save_data(self, data: list):
+        with open(self.file_path, "w", encoding="utf-8") as f:
+            json.dump(data, f, indent=4)
 
-        fields = data[0].get("fields", [])
+    def _get_fields(self) -> tuple:
+        data = self._load_data()
+        parent = data[0]  # Assuming one section
+        return parent.get("fields", []), data
+
+    def show_all(self):
+        fields, _ = self._get_fields()
         for index, field_data in enumerate(fields):
             field = create_field(field_data)
             if field:
                 field.print_field_with_subfields(index=index, indent=0)
 
-    @staticmethod
-    def create_field():
-        fields, data = FieldMenu._get_fields()
-        field: FieldDTO
-        field_key = Generate.get_field_id()
-        field_label = InputValidator.get_string("Enter field label: ")
-        field_name = field_label.replace(" ", "_").lower()
-        field_types = [field_type.value for field_type in EFieldType]
-        selected_type = Select.select_one(field_types)
-        print("Field is required? (y/n): ", end="")
-        field_required = InputValidator.get_bool()
-        layout = "block"
+    def create_field(self):
+        fields, data = self._get_fields()
 
-        if selected_type == EFieldType.GROUP.value:
-            layout = input("By default is block, type r for row").strip()
-            if layout == "r":
-                layout = "row"
-        else:
-            print(f"Creating field of type: {selected_type}")
+        field = self._input_field_metadata()
+        new_field = FieldTemplateFactory.create(field)
+        fields.append(new_field)
 
-        field = FieldDTO(
-            key=field_key,
-            label=field_label,
-            name=field_name,
+        self._save_data(data)
+
+    def _input_field_metadata(self) -> FieldDTO:
+        key = Generate.get_field_id()
+        label = InputValidator.get_string("Enter field label: ")
+        name = label.replace(" ", "_").lower()
+        types = [ft.value for ft in EFieldType]
+        selected_type = Select.select_one(types)
+
+        required = InputValidator.get_bool(prompt="Field is required? (y/n): ")
+        layout = self._determine_layout(selected_type)
+        width = (
+            InputValidator.get_int("Enter field width (0-100): ")
+            if layout == "block" and self._is_simple_field(selected_type)
+            else 100
+        )
+
+        return FieldDTO(
+            key=key,
+            label=label,
+            name=name,
             type=selected_type,
             layout=layout,
-            required=field_required,
+            required=required,
+            width=width,
         )
-        new_field = FieldTemplateFactory.create(field)
 
-        FieldMenu._write_to_file(fields, new_field, data)
-
-    @staticmethod
-    def _get_fields():
-        with open(FieldMenu.file_path, "r", encoding="utf-8") as file:
-            data = json.load(file)
-
-        parent = data[0]  # Assume one section for now
-        fields = parent.get("fields", [])
-        return (fields, data)
+    def _determine_layout(self, field_type: str) -> str:
+        if field_type == EFieldType.GROUP.value:
+            layout = input("By default is block, type 'r' for row: ").strip()
+            return "row" if layout == "r" else "block"
+        print(f"Creating field of type: {field_type}")
+        return "block"
 
     @staticmethod
-    def _write_to_file(fields, new_field, data):
-        fields.append(new_field)
-        with open(FieldMenu.file_path, "w", encoding="utf-8") as file:
-            json.dump(data, file, indent=4)
+    def _is_simple_field(field_type: str) -> bool:
+        return field_type not in {
+            EFieldType.GROUP.value,
+            EFieldType.TAB.value,
+        }

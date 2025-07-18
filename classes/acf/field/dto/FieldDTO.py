@@ -10,3 +10,4 @@ class FieldDTO:
     instructions: str = ""
     required: bool = False
     layout: str = "block"
+    width: int = 100
