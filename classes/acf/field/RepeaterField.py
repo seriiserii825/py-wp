@@ -12,6 +12,7 @@ class RepeaterField(Field):
         prefix = " -- " * indent
         print(
             f"[yellow]{prefix}{index}) {self.label} - {self.name} - {self.type}"
+            f" - {self.instructions} - Required: {self.required} - Width: {self.width}"
         )
 
     def parse_fields(self, fields, parent_key):

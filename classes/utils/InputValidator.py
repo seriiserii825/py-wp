@@ -30,3 +30,13 @@ class InputValidator:
             if value or allow_empty:
                 return value
             print("Input cannot be empty. Try again.")
+
+    @staticmethod
+    def get_bool(prompt="Enter 'y' for yes or 'n' for no: "):
+        while True:
+            value = input(prompt).strip().lower()
+            if value in ('y', 'yes'):
+                return True
+            elif value in ('n', 'no'):
+                return False
+            print("Invalid input. Please enter 'y' or 'n'.")

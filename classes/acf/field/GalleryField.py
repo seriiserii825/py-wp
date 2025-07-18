@@ -9,4 +9,5 @@ class GalleryField(Field):
         print(
             f"[green]{prefix}{index}) {self.label} - "
             f"{self.name} - {self.type} - {self.key}"
+            f" - {self.instructions} - Required: {self.required} - Width: {self.width}"
         )
