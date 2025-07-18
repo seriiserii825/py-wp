@@ -1,13 +1,13 @@
-from classes.acf.field.FileField import FileField
-from classes.acf.field.GalleryField import GalleryField
-from classes.acf.field.GroupField import GroupField
-from classes.acf.field.ImageField import ImageField
-from classes.acf.field.RepeaterField import RepeaterField
-from classes.acf.field.TabField import TabField
-from classes.acf.field.TextAreaField import TextAreaField
-from classes.acf.field.TextField import TextField
-from classes.acf.field.TrueFalse import TrueFalse
-from classes.acf.field.WswgiEditorField import WswgiEditorField
+from classes.acf.field.fields_dir.FileField import FileField
+from classes.acf.field.fields_dir.GalleryField import GalleryField
+from classes.acf.field.fields_dir.GroupField import GroupField
+from classes.acf.field.fields_dir.ImageField import ImageField
+from classes.acf.field.fields_dir.RepeaterField import RepeaterField
+from classes.acf.field.fields_dir.TabField import TabField
+from classes.acf.field.fields_dir.TextAreaField import TextAreaField
+from classes.acf.field.fields_dir.TextField import TextField
+from classes.acf.field.fields_dir.TrueFalse import TrueFalse
+from classes.acf.field.fields_dir.WswgiEditorField import WswgiEditorField
 
 
 def create_field(field_data):
