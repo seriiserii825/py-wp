@@ -132,14 +132,14 @@ class FieldMenu:
         self._check_field_is_empty(fields)
 
         try:
-            index_path_str = InputValidator.get_string(
-                "Enter field index to delete (e.g. 1.2): "
-            )
+            index_path_str = "Enter field index to delete (e.g. 1.2): "
+            print("Calling _get_index_path...")
             index_path = self._get_index_path(index_path_str)
+            print(f"Got index_path: {index_path}")
 
             confirm = self._confirm(
                 "Are you sure you want to delete field at index"
-                f" '{index_path_str}'? (y/n): "
+                f" '{index_path}'? (y/n): "
             )
             if not confirm:
                 print("Delete cancelled.")
@@ -174,6 +174,9 @@ class FieldMenu:
             index_path_strs = [
                 s.strip() for s in index_path_input.split(",") if s.strip()
             ]
+
+            print(f"{index_path_strs}: index_path_strs")
+
             index_paths = [self._get_index_path(s) for s in index_path_strs]
 
             if not index_paths:
@@ -189,7 +192,8 @@ class FieldMenu:
                     if i != j and (is_prefix(path1, path2) or is_prefix(path2, path1)):
                         Print.error(
                             f"Invalid index combination: "
-                            f"{'.'.join(map(str, path1))} and {'.'.join(map(str, path2))} "
+                            f"{'.'.join(map(str, path1))}"
+                            f" and {'.'.join(map(str, path2))} "
                             f"cannot be deleted together."
                         )
                         return
@@ -261,4 +265,5 @@ class FieldMenu:
 
     def _get_index_path(self, prompt: str) -> list:
         index_str = InputValidator.get_string(prompt)
+        print(f"index_str: {index_str}")
         return self.mover.parse_index_path(index_str)
