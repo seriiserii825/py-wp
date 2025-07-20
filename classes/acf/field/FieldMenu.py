@@ -175,9 +175,7 @@ class FieldMenu:
                 s.strip() for s in index_path_input.split(",") if s.strip()
             ]
 
-            print(f"{index_path_strs}: index_path_strs")
-
-            index_paths = [self._get_index_path(s) for s in index_path_strs]
+            index_paths = [self.mover.parse_index_path(s) for s in index_path_strs]
 
             if not index_paths:
                 Print.error("No valid indices provided.")
