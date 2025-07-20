@@ -23,5 +23,4 @@ class Command:
             # Ruff writes lint errors to stdout, many other tools use stderr.
             output = (err.stderr or err.stdout).strip()
             # ➜ raise a *plain* message; style it where you print it
-            Print.error(f"Command: {cmd} failed with error: {output}")
             raise RuntimeError(f"Command '{cmd}' failed with:\n{output}") from err
