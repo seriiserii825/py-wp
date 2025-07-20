@@ -135,7 +135,7 @@ class FieldMenu:
             index_path_str = InputValidator.get_string(
                 "Enter field index to delete (e.g. 1.2): "
             )
-            index_path = self.mover.parse_index_path(index_path_str)
+            index_path = self._get_index_path(index_path_str)
 
             confirm = self._confirm(
                 "Are you sure you want to delete field at index"
@@ -174,7 +174,7 @@ class FieldMenu:
             index_path_strs = [
                 s.strip() for s in index_path_input.split(",") if s.strip()
             ]
-            index_paths = [self.mover.parse_index_path(s) for s in index_path_strs]
+            index_paths = [self._get_index_path(s) for s in index_path_strs]
 
             if not index_paths:
                 Print.error("No valid indices provided.")
@@ -258,3 +258,7 @@ class FieldMenu:
 
     def _confirm(self, message: str) -> bool:
         return InputValidator.get_bool(message)
+
+    def _get_index_path(self, prompt: str) -> list:
+        index_str = InputValidator.get_string(prompt)
+        return self.mover.parse_index_path(index_str)
