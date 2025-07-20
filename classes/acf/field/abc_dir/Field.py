@@ -1,4 +1,6 @@
-from abc import ABC, abstractmethod
+from abc import ABC
+
+from rich import print
 
 
 class Field(ABC):
@@ -15,9 +17,15 @@ class Field(ABC):
     def parse_fields(self, fields, parent_key):
         pass
 
-    @abstractmethod
     def print_field(self, index, indent):
-        pass
+        field_required = "[red]Required[/red]" if self.required else ""
+        width = f"width: {self.width}" if {self.width} else ""
+        prefix = " -- " * indent
+        print(
+            f"[green]{prefix}{index}) {self.label} - {self.name} - [/green]"
+            f"[blue]{self.type}(type)[/blue] - {self.key}"
+            f" - {self.instructions} - {field_required} - {width}"
+        )
 
     def print_field_with_subfields(self, index, indent):
         self.print_field(index, indent)
