@@ -17,16 +17,18 @@ def acf_menu(section_file_json_path):
     choice = Menu.choose_option()
     if choice == 0:
         f_menu.create_field()
+        f_menu.show_all()
         upload_changes()
     elif choice == 1:
         f_menu.move_field()
+        f_menu.show_all()
         upload_changes()
     elif choice == 2:
         print("Exiting ACF Field Menu.")
-        return
+        exit()
     else:
         print("Invalid choice. Please try again.")
-        return
+        acf_menu(section_file_json_path)
 
 
 def upload_changes():
