@@ -23,12 +23,9 @@ class FieldMenu:
 
     def create_field(self):
         data, fields = self._load_fields()
-
         new_field = self.creator.create()
         fields.append(new_field)
-
         self._move_after_create(fields, data)
-
         self.repo.save(data)
         print("Field created and saved.")
 
@@ -44,9 +41,7 @@ class FieldMenu:
 
     def move_field(self):
         data, fields = self._load_fields()
-
         self._check_field_is_empty(fields)
-
         try:
             source = InputValidator.get_string("Enter source index (e.g. 1.2): ")
             dest = InputValidator.get_string("Enter destination index (e.g. 0.1): ")
@@ -58,19 +53,14 @@ class FieldMenu:
 
     def edit_field(self):
         data, fields = self._load_fields()
-
         self._check_field_is_empty(fields)
-
         try:
             index_path = InputValidator.get_string("Enter field index (e.g. 1.2): ")
             target = self.mover.get_field_by_index(fields, index_path)
-
             if not isinstance(target, dict):
                 print("Invalid field at that index.")
                 return
-
             field_attributes = self.get_all_field_attributes(target)
-
             while True:
                 all_attributes = {
                     **field_attributes,
@@ -80,16 +70,12 @@ class FieldMenu:
                 all_attributes = {
                     key: value for key, value in all_attributes.items() if key != "name"
                 }
-
                 self.print_field_attributes(all_attributes)
-
                 selected_attr = Select.select_one(list(all_attributes.keys()))
                 Print.info(f"Selected attribute: {selected_attr}")
-
                 if selected_attr is None or selected_attr == "exit":
                     print("Exiting edit mode.")
                     return
-
                 if selected_attr == "required":
                     new_value = self._confirm("Is this field required? (y/n): ")
                     target[selected_attr] = 0 if not new_value else "true"
@@ -119,24 +105,19 @@ class FieldMenu:
                     target["wrapper"]["width"] = self.set_attribute_value(selected_attr)
                 else:
                     target[selected_attr] = self.set_attribute_value(selected_attr)
-
                 self.repo.save(data)
                 Print.success("Field updated successfully.\n")
-
         except Exception as e:
             print(f"Error editing field: {e}")
 
     def delete_field(self):
         data, fields = self._load_fields()
-
         self._check_field_is_empty(fields)
-
         try:
             index_path_str = "Enter field index to delete (e.g. 1.2): "
             print("Calling _get_index_path...")
             index_path = self._get_index_path(index_path_str)
             print(f"Got index_path: {index_path}")
-
             confirm = self._confirm(
                 "Are you sure you want to delete field at index"
                 f" '{index_path}'? (y/n): "
@@ -144,17 +125,13 @@ class FieldMenu:
             if not confirm:
                 print("Delete cancelled.")
                 return
-
             deleted_field = self.mover.pop_field(fields, index_path)
-
             Print.success(
                 "Deleted field: "
                 f"{deleted_field.get('label', deleted_field.get('name', 'Unnamed'))}"
             )
-
             self.repo.save(data)
             Print.success("Field deleted and saved.")
-
         except IndexError:
             Print.error("Invalid index. No field deleted.")
         except Exception as e:
@@ -162,9 +139,7 @@ class FieldMenu:
 
     def delete_fields(self):
         data, fields = self._load_fields()
-
         self._check_field_is_empty(fields)
-
         try:
             index_path_input = InputValidator.get_string(
                 "Enter field indices to delete (comma-separated, "
@@ -174,9 +149,7 @@ class FieldMenu:
             index_path_strs = [
                 s.strip() for s in index_path_input.split(",") if s.strip()
             ]
-
             index_paths = [self.mover.parse_index_path(s) for s in index_path_strs]
-
             if not index_paths:
                 Print.error("No valid indices provided.")
                 return
@@ -195,7 +168,6 @@ class FieldMenu:
                             f"cannot be deleted together."
                         )
                         return
-
             confirm = self._confirm(
                 "Are you sure you want to delete these"
                 f" {len(index_paths)} field(s)? (y/n): "
@@ -203,9 +175,7 @@ class FieldMenu:
             if not confirm:
                 print("Delete cancelled.")
                 return
-
             index_paths.sort(reverse=True)  # Delete from deepest first
-
             for path in index_paths:
                 try:
                     deleted_field = self.mover.pop_field(fields, path)
@@ -219,10 +189,8 @@ class FieldMenu:
                     Print.error(
                         f"Failed to delete at index {'.'.join(map(str, path))}: {e}"
                     )
-
             self.repo.save(data)
             Print.success("All selected fields deleted and saved.")
-
         except Exception as e:
             Print.error(f"Error during deletion: {e}")
 
