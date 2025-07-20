@@ -1,3 +1,4 @@
+from classes.acf.enum.EFieldType import EFieldType
 from classes.utils.InputValidator import InputValidator
 from classes.utils.Print import Print
 from classes.utils.Select import Select
@@ -37,9 +38,32 @@ class FieldEditor:
         attrs["exit"] = "Exit edit mode"
         return attrs
 
-    def _edit_attribute(self, attr, target):
-        # same logic from _handle_attribute_edit & sub-methods (can be copied in here)
-        pass
+    def _edit_attribute(self, selected_attr, target):
+        if selected_attr == "required":
+            new_value = self._confirm("Is this field required? (y/n): ")
+            target[selected_attr] = 0 if not new_value else "true"
+        elif selected_attr == "type":
+            types = [ft.value for ft in EFieldType]
+            selected_type = Select.select_one(types)
+            target["type"] = selected_type
+        elif selected_attr == "label":
+            target_name = (
+                self.set_attribute_value(selected_attr).lower().replace(" ", "_")
+            )
+            if target_name == target["name"]:
+                Print.error("Name already matches label, no change needed.")
+                return
+            else:
+                target["name"] = (
+                    self.set_attribute_value(selected_attr).lower().replace(" ", "_")
+                )
+            target["label"] = self.set_attribute_value(selected_attr)
+        elif selected_attr == "width":
+            if "wrapper" not in target:
+                target["wrapper"] = {}
+            target["wrapper"]["width"] = self.set_attribute_value(selected_attr)
+        else:
+            target[selected_attr] = self.set_attribute_value(selected_attr)
 
     def get_all_attributes(self, field):
         attributes = {
