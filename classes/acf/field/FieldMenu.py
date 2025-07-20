@@ -91,9 +91,7 @@ class FieldMenu:
                     return
 
                 if selected_attr == "required":
-                    new_value = InputValidator.get_bool(
-                        "Is this field required? (y/n): "
-                    )
+                    new_value = self._confirm("Is this field required? (y/n): ")
                     target[selected_attr] = 0 if not new_value else "true"
                 elif selected_attr == "type":
                     types = [ft.value for ft in EFieldType]
@@ -139,9 +137,9 @@ class FieldMenu:
             )
             index_path = self.mover.parse_index_path(index_path_str)
 
-            confirm = InputValidator.get_bool(
-                "Are you sure you want to delete field"
-                f" at index '{index_path_str}'? (y/n): "
+            confirm = self._confirm(
+                "Are you sure you want to delete field at index"
+                f" '{index_path_str}'? (y/n): "
             )
             if not confirm:
                 print("Delete cancelled.")
@@ -196,8 +194,9 @@ class FieldMenu:
                         )
                         return
 
-            confirm = InputValidator.get_bool(
-                f"Are you sure you want to delete these {len(index_paths)} field(s)? (y/n): "
+            confirm = self._confirm(
+                "Are you sure you want to delete these"
+                f" {len(index_paths)} field(s)? (y/n): "
             )
             if not confirm:
                 print("Delete cancelled.")
@@ -256,3 +255,6 @@ class FieldMenu:
         if not fields:
             print("No fields to move.")
             return
+
+    def _confirm(self, message: str) -> bool:
+        return InputValidator.get_bool(message)
