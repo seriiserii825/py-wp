@@ -15,16 +15,14 @@ class FieldMenu:
         self.mover = FieldMover()
 
     def show_all(self):
-        data = self.repo.load()
-        fields = data[0].get("fields", [])
+        _, fields = self._load_fields()
         for index, field_data in enumerate(fields):
             field = create_field(field_data)
             if field:
                 field.print_field_with_subfields(index=index, indent=0)
 
     def create_field(self):
-        data = self.repo.load()
-        fields = data[0].get("fields", [])
+        data, fields = self._load_fields()
 
         new_field = self.creator.create()
         fields.append(new_field)
@@ -45,8 +43,7 @@ class FieldMenu:
             print(f"Error moving newly created field: {e}")
 
     def move_field(self):
-        data = self.repo.load()
-        fields = data[0].get("fields", [])
+        data, fields = self._load_fields()
 
         self._check_field_is_empty(fields)
 
@@ -60,8 +57,7 @@ class FieldMenu:
             print(f"Error moving field: {e}")
 
     def edit_field(self):
-        data = self.repo.load()
-        fields = data[0].get("fields", [])
+        data, fields = self._load_fields()
 
         self._check_field_is_empty(fields)
 
@@ -133,8 +129,7 @@ class FieldMenu:
             print(f"Error editing field: {e}")
 
     def delete_field(self):
-        data = self.repo.load()
-        fields = data[0].get("fields", [])
+        data, fields = self._load_fields()
 
         self._check_field_is_empty(fields)
 
@@ -168,8 +163,7 @@ class FieldMenu:
             Print.error(f"Error deleting field: {e}")
 
     def delete_fields(self):
-        data = self.repo.load()
-        fields = data[0].get("fields", [])
+        data, fields = self._load_fields()
 
         self._check_field_is_empty(fields)
 
@@ -242,6 +236,10 @@ class FieldMenu:
             "width": field.get("wrapper", {}).get("width", ""),
         }
         return attributes
+
+    def _load_fields(self):
+        data = self.repo.load()
+        return data, data[0].get("fields", [])
 
     def print_field_attributes(self, field_attributes):
         for key, value in field_attributes.items():
