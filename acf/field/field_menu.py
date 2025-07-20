@@ -16,7 +16,9 @@ def acf_menu(section_file_json_path):
         ["0", "Create new field"],
         ["1", "Move field"],
         ["2", "Edit field"],
-        ["3", "Exit"],
+        ["3", "Delete field"],
+        ["4", "Delete multiple fields"],
+        ["5", "Exit"],
     ]
     Menu.display("Welcome to ACF Field Menu", menu_headers, menu_rows)
     choice = Menu.choose_option()
@@ -33,6 +35,14 @@ def acf_menu(section_file_json_path):
         f_menu.show_all()
         upload_changes()
     elif choice == 3:
+        f_menu.delete_field()
+        f_menu.show_all()
+        upload_changes()
+    elif choice == 4:
+        f_menu.delete_fields()
+        f_menu.show_all()
+        upload_changes()
+    elif choice == 5:
         print("Exiting ACF Field Menu.")
         exit()
     else:
