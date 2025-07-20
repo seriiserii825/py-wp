@@ -3,6 +3,8 @@ from classes.acf.field.FieldCreator import FieldCreator
 from classes.acf.field.FieldMover import FieldMover
 from classes.acf.field.FieldRepository import FieldRepository
 from classes.utils.InputValidator import InputValidator
+from classes.utils.Print import Print
+from classes.utils.Select import Select
 
 
 class FieldMenu:
@@ -57,3 +59,83 @@ class FieldMenu:
             print("Field moved successfully.")
         except Exception as e:
             print(f"Error moving field: {e}")
+
+    def edit_field(self):
+        data = self.repo.load()
+        fields = data[0].get("fields", [])
+
+        if not fields:
+            print("No fields to edit.")
+            return
+
+        try:
+            index_path = InputValidator.get_string("Enter field index (e.g. 1.2): ")
+            target = self.mover.get_field_by_index(fields, index_path)
+
+            if not isinstance(target, dict):
+                print("Invalid field at that index.")
+                return
+
+            field_attributes = self.get_all_field_attributes(target)
+
+            while True:
+                all_attributes = {
+                    **field_attributes,
+                    "exit": "Exit edit mode",
+                }
+                # remove name from the attributes to avoid confusion
+                all_attributes = {
+                    key: value for key, value in all_attributes.items() if key != "name"
+                }
+
+                self.print_field_attributes(all_attributes)
+
+                selected_attr = Select.select_one(list(all_attributes.keys()))
+                Print.info(f"Selected attribute: {selected_attr}")
+
+                if selected_attr is None or selected_attr == "exit":
+                    print("Exiting edit mode.")
+                    return
+
+                new_value = InputValidator.get_string(
+                    f"Enter new value for '{selected_attr}': "
+                )
+                if selected_attr == "required":
+                    new_value = new_value.lower() in ("true", "1", "yes")
+                elif selected_attr == "label":
+                    target_name = new_value.lower().replace(" ", "_")
+                    if target_name == target["name"]:
+                        Print.error("Name already matches label, no change needed.")
+                        return
+                    else:
+                        target["name"] = new_value.lower().replace(" ", "_")
+                    target["label"] = new_value
+                elif selected_attr == "width":
+                    if "wrapper" not in target:
+                        target["wrapper"] = {}
+                    target["wrapper"]["width"] = new_value
+                else:
+                    target[selected_attr] = new_value
+
+                self.repo.save(data)
+                Print.success("Field updated successfully.\n")
+
+        except Exception as e:
+            print(f"Error editing field: {e}")
+
+    def get_all_field_attributes(self, field):
+        attributes = {
+            "key": field.get("key", ""),
+            "label": field.get("label", ""),
+            "name": field.get("name", ""),
+            "type": field.get("type", ""),
+            "instructions": field.get("instructions", ""),
+            "required": field.get("required", False),
+            "width": field.get("wrapper", {}).get("width", ""),
+        }
+        return attributes
+
+    def print_field_attributes(self, field_attributes):
+        for key, value in field_attributes.items():
+            print(f"{key}: {value}")
+        print("\n")

@@ -24,3 +24,12 @@ class FieldMover:
         dest = self.parse_index_path(dest_str)
         field = self.pop_field(fields, source)
         self.insert_field(fields, dest, field)
+
+    @classmethod
+    def get_field_by_index(cls, fields, index_str):
+        index_path = cls.parse_index_path(index_str)
+        parent = cls.get_nested_field(fields, index_path)
+        try:
+            return parent[index_path[-1]]
+        except IndexError:
+            raise IndexError(f"Field at index '{index_str}' does not exist.")
