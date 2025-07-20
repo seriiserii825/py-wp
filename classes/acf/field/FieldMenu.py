@@ -1,3 +1,4 @@
+from classes.acf.enum.EFieldType import EFieldType
 from classes.acf.field.factories.FieldFactory import create_field
 from classes.acf.field.FieldCreator import FieldCreator
 from classes.acf.field.FieldMover import FieldMover
@@ -97,25 +98,37 @@ class FieldMenu:
                     print("Exiting edit mode.")
                     return
 
-                new_value = InputValidator.get_string(
-                    f"Enter new value for '{selected_attr}': "
-                )
                 if selected_attr == "required":
-                    new_value = new_value.lower() in ("true", "1", "yes")
+                    new_value = InputValidator.get_bool(
+                        "Is this field required? (y/n): "
+                    )
+                    target[selected_attr] = 0 if not new_value else "true"
+                elif selected_attr == "type":
+                    types = [ft.value for ft in EFieldType]
+                    selected_type = Select.select_one(types)
+                    target["type"] = selected_type
                 elif selected_attr == "label":
-                    target_name = new_value.lower().replace(" ", "_")
+                    target_name = (
+                        self.set_attribute_value(selected_attr)
+                        .lower()
+                        .replace(" ", "_")
+                    )
                     if target_name == target["name"]:
                         Print.error("Name already matches label, no change needed.")
                         return
                     else:
-                        target["name"] = new_value.lower().replace(" ", "_")
-                    target["label"] = new_value
+                        target["name"] = (
+                            self.set_attribute_value(selected_attr)
+                            .lower()
+                            .replace(" ", "_")
+                        )
+                    target["label"] = self.set_attribute_value(selected_attr)
                 elif selected_attr == "width":
                     if "wrapper" not in target:
                         target["wrapper"] = {}
-                    target["wrapper"]["width"] = new_value
+                    target["wrapper"]["width"] = self.set_attribute_value(selected_attr)
                 else:
-                    target[selected_attr] = new_value
+                    target[selected_attr] = self.set_attribute_value(selected_attr)
 
                 self.repo.save(data)
                 Print.success("Field updated successfully.\n")
@@ -139,3 +152,9 @@ class FieldMenu:
         for key, value in field_attributes.items():
             print(f"{key}: {value}")
         print("\n")
+
+    def set_attribute_value(self, selected_attr) -> str:
+        new_value = InputValidator.get_string(
+            f"Enter new value for '{selected_attr}': "
+        )
+        return new_value.strip()
