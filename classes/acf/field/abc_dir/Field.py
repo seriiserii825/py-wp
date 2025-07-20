@@ -10,6 +10,7 @@ class Field(ABC):
         self.instructions = field_data.get("instructions", "")
         self.required = field_data.get("required", False)
         self.width = field_data.get("wrapper", "")["width"]
+        self.layout = field_data.get("layout", "group")
 
     def parse_fields(self, fields, parent_key):
         pass
