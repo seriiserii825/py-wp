@@ -38,32 +38,19 @@ class FieldEditor:
         attrs["exit"] = "Exit edit mode"
         return attrs
 
-    def _edit_attribute(self, selected_attr, target):
-        if selected_attr == "required":
-            new_value = self._confirm("Is this field required? (y/n): ")
-            target[selected_attr] = 0 if not new_value else "true"
-        elif selected_attr == "type":
-            types = [ft.value for ft in EFieldType]
-            selected_type = Select.select_one(types)
-            target["type"] = selected_type
-        elif selected_attr == "label":
-            target_name = (
-                self.set_attribute_value(selected_attr).lower().replace(" ", "_")
-            )
-            if target_name == target["name"]:
-                Print.error("Name already matches label, no change needed.")
-                return
-            else:
-                target["name"] = (
-                    self.set_attribute_value(selected_attr).lower().replace(" ", "_")
-                )
-            target["label"] = self.set_attribute_value(selected_attr)
-        elif selected_attr == "width":
-            if "wrapper" not in target:
-                target["wrapper"] = {}
-            target["wrapper"]["width"] = self.set_attribute_value(selected_attr)
+    def _edit_attribute(self, attr, target):
+        if attr == "required":
+            self._edit_required(target, attr)
+        elif attr == "type":
+            self._edit_type(target)
+        elif attr == "label":
+            self._edit_label(target)
+        elif attr == "width":
+            self._edit_width(target)
+        elif attr == "layout":
+            self._edit_layout(target)
         else:
-            target[selected_attr] = self.set_attribute_value(selected_attr)
+            self._edit_generic(target, attr)
 
     def get_all_attributes(self, field):
         attributes = {
@@ -84,3 +71,52 @@ class FieldEditor:
     def _print_attributes(self, attrs):
         for k, v in attrs.items():
             print(f"{k}: {v}")
+
+    def set_attribute_value(self, selected_attr) -> str:
+        new_value = InputValidator.get_string(
+            f"Enter new value for '{selected_attr}': "
+        )
+        return new_value.strip()
+
+    def _check_field_is_empty(self, fields: list):
+        if not fields:
+            print("No fields to move.")
+            return
+
+    def _confirm(self, message: str) -> bool:
+        return InputValidator.get_bool(message)
+
+    def _edit_required(self, target, attr):
+        new_value = self._confirm("Is this field required? (y/n): ")
+        target[attr] = 0 if not new_value else "true"
+
+    def _edit_type(self, target):
+        types = [ft.value for ft in EFieldType]
+        selected_type = Select.select_one(types)
+        if selected_type:
+            target["type"] = selected_type
+
+    def _edit_label(self, target):
+        new_label = self.set_attribute_value("label")
+        target_name = new_label.lower().replace(" ", "_")
+
+        if target_name == target.get("name", ""):
+            Print.error("Name already matches label, no change needed.")
+            return
+
+        target["name"] = target_name
+        target["label"] = new_label
+
+    def _edit_width(self, target):
+        if "wrapper" not in target:
+            target["wrapper"] = {}
+        target["wrapper"]["width"] = self.set_attribute_value("width")
+
+    def _edit_generic(self, target, attr):
+        target[attr] = self.set_attribute_value(attr)
+
+    def _edit_layout(self, target):
+        types = ['block', 'row']
+        selected_type = Select.select_one(types)
+        if selected_type:
+            target["layout"] = selected_type
