@@ -6,6 +6,7 @@ class AcfTransfer:
     @staticmethod
     def wp_export():
         try:
+            Command.run_quiet("wp db check")  # check DB connection
             Command.run("rm -rf acf")
             Command.run("wp acf export --all")
         except RuntimeError as e:
@@ -15,6 +16,7 @@ class AcfTransfer:
     @staticmethod
     def wp_import():
         try:
+            Command.run_quiet("wp db check")  # check DB connection
             Command.run("wp acf clean")
             Command.run("wp acf import --all")
         except RuntimeError as e:

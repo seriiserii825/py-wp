@@ -24,3 +24,19 @@ class Command:
             output = (err.stderr or err.stdout).strip()
             # ➜ raise a *plain* message; style it where you print it
             raise RuntimeError(f"Command '{cmd}' failed with:\n{output}") from err
+
+    @staticmethod
+    def run_quiet(cmd: str) -> str:
+        """Run a command and return output, but suppress success logs."""
+        try:
+            result = subprocess.run(
+                cmd,
+                shell=True,
+                check=True,
+                text=True,
+                capture_output=True,
+            )
+            return result.stdout.strip()
+        except subprocess.CalledProcessError as err:
+            output = (err.stderr or err.stdout).strip()
+            raise RuntimeError(f"Command '{cmd}' failed with:\n{output}") from err
