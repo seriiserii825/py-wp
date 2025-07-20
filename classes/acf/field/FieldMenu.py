@@ -19,12 +19,24 @@ class FieldMenu:
             if field:
                 field.print_field_with_subfields(index=index, indent=0)
 
+    def move_after_create(self, fields: list, data):
+        try:
+            source_index = str(len(fields) - 1)
+            dest = InputValidator.get_string("Enter destination index (e.g. 0.1): ")
+            self.mover.move_field(fields, source_index, dest)
+            self.repo.save(data)
+            print("Field moved successfully.")
+        except Exception as e:
+            print(f"Error moving newly created field: {e}")
+
     def create_field(self):
         data = self.repo.load()
         fields = data[0].get("fields", [])
 
         new_field = self.creator.create()
         fields.append(new_field)
+
+        self.move_after_create(fields, data)
 
         self.repo.save(data)
         print("Field created and saved.")
