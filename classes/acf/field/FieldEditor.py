@@ -42,7 +42,7 @@ class FieldEditor:
         pass
 
     def get_all_attributes(self, field):
-        return {
+        attributes = {
             "key": field.get("key", ""),
             "label": field.get("label", ""),
             "name": field.get("name", ""),
@@ -51,6 +51,11 @@ class FieldEditor:
             "required": field.get("required", False),
             "width": field.get("wrapper", {}).get("width", ""),
         }
+        if field.get("type") == "group":
+            # add layout
+            attributes["layout"] = field.get("layout", "")
+
+        return attributes
 
     def _print_attributes(self, attrs):
         for k, v in attrs.items():
