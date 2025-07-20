@@ -27,9 +27,7 @@ class InputValidator:
     def get_string(prompt="Enter text: ", allow_empty=False):
         while True:
             value = input(prompt)
-            print(f"Raw input received: '{value}'")  # <--- debug here
             value = value.strip()
-            print(f"Stripped input: '{value}'")  # <--- debug here
             if value or allow_empty:
                 return value
             print("Input cannot be empty. Try again.")
