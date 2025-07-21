@@ -1,4 +1,6 @@
-- (bug) - create repeater field
+- (bug) - repeater field add field inside didnt work
+
+- (bug) - move field to different level
 
 - for tab, group and repeater remove required
 
