@@ -4,6 +4,7 @@ from classes.acf.field.FieldDeleter import FieldDeleter
 from classes.acf.field.FieldEditor import FieldEditor
 from classes.acf.field.FieldMover import FieldMover
 from classes.acf.field.FieldRepository import FieldRepository
+from classes.acf.field.GroupCopy import GroupCopy
 from classes.utils.InputValidator import InputValidator
 
 
@@ -14,6 +15,7 @@ class FieldMenu:
         self.mover = FieldMover()
         self.editor = FieldEditor(self.repo, self.mover)
         self.deleter = FieldDeleter(self.repo, self.mover)
+        self.copy_group = GroupCopy(file_path)
 
     def show_all(self):
         _, fields = self._load_fields()
@@ -66,6 +68,16 @@ class FieldMenu:
         data, fields = self._load_fields()
         self._check_field_is_empty(fields)
         self.deleter.delete_multiple(data, fields)
+
+    def copy_group_to_clipboard(self):
+        _, fields = self._load_fields()
+        self._check_field_is_empty(fields)
+        try:
+            source = InputValidator.get_string("Enter group index to copy (e.g. 1): ")
+            self.copy_group.copy_to_clipboard(fields, source)
+            print("Group copied to clipboard.")
+        except Exception as e:
+            print(f"Error copying group: {e}")
 
     def _load_fields(self):
         data = self.repo.load()

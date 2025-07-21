@@ -116,7 +116,7 @@ class FieldEditor:
         target[attr] = self.set_attribute_value(attr)
 
     def _edit_layout(self, target):
-        types = ['block', 'row']
+        types = ["block", "row"]
         selected_type = Select.select_one(types)
         if selected_type:
             target["layout"] = selected_type
