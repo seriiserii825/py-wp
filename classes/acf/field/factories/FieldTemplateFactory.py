@@ -1,8 +1,5 @@
-# classes/acf/field/FieldTemplateFactory.py
-
 from classes.acf.enum.EFieldType import EFieldType
 from classes.acf.field.dto.FieldDTO import FieldDTO
-from classes.utils.InputValidator import InputValidator
 
 
 class FieldTemplateFactory:
@@ -27,10 +24,7 @@ class FieldTemplateFactory:
             case EFieldType.REPEATER.value:
                 base["sub_fields"] = []
             case EFieldType.MESSAGE.value:
-                message = InputValidator.get_string(
-                    "Enter message text: "
-                )
-                base["message"] = message
+                base["message"] = dto.message
             case EFieldType.GALLERY.value:
                 base.update(
                     {

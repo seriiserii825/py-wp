@@ -15,7 +15,11 @@ class FieldCreator:
         types = [ft.value for ft in EFieldType]
         selected_type = Select.select_one(types)
 
-        required = InputValidator.get_bool(prompt="Field is required? (y/n): ")
+        if self._is_simple_field(selected_type):
+            required = InputValidator.get_bool(prompt="Field is required? (y/n): ")
+        else:
+            required = False
+
         layout = self._determine_layout(selected_type)
 
         width = (
@@ -23,6 +27,10 @@ class FieldCreator:
             if layout == "block" and self._is_simple_field(selected_type)
             else 100
         )
+
+        message = ""
+        if selected_type == EFieldType.MESSAGE.value:
+            message = InputValidator.get_string("Enter message text: ")
 
         field = FieldDTO(
             key=key,
@@ -32,6 +40,7 @@ class FieldCreator:
             layout=layout,
             required=required,
             width=width,
+            message=message,
         )
 
         return FieldTemplateFactory.create(field)
