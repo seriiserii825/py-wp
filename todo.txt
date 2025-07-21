@@ -1,3 +1,5 @@
+- at the start ask for import, or add a flag to the command
+
 - when move or create to a group or repeater, check if have subfields
   to not move sibling
 
