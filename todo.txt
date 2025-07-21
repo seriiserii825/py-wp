@@ -1,1 +1,2 @@
+- if group is row, asked for width
 - handle page id for the group
