@@ -2,6 +2,7 @@
 
 from classes.acf.enum.EFieldType import EFieldType
 from classes.acf.field.dto.FieldDTO import FieldDTO
+from classes.utils.InputValidator import InputValidator
 
 
 class FieldTemplateFactory:
@@ -16,6 +17,7 @@ class FieldTemplateFactory:
             "required": dto.required,
             "conditional_logic": 0,
             "wrapper": {"width": dto.width, "class": "", "id": ""},
+            "message": dto.message,
         }
 
         match dto.type:
@@ -24,6 +26,11 @@ class FieldTemplateFactory:
                 base["sub_fields"] = []
             case EFieldType.REPEATER.value:
                 base["sub_fields"] = []
+            case EFieldType.MESSAGE.value:
+                message = InputValidator.get_string(
+                    "Enter message text: "
+                )
+                base["message"] = message
             case EFieldType.GALLERY.value:
                 base.update(
                     {

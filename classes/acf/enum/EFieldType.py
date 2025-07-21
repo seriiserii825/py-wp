@@ -12,3 +12,4 @@ class EFieldType(Enum):
     TAB = "tab"
     GROUP = "group"
     REPEATER = "repeater"
+    MESSAGE = "message"

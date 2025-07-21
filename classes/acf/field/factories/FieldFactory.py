@@ -2,6 +2,7 @@ from classes.acf.field.fields_dir.FileField import FileField
 from classes.acf.field.fields_dir.GalleryField import GalleryField
 from classes.acf.field.fields_dir.GroupField import GroupField
 from classes.acf.field.fields_dir.ImageField import ImageField
+from classes.acf.field.fields_dir.MessageField import MessageField
 from classes.acf.field.fields_dir.RepeaterField import RepeaterField
 from classes.acf.field.fields_dir.TabField import TabField
 from classes.acf.field.fields_dir.TextAreaField import TextAreaField
@@ -34,6 +35,8 @@ def create_field(field_data):
             return GalleryField(field_data)
         case "true_false":
             return TrueFalse(field_data)
+        case "message":
+            return MessageField(field_data)
         case _:
             print(f"Unsupported field type: {field_type}")
             return None

@@ -11,3 +11,4 @@ class FieldDTO:
     required: bool = False
     layout: str = "block"
     width: int = 100
+    message: str = ""
