@@ -22,6 +22,8 @@ class FieldTemplateFactory:
             case EFieldType.GROUP.value:
                 base["layout"] = dto.layout
                 base["sub_fields"] = []
+            case EFieldType.REPEATER.value:
+                base["sub_fields"] = []
             case EFieldType.GALLERY.value:
                 base.update(
                     {
