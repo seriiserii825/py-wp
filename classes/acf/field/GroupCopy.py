@@ -16,13 +16,15 @@ class GroupCopy:
         if field is None or field.get("type") not in ["group", "repeater"]:
             raise ValueError("Selected field must be a group or repeater.")
 
-        php_lines = ["<?php"]
+        php_lines = []
         self._generate_php(field, var_name=field["name"], indent=0, output=php_lines)
-        php_lines.append("?>")
 
         php_code = "\n".join(php_lines)
         pyperclip.copy(php_code)
-        nt = Notification(title="Group copied to clipboard")
+        nt = Notification(
+            title="Group copied to clipboard",
+            message="PHP code for the group has been copied.",
+        )
         nt.notify()
 
     def _generate_php(
