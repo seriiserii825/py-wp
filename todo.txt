@@ -1,0 +1,4 @@
+- when move or create to a group or repeater, check if have subfields
+  to not move sibling
+
+- copy group to clipboard at the end
