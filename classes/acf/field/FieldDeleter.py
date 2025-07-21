@@ -12,16 +12,15 @@ class FieldDeleter:
             index_path_str = "Enter field index to delete (e.g. 1.2): "
             index_path = self._get_index_path(index_path_str)
             confirm = self._confirm(
-                f"Are you sure you want to delete field at index '{index_path}'? (y/n): "
+                "Are you sure you want to delete field at index"
+                f" '{index_path}'? (y/n): "
             )
             if not confirm:
                 Print.info("Delete cancelled.")
                 return
 
-            deleted_field = self.mover.pop_field(fields, index_path)
-            Print.success(
-                f"Deleted: {deleted_field.get('label', deleted_field.get('name', 'Unnamed'))}"
-            )
+            self.mover.pop_field(fields, index_path)
+            Print.success("Field deleted successfully.")
             self.repo.save(data)
             Print.success("Field deleted and saved.")
         except IndexError:
@@ -32,7 +31,8 @@ class FieldDeleter:
     def delete_multiple(self, data, fields):
         try:
             index_path_input = InputValidator.get_string(
-                "Enter field indices to delete (comma-separated, from bigger to smaller, e.g. 3.2,3.1,3): "
+                "Enter field indices to delete "
+                "(comma-separated, from bigger to smaller, e.g. 3.2,3.1,3): "
             )
             index_strs = [s.strip() for s in index_path_input.split(",") if s.strip()]
             index_paths = [self.mover.parse_index_path(s) for s in index_strs]
@@ -45,7 +45,8 @@ class FieldDeleter:
                 return
 
             confirm = self._confirm(
-                f"Are you sure you want to delete these {len(index_paths)} field(s)? (y/n): "
+                f"Are you sure you want to delete these "
+                f"{len(index_paths)} field(s)? (y/n): "
             )
             if not confirm:
                 Print.info("Delete cancelled.")
