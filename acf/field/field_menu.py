@@ -54,12 +54,5 @@ def acf_menu(section_file_json_path):
 
 
 def upload_changes():
-    upload = (
-        input("Do you want to upload changes to WordPress? (y/n): ").strip().lower()
-    )
-    if upload == "y":
-        print("Uploading changes to WordPress...")
-        AcfTransfer.wp_import()
-    else:
-        print("Changes not uploaded to WordPress.")
-        return
+    print("Uploading changes to WordPress...")
+    AcfTransfer.wp_import()
