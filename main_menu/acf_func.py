@@ -1,9 +1,17 @@
 from acf.section.select_section import select_section
 from classes.acf.AcfTransfer import AcfTransfer
+from classes.utils.InputValidator import InputValidator
 
 
 def acf_func():
-    AcfTransfer.wp_export()
+    to_import = InputValidator.get_bool(
+        "Do you want to import ACF data, by default will be exported? (y/n): "
+    )
+    if to_import:
+        AcfTransfer.wp_import()
+    else:
+        AcfTransfer.wp_export()
+
     # header = ["Index", "Option"]
     # rows = [["0", "Create new section"], ["1", "Select section"], ["2", "Exit"]]
     # Menu.display("Welcome to ACF CLI", header, rows)
