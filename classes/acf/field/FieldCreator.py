@@ -22,15 +22,15 @@ class FieldCreator:
 
         layout = self._determine_layout(selected_type)
 
-        width = (
-            InputValidator.get_int("Enter field width (0-100): ")
-            if layout == "block" and self._is_simple_field(selected_type)
-            else 100
-        )
-
         message = ""
         if selected_type == EFieldType.MESSAGE.value:
             message = InputValidator.get_string("Enter message text: ")
+
+        width = input("Enter field width (0-100), by default is 100: ")
+        if not width.strip():
+            width = 100
+        else:
+            width = int(width.strip())
 
         field = FieldDTO(
             key=key,
@@ -39,8 +39,8 @@ class FieldCreator:
             type=selected_type,
             layout=layout,
             required=required,
-            width=width,
             message=message,
+            width=width,
         )
 
         return FieldTemplateFactory.create(field)
@@ -49,7 +49,6 @@ class FieldCreator:
         if field_type == EFieldType.GROUP.value:
             layout = input("By default is block, type 'r' for row: ").strip()
             return "row" if layout == "r" else "block"
-        print(f"Creating field of type: {field_type}")
         return "block"
 
     def _is_simple_field(self, field_type: str) -> bool:
