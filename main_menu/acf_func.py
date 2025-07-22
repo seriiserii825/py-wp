@@ -2,25 +2,15 @@ from acf.section.new_section import new_section
 from acf.section.select_section import select_section
 from acf.section.show_sections import show_sections
 from classes.acf.AcfTransfer import AcfTransfer
-from classes.utils.InputValidator import InputValidator
 from classes.utils.Menu import Menu
 from classes.utils.Print import Print
 
 
 def acf_func():
-    _import_export()
+    # AcfTransfer.wp_import()
+    AcfTransfer.wp_export()
     show_sections()
     _choose_section()
-
-
-def _import_export():
-    to_import = InputValidator.get_bool(
-        "Do you want to import ACF data, by default will be exported? (y/n): "
-    )
-    if to_import:
-        AcfTransfer.wp_import()
-    else:
-        AcfTransfer.wp_export()
 
 
 def _choose_section():
