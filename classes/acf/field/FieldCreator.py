@@ -54,7 +54,8 @@ class FieldCreator:
             if want_group:
                 print("Creating group under the tab...")
                 group_field = self._create_group(label)
-                return [tab_field, group_field]
+                return [group_field, tab_field]
+                # return [tab_field, group_field]
 
         return tab_field
 
