@@ -7,7 +7,7 @@ from classes.utils.Select import Select
 
 
 class FieldCreator:
-    def create(self) -> dict:
+    def create(self) -> dict | list[dict]:
         key = Generate.get_field_id()
         label = InputValidator.get_string("Enter field label: ")
         name = label.replace(" ", "_").lower()
@@ -43,6 +43,35 @@ class FieldCreator:
             width=width,
         )
 
+        tab_field = FieldTemplateFactory.create(field)
+
+        # ✅ Ask to auto-create a group with same label
+        if selected_type == EFieldType.TAB.value:
+            want_group = InputValidator.get_bool(
+                "Do you want to create a group "
+                "with the same label inside this tab? (y/n): "
+            )
+            if want_group:
+                print("Creating group under the tab...")
+                group_field = self._create_group(label)
+                return [tab_field, group_field]
+
+        return tab_field
+
+    def _create_group(self, label: str) -> dict:
+        key = Generate.get_field_id()
+        name = label.replace(" ", "_").lower()
+        layout = self._determine_layout(EFieldType.GROUP.value)
+
+        field = FieldDTO(
+            key=key,
+            label=label,
+            name=name,
+            type=EFieldType.GROUP.value,
+            layout=layout,
+            required=False,
+            width=100,
+        )
         return FieldTemplateFactory.create(field)
 
     def _determine_layout(self, field_type: str) -> str:

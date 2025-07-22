@@ -6,6 +6,7 @@ from classes.acf.field.FieldMover import FieldMover
 from classes.acf.field.FieldRepository import FieldRepository
 from classes.acf.field.GroupCopy import GroupCopy
 from classes.utils.InputValidator import InputValidator
+from classes.utils.Print import Print
 
 
 class FieldMenu:
@@ -27,7 +28,11 @@ class FieldMenu:
     def create_field(self):
         data, fields = self._load_fields()
         new_field = self.creator.create()
-        fields.append(new_field)
+        if isinstance(new_field, list):
+            fields.extend(new_field)
+            Print.info("When move group add index + 1 to the destination index.")
+        else:
+            fields.append(new_field)
         self._move_after_create(fields, data)
         self.repo.save(data)
         print("Field created and saved.")
