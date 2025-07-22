@@ -108,60 +108,55 @@ class CreateSection:
         return taxonomy
 
     @classmethod
-    def _create_file(cls, page_id: int = 0, post_type: str = "", taxonomy: str = ""):
+    def _create_file(cls, page_id=0, post_type="", taxonomy=""):
         group_id = Generate.get_group_id()
         os.system(f"touch {cls.file_path}")
-        new_data = {}
-        new_data["ID"] = False
-        new_data["key"] = group_id
-        new_data["title"] = cls.section_name
-        new_data["fields"] = []
+        data = cls.build_acf_data(
+            group_id, cls.section_name, page_id, post_type, taxonomy
+        )
+        with open(cls.file_path, "w") as file:
+            json.dump([data], file, indent=4)
+
+    @classmethod
+    def build_acf_data(
+        cls,
+        group_id: str,
+        section_name: str,
+        page_id: int = 0,
+        post_type: str = "",
+        taxonomy: str = "",
+    ) -> dict:
+        new_data = {
+            "ID": False,
+            "key": group_id,
+            "title": section_name,
+            "fields": [],
+            "menu_order": 0,
+            "position": "normal",
+            "style": "default",
+            "label_placement": "top",
+            "instruction_placement": "label",
+            "hide_on_screen": "",
+            "active": True,
+            "description": "",
+            "show_in_rest": 0,
+            "_valid": True,
+        }
+
         if post_type:
             new_data["location"] = [
-                [
-                    {
-                        "param": "post_type",
-                        "operator": "==",
-                        "value": post_type,
-                    }
-                ]
+                [{"param": "post_type", "operator": "==", "value": post_type}]
             ]
         elif taxonomy:
             new_data["location"] = [
-                [
-                    {
-                        "param": "taxonomy",
-                        "operator": "==",
-                        "value": taxonomy,
-                    }
-                ]
+                [{"param": "taxonomy", "operator": "==", "value": taxonomy}]
             ]
         else:
             new_data["location"] = [
-                [
-                    {
-                        "param": "page",
-                        "operator": "==",
-                        "value": page_id,
-                    }
-                ]
+                [{"param": "page", "operator": "==", "value": page_id}]
             ]
-        new_data["menu_order"] = 0
-        new_data["position"] = "normal"
-        new_data["style"] = "default"
-        new_data["label_placement"] = "top"
-        new_data["instruction_placement"] = "label"
-        new_data["hide_on_screen"] = ""
-        new_data["active"] = True
-        new_data["description"] = ""
-        new_data["show_in_rest"] = 0
-        new_data["_valid"] = True
 
-        json_data = json.dumps(new_data, indent=4)
-        json_data = f"[{json_data}]\n"  # Wrap in a list for ACF compatibility
-        with open(cls.file_path, "w") as file:
-            # write
-            file.write(json_data)
+        return new_data
 
     @staticmethod
     def show_all_files():
