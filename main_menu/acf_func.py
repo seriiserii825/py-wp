@@ -8,6 +8,12 @@ from classes.utils.Print import Print
 
 
 def acf_func():
+    _import_export()
+    show_sections()
+    _choose_section()
+
+
+def _import_export():
     to_import = InputValidator.get_bool(
         "Do you want to import ACF data, by default will be exported? (y/n): "
     )
@@ -16,6 +22,8 @@ def acf_func():
     else:
         AcfTransfer.wp_export()
 
+
+def _choose_section():
     header = ["Index", "Option"]
     rows = [
         ["0", "Create new section"],
@@ -23,8 +31,6 @@ def acf_func():
         ["2", "Edit Section"],
         ["3", "Exit"],
     ]
-
-    show_sections()
 
     Menu.display("Welcome to ACF CLI", header, rows)
 
