@@ -26,11 +26,11 @@ class FieldCreator:
         if selected_type == EFieldType.MESSAGE.value:
             message = InputValidator.get_string("Enter message text: ")
 
-        width = input("Enter field width (0-100), by default is 100: ")
-        if not width.strip():
+        raw = input("Enter field width (0-100), by default is 100: ")
+        if not raw.strip():
             width = 100
         else:
-            width = int(width.strip())
+            width = int(raw.strip())
 
         field = FieldDTO(
             key=key,

@@ -51,7 +51,7 @@ class EditSection:
         print("=" * 40)
 
     @staticmethod
-    def edit_location():
+    def edit_location() -> None:
         file_name = EditSection.choose_file()
         file_path = f"acf/{file_name}"
 
