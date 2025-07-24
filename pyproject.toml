@@ -15,6 +15,7 @@ dependencies = [
     "mdurl (==0.1.2)",
     "mypy (==1.17.0)",
     "mypy-extensions (==1.1.0)",
+    "pandas>=2.3.1",
     "pathspec (==0.12.1)",
     "prompt-toolkit (==3.0.51)",
     "pycodestyle (==2.14.0)",
@@ -25,7 +26,7 @@ dependencies = [
     "rich (==14.0.0)",
     "simple-term-menu (==1.6.6)",
     "typing-extensions (==4.14.1)",
-    "wcwidth (==0.2.13)"
+    "wcwidth (==0.2.13)",
 ]
 
 

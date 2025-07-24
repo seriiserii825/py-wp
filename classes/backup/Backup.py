@@ -1,0 +1,2 @@
+class Backup:
+    pass

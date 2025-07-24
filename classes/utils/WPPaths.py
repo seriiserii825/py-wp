@@ -1,4 +1,3 @@
-import inspect
 import json
 from enum import Enum
 from pathlib import Path
@@ -11,6 +10,7 @@ class PathKey(str, Enum):
     UPLOADS = "uploads_dir"
     PLUGINS = "plugins_dir"
     THEME = "theme_dir"
+    SCRIPT_DIR = "script_dir"
 
 
 class WPPaths:
@@ -34,6 +34,7 @@ class WPPaths:
             PathKey.UPLOADS.value: str((wp_content / "uploads").resolve()),
             PathKey.PLUGINS.value: str((wp_content / "plugins").resolve()),
             PathKey.THEME.value: str(base_dir.resolve()),
+            PathKey.SCRIPT_DIR.value: str(cls.get_script_dir_path()),
         }
 
         with open(cls._paths_file, "w") as f:
@@ -41,8 +42,9 @@ class WPPaths:
 
     @classmethod
     def _get_script_dir(cls) -> Path:
-        # Путь к текущему файлу, где находится этот класс
-        return Path(inspect.getfile(cls)).resolve().parent
+        """Получает директорию скрипта, где находится .paths.json"""
+        script_path = Path(__file__).resolve()
+        return script_path.parent
 
     @classmethod
     def _ensure_paths_file(cls):
@@ -70,11 +72,22 @@ class WPPaths:
         return Path(cls._paths[key.value])
 
     @classmethod
-    def all(cls) -> Dict[PathKey, Path]:
-        """Получить все пути"""
+    def get_plugin_path(cls) -> Path:
         cls.load()
-        return {
-            PathKey(k): Path(v)
-            for k, v in cls._paths.items()
-            if k in PathKey._value2member_map_
-        }
+        return cls.get(PathKey.PLUGINS)
+
+    @classmethod
+    def get_csv_folder_path(cls) -> str:
+        """Получить путь к папке CSV"""
+        cls.load()
+        return f"{cls.get_script_dir_path()}/csv"
+
+    @classmethod
+    def get_script_dir_path(cls) -> Path:
+        """Получить путь к директории скриптов"""
+        cls.load()
+        path = Path(__file__).resolve().parent
+        for parent in [path] + list(path.parents):
+            if (parent / ".git").exists():
+                return parent
+        raise FileNotFoundError("No .git directory found in script path hierarchy.")
