@@ -52,9 +52,9 @@ class GroupCopy:
                     )
 
         elif field_type == "repeater":
-            chain = parent_chain + [var_name]
-            var_full = "$" + "_".join(chain)
-            output.append(f"{prefix}{var_full} = get_field('{var_name}');")
+            chain = "$" + "_".join(parent_chain)
+            var_full = f"${var_name}"
+            output.append(f"{prefix}{var_full} = {chain}['{var_name}'];")
             for sub in sub_fields:
                 sub_name = sub.get("name")
                 if sub_name:
