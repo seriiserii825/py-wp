@@ -1,0 +1,31 @@
+[project]
+name = "py-wp"
+version = "0.1.0"
+description = ""
+authors = [
+    {name = "serii",email = "seriiburduja@gmail.com"}
+]
+readme = "README.md"
+requires-python = ">=3.10,<4.0"
+dependencies = [
+    "autopep8 (==2.3.2)",
+    "flake8 (==7.3.0)",
+    "markdown-it-py (==3.0.0)",
+    "mccabe (==0.7.0)",
+    "mdurl (==0.1.2)",
+    "mypy (==1.17.0)",
+    "mypy-extensions (==1.1.0)",
+    "pathspec (==0.12.1)",
+    "prompt-toolkit (==3.0.51)",
+    "pycodestyle (==2.14.0)",
+    "pyflakes (==3.4.0)",
+    "pygments (==2.19.2)",
+    "pyperclip (==1.9.0)",
+    "questionary (==2.1.0)",
+    "rich (==14.0.0)",
+    "simple-term-menu (==1.6.6)",
+    "typing-extensions (==4.14.1)",
+    "wcwidth (==0.2.13)"
+]
+
+
