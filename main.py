@@ -8,9 +8,9 @@ from modules.check_is_wp import check_is_wp
 
 
 def menu():
-    # acf_func()
+    acf_func()
     # backup_menu()
-    plugins_menu()
+    # plugins_menu()
 
 
 if __name__ == "__main__":
