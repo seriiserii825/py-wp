@@ -7,30 +7,18 @@ from classes.utils.Select import Select
 
 
 class FieldCreator:
+    DEFAULT_WIDTH = 100
+
     def create(self) -> dict | list[dict]:
+        label = self._get_label()
+        name = self._label_to_name(label)
         key = Generate.get_field_id()
-        label = InputValidator.get_string("Enter field label: ")
-        name = label.replace(" ", "_").lower()
+        selected_type = self._select_field_type()
 
-        types = [ft.value for ft in EFieldType]
-        selected_type = Select.select_one(types)
-
-        if self._is_simple_field(selected_type):
-            required = InputValidator.get_bool(prompt="Field is required? (y/n): ")
-            raw = input("Enter field width (0-100), by default is 100: ")
-            if not raw.strip():
-                width = 100
-            else:
-                width = int(raw.strip())
-        else:
-            required = False
-            width = 100
-
+        required = self._ask_if_required(selected_type)
+        width = self._ask_field_width(selected_type)
         layout = self._determine_layout(selected_type)
-
-        message = ""
-        if selected_type == EFieldType.MESSAGE.value:
-            message = InputValidator.get_string("Enter message text: ")
+        message = self._ask_message_if_needed(selected_type)
 
         field = FieldDTO(
             key=key,
@@ -44,23 +32,23 @@ class FieldCreator:
         )
 
         if selected_type == EFieldType.TAB.value:
-            tab_field = FieldTemplateFactory.create(field)
-            want_group = InputValidator.get_bool(
-                "Do you want to create a group "
-                "with the same label inside this tab? (y/n): "
-            )
-            if want_group:
-                print("Creating group under the tab...")
-                group_field = self._create_group(label)
-                return [group_field, tab_field]
-            else:
-                return [tab_field]
+            return self._handle_tab_field(field, label)
 
         return FieldTemplateFactory.create(field)
 
+    def _handle_tab_field(self, field: FieldDTO, label: str) -> list[dict]:
+        tab_field = FieldTemplateFactory.create(field)
+        if InputValidator.get_bool(
+            "Do you want to create a group with the same label inside this tab? (y/n): "
+        ):
+            print("Creating group under the tab...")
+            group_field = self._create_group(label)
+            return [group_field, tab_field]
+        return [tab_field]
+
     def _create_group(self, label: str) -> dict:
         key = Generate.get_field_id()
-        name = label.replace(" ", "_").lower()
+        name = self._label_to_name(label)
         layout = self._determine_layout(EFieldType.GROUP.value)
 
         field = FieldDTO(
@@ -70,17 +58,42 @@ class FieldCreator:
             type=EFieldType.GROUP.value,
             layout=layout,
             required=False,
-            width=100,
+            width=self.DEFAULT_WIDTH,
         )
         return FieldTemplateFactory.create(field)
 
+    def _get_label(self) -> str:
+        return InputValidator.get_string("Enter field label: ")
+
+    def _label_to_name(self, label: str) -> str:
+        return label.replace(" ", "_").lower()
+
+    def _select_field_type(self) -> str:
+        types = [ft.value for ft in EFieldType]
+        return Select.select_one(types)
+
+    def _ask_if_required(self, field_type: str) -> bool:
+        return (
+            InputValidator.get_bool("Field is required? (y/n): ")
+            if self._is_simple_field(field_type)
+            else False
+        )
+
+    def _ask_field_width(self, field_type: str) -> int:
+        if not self._is_simple_field(field_type):
+            return self.DEFAULT_WIDTH
+        raw = input("Enter field width (0-100), by default is 100: ").strip()
+        return int(raw) if raw.isdigit() else self.DEFAULT_WIDTH
+
+    def _ask_message_if_needed(self, field_type: str) -> str:
+        if field_type == EFieldType.MESSAGE.value:
+            return InputValidator.get_string("Enter message text: ")
+        return ""
+
     def _determine_layout(self, field_type: str) -> str:
-        if (
-            field_type == EFieldType.GROUP.value
-            or field_type == EFieldType.REPEATER.value
-        ):
+        if field_type in {EFieldType.GROUP.value, EFieldType.REPEATER.value}:
             layout = input("By default is block, type 'r' for row: ").strip()
-            return "row" if layout == "r" else "block"
+            return "row" if layout.lower() == "r" else "block"
         return "block"
 
     def _is_simple_field(self, field_type: str) -> bool:
