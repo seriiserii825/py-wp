@@ -6,6 +6,7 @@ from classes.acf.AcfTransfer import AcfTransfer
 from classes.acf.section.CreateSection import CreateSection
 from classes.acf.section.SectionMenu import SectionMenu
 from classes.exception.NewSectionException import NewSectionException
+from classes.pages.Page import Page
 from classes.utils.InputValidator import InputValidator
 from classes.utils.Menu import Menu
 from classes.utils.Print import Print
@@ -59,14 +60,16 @@ class EditSection:
 
         section = data[0]
         locations: list[list[dict[str, Any]]] = section.get("location", [])
-        section["key"]
-        section["title"]
 
         while True:
             Print.info("Current Locations:")
             for i, group in enumerate(locations):
                 cond = group[0]
-                print(f"{i}. {cond['param']} == {cond['value']}")
+                if cond["param"] == "page":
+                    page = Page.get_page_by_id(cond["value"])
+                    print(f"{i}. {cond['param']} == {page.post_title}({page.ID})")
+                else:
+                    print(f"{i}. {cond['param']} == {cond['value']}")
 
             menu = [
                 "Replace all locations",

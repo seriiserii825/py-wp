@@ -1,4 +1,5 @@
 import subprocess
+import json
 
 from classes.utils.Print import Print
 
@@ -40,3 +41,14 @@ class Command:
         except subprocess.CalledProcessError as err:
             output = (err.stderr or err.stdout).strip()
             raise RuntimeError(f"Command '{cmd}' failed with:\n{output}") from err
+
+    @staticmethod
+    def run_json(cmd: str) -> list | dict:
+        """Run a command expected to return JSON and parse it."""
+        output = Command.run_quiet(cmd)
+        try:
+            return json.loads(output)
+        except json.JSONDecodeError as err:
+            raise ValueError(
+                f"Failed to parse JSON output from '{cmd}':\n{output}"
+            ) from err
