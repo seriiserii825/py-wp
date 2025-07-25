@@ -16,7 +16,7 @@ class SectionMenu:
         SectionMenu.rows_count += len(rows)
 
         tb = MyTable()
-        tb.show(title, columns, rows)
+        tb.show(title, columns, rows, row_styles=None)
 
     @staticmethod
     def choose_option():
