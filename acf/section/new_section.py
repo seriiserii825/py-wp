@@ -13,13 +13,13 @@ def new_section():
         Print.error(str(e))
         return
 
-    if choice == 1:
+    if choice == 0:
         CreateSection.new_acf_page()
         AcfTransfer.wp_import()
-    elif choice == 2:
+    elif choice == 1:
         CreateSection.new_acf_custom_post_type()
         AcfTransfer.wp_import()
-    elif choice == 3:
+    elif choice == 2:
         CreateSection.new_acf_taxonomy()
         AcfTransfer.wp_import()
     else:
