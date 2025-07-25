@@ -1,7 +1,9 @@
-from classes.csv.CsvPlugin import CsvPlugin
+from classes.csv.BasePluginsCsv import BasePluginsCsv
+from classes.csv.OtherPluginsCsv import OtherPluginsCsv
 
 
 def plugins_menu():
-    csv_cl = CsvPlugin()
-    csv_cl.print_base_plugins()
-    csv_cl.print_other_plugins()
+    bp = BasePluginsCsv()
+    bp.print_plugins()
+    op = OtherPluginsCsv()
+    op.print_plugins()
