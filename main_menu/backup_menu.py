@@ -1,6 +1,7 @@
-from classes.plugin.PluginInstall import PluginInstall
+from classes.plugin.Plugin import Plugin
 
 
 def backup_menu():
-    pl = PluginInstall()
-    pl.install_required_plugins()
+    pass
+    # pl = Plugin()
+    # pl.install_required_plugins()

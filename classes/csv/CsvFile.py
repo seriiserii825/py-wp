@@ -34,3 +34,9 @@ class CsvFile:
             columns=list(headers),
             rows=[list(row.values()) for row in rows_without_headers],
         )
+
+    def get_rows_except_first(self) -> list[dict]:
+        rows = self.read_csv()
+        if rows is None:
+            return []
+        return rows[1:] if len(rows) > 1 else []

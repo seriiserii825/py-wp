@@ -11,11 +11,13 @@ class PathKey(str, Enum):
     PLUGINS = "plugins_dir"
     THEME = "theme_dir"
     SCRIPT_DIR = "script_dir"
+    PLUGIN_WP_PATH = "plugin_wp_path"
 
 
 class WPPaths:
     _paths: Dict[str, str] = {}
     _paths_file: Optional[Path] = None
+    _user_dir_path: str = str(Path.home())
 
     @classmethod
     def initialize(cls, base_dir: Optional[Path] = None):
@@ -35,6 +37,7 @@ class WPPaths:
             PathKey.PLUGINS.value: str((wp_content / "plugins").resolve()),
             PathKey.THEME.value: str(base_dir.resolve()),
             PathKey.SCRIPT_DIR.value: str(cls.get_script_dir_path()),
+            PathKey.PLUGIN_WP_PATH.value: f"{cls._user_dir_path}/Documents/plugins-wp",
         }
 
         with open(cls._paths_file, "w") as f:
@@ -91,3 +94,9 @@ class WPPaths:
             if (parent / ".git").exists():
                 return parent
         raise FileNotFoundError("No .git directory found in script path hierarchy.")
+
+    @classmethod
+    def get_plugins_wp_path(cls) -> Path:
+        """Получить путь к папке плагинов WordPress"""
+        cls.load()
+        return cls.get(PathKey.PLUGIN_WP_PATH)
