@@ -7,6 +7,7 @@ from classes.data.WpData import WpData
 from classes.exception.NewSectionException import NewSectionException
 from classes.utils.Generate import Generate
 from classes.utils.InputValidator import InputValidator
+from classes.utils.Menu import Menu
 from classes.utils.Print import Print
 from dto.SectionDto import SectionDTO
 
@@ -39,15 +40,14 @@ class CreateSection:
 
     @staticmethod
     def choose_type() -> int:
-        columns = ["Index", "Option"]
         rows = [
-            ["1", "Page"],
-            ["2", "Custom Post Type"],
-            ["3", "Taxonomy"],
-            ["4", "Exit"],
+            "Page",
+            "Custom Post Type",
+            "Taxonomy",
+            "Exit",
         ]
-        SectionMenu.display("New Section", columns, rows)
-        choice = SectionMenu.choose_option()
+        choice = Menu.select_with_fzf(rows)
+        print(f"choose_type: {choice}")
         return choice
 
     @classmethod
@@ -70,11 +70,11 @@ class CreateSection:
         ]
         Print.info(f"pages: {pages}")
 
-        columns = ["Index", "ID", "Title"]
-        rows = [[str(pages.index(i)), f"{i.ID}", i.post_title] for i in pages]
+        rows = [i.post_title for i in pages]
+        index = Menu.select_with_fzf(rows)
+        print(f"index: {index}")
+        print(f"pages[index]: {pages[index]}")
 
-        SectionMenu.display("New Section", columns, rows)
-        index = SectionMenu.choose_option()
         return pages[index]
 
     @classmethod

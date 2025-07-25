@@ -7,6 +7,7 @@ from classes.acf.section.CreateSection import CreateSection
 from classes.acf.section.SectionMenu import SectionMenu
 from classes.exception.NewSectionException import NewSectionException
 from classes.utils.InputValidator import InputValidator
+from classes.utils.Menu import Menu
 from classes.utils.Print import Print
 
 
@@ -17,10 +18,8 @@ class EditSection:
         if not files:
             raise NewSectionException("No ACF files found to edit.")
         Print.info("Choose a file to edit:")
-        for i, f in enumerate(files):
-            print(f"{i}. {f}")
-        index = InputValidator.get_int("Enter file index: ")
-        return files[index]
+        chosen = Menu.select_with_fzf(files)
+        return files[chosen]
 
     @staticmethod
     def show_section_info():
@@ -76,12 +75,7 @@ class EditSection:
                 "Edit a location",
                 "Save and Exit",
             ]
-            SectionMenu.display(
-                "Edit Location",
-                ["Index", "Action"],
-                [[str(i), m] for i, m in enumerate(menu)],
-            )
-            choice = SectionMenu.choose_option()
+            choice = Menu.select_with_fzf(menu)
 
             if choice == 0:
                 new_cond = EditSection._prompt_location()
@@ -118,21 +112,22 @@ class EditSection:
     @staticmethod
     def _prompt_location() -> Optional[dict[str, Any]]:
         choice = CreateSection.choose_type()
-        if choice == 1:
+        print(f"choice: {choice}")
+        if choice == 0:
             page = CreateSection.select_page()
             return {
                 "param": "page",
                 "operator": "==",
                 "value": page.ID,
             }
-        elif choice == 2:
+        elif choice == 1:
             post_type = CreateSection._select_custom_post_type()
             return {
                 "param": "post_type",
                 "operator": "==",
                 "value": post_type,
             }
-        elif choice == 3:
+        elif choice == 2:
             taxonomy = CreateSection._select_taxonomy()
             return {
                 "param": "taxonomy",
