@@ -62,8 +62,7 @@ class FieldEditor:
             "required": field.get("required", False),
             "width": field.get("wrapper", {}).get("width", ""),
         }
-        if field.get("type") == "group":
-            # add layout
+        if field.get("type") == "group" or field.get("type") == "repeater":
             attributes["layout"] = field.get("layout", "")
 
         return attributes
