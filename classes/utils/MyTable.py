@@ -6,7 +6,7 @@ class MyTable:
     def __init__(self):
         self.console = Console()
 
-    def show(self, title: str, columns, rows, *, row_styles):
+    def show(self, title: str, columns, rows, *, row_styles={}):
         """
         Print a Rich table.
 
