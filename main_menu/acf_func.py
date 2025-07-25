@@ -4,7 +4,6 @@ from acf.section.show_sections import show_sections
 from classes.acf.AcfTransfer import AcfTransfer
 from classes.utils.Menu import Menu
 from classes.utils.Print import Print
-from classes.utils.Select import Select
 
 
 def acf_func():

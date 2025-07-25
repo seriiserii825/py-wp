@@ -11,19 +11,17 @@ def field_menu(section_file_json_path):
 def acf_menu(section_file_json_path):
     f_menu = FieldMenu(section_file_json_path)
     f_menu.show_all()
-    menu_headers = ["Index", "Option"]
-    menu_rows = [
-        ["0", "Create new field"],
-        ["1", "Move field"],
-        ["2", "Edit field"],
-        ["3", "Delete field"],
-        ["4", "Delete multiple fields"],
-        ["5", "Copy group to clipboard"],
-        ["6", "Upload changes to WordPress"],
-        ["7", "Exit"],
+    menu_options = [
+        "Create new field",
+        "Move field",
+        "Edit field",
+        "Delete field",
+        "Delete multiple fields",
+        "Copy group to clipboard",
+        "Upload changes to WordPress",
+        "Exit",
     ]
-    Menu.display("Welcome to ACF Field Menu", menu_headers, menu_rows)
-    choice = Menu.choose_option()
+    choice = Menu.select_with_fzf(menu_options)
     if choice == 0:
         f_menu.create_field()
         f_menu.show_all()
