@@ -58,9 +58,7 @@ class FieldCreator:
             else:
                 return [tab_field]
 
-        returned_field = FieldTemplateFactory.create(field)
-        print(f"returned_field: {returned_field}")
-        return returned_field
+        return FieldTemplateFactory.create(field)
 
     def _create_group(self, label: str) -> dict:
         key = Generate.get_field_id()
