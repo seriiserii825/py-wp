@@ -17,22 +17,20 @@ class FieldCreator:
 
         if self._is_simple_field(selected_type):
             required = InputValidator.get_bool(prompt="Field is required? (y/n): ")
+            raw = input("Enter field width (0-100), by default is 100: ")
+            if not raw.strip():
+                width = 100
+            else:
+                width = int(raw.strip())
         else:
             required = False
+            width = 100
 
         layout = self._determine_layout(selected_type)
 
         message = ""
         if selected_type == EFieldType.MESSAGE.value:
             message = InputValidator.get_string("Enter message text: ")
-
-        raw = input("Enter field width (0-100), by default is 100: ")
-        if not raw.strip():
-            width = 100
-        else:
-            width = int(raw.strip())
-
-        print(f"{layout}: layout")
 
         field = FieldDTO(
             key=key,
