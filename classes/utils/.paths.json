@@ -1,9 +1,9 @@
 {
-  "base_dir": "/home/serii/Local Sites/lc-cascina-spinerola/app/public/wp-content/themes/bs-cascina-spinerola",
-  "wp_content_dir": "/home/serii/Local Sites/lc-cascina-spinerola/app/public/wp-content",
-  "uploads_dir": "/home/serii/Local Sites/lc-cascina-spinerola/app/public/wp-content/uploads",
-  "plugins_dir": "/home/serii/Local Sites/lc-cascina-spinerola/app/public/wp-content/plugins",
-  "theme_dir": "/home/serii/Local Sites/lc-cascina-spinerola/app/public/wp-content/themes/bs-cascina-spinerola",
+  "base_dir": "/home/serii/Local Sites/lc-md-service/app/public/wp-content/themes/bs-md-service",
+  "wp_content_dir": "/home/serii/Local Sites/lc-md-service/app/public/wp-content",
+  "uploads_dir": "/home/serii/Local Sites/lc-md-service/app/public/wp-content/uploads",
+  "plugins_dir": "/home/serii/Local Sites/lc-md-service/app/public/wp-content/plugins",
+  "theme_dir": "/home/serii/Local Sites/lc-md-service/app/public/wp-content/themes/bs-md-service",
   "script_dir": "/home/serii/Documents/python/py-wp",
   "plugin_wp_path": "/home/serii/Documents/plugins-wp"
 }

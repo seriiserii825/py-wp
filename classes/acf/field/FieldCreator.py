@@ -32,16 +32,7 @@ class FieldCreator:
         else:
             width = int(raw.strip())
 
-        if selected_type == EFieldType.REPEATER.value:
-            layout = input(
-                "Enter layout type (block/row) b/r, by default is block: "
-            ).strip()
-            if not layout:
-                layout = "block"
-            elif layout.lower() == "r":
-                layout = "row"
-            else:
-                layout = "block"
+        print(f"{layout}: layout")
 
         field = FieldDTO(
             key=key,
@@ -54,10 +45,8 @@ class FieldCreator:
             width=width,
         )
 
-        tab_field = FieldTemplateFactory.create(field)
-
-        # ✅ Ask to auto-create a group with same label
         if selected_type == EFieldType.TAB.value:
+            tab_field = FieldTemplateFactory.create(field)
             want_group = InputValidator.get_bool(
                 "Do you want to create a group "
                 "with the same label inside this tab? (y/n): "
@@ -66,9 +55,12 @@ class FieldCreator:
                 print("Creating group under the tab...")
                 group_field = self._create_group(label)
                 return [group_field, tab_field]
-                # return [tab_field, group_field]
+            else:
+                return [tab_field]
 
-        return tab_field
+        returned_field = FieldTemplateFactory.create(field)
+        print(f"returned_field: {returned_field}")
+        return returned_field
 
     def _create_group(self, label: str) -> dict:
         key = Generate.get_field_id()
@@ -87,7 +79,10 @@ class FieldCreator:
         return FieldTemplateFactory.create(field)
 
     def _determine_layout(self, field_type: str) -> str:
-        if field_type == EFieldType.GROUP.value:
+        if (
+            field_type == EFieldType.GROUP.value
+            or field_type == EFieldType.REPEATER.value
+        ):
             layout = input("By default is block, type 'r' for row: ").strip()
             return "row" if layout == "r" else "block"
         return "block"
@@ -96,4 +91,5 @@ class FieldCreator:
         return field_type not in {
             EFieldType.GROUP.value,
             EFieldType.TAB.value,
+            EFieldType.REPEATER.value,
         }

@@ -23,6 +23,7 @@ class FieldTemplateFactory:
                 base["sub_fields"] = []
             case EFieldType.REPEATER.value:
                 base["sub_fields"] = []
+                base["layout"] = dto.layout
             case EFieldType.MESSAGE.value:
                 base["message"] = dto.message
             case EFieldType.GALLERY.value:
