@@ -32,6 +32,17 @@ class FieldCreator:
         else:
             width = int(raw.strip())
 
+        if selected_type == EFieldType.REPEATER.value:
+            layout = input(
+                "Enter layout type (block/row) b/r, by default is block: "
+            ).strip()
+            if not layout:
+                layout = "block"
+            elif layout.lower() == "r":
+                layout = "row"
+            else:
+                layout = "block"
+
         field = FieldDTO(
             key=key,
             label=label,
