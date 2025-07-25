@@ -2,6 +2,7 @@ from typing import List
 
 from classes.utils.MyTable import MyTable
 from classes.utils.Print import Print
+from classes.utils.Select import Select
 
 
 class Menu:
@@ -44,3 +45,8 @@ class Menu:
                     )
             except ValueError:
                 Print.error("Input must be a number. Please try again.")
+
+    @classmethod
+    def select_with_fzf(cls, options: List[str]) -> int:
+        option = Select.select_one(options)
+        return options.index(option) if option else -1

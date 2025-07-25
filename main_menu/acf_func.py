@@ -4,6 +4,7 @@ from acf.section.show_sections import show_sections
 from classes.acf.AcfTransfer import AcfTransfer
 from classes.utils.Menu import Menu
 from classes.utils.Print import Print
+from classes.utils.Select import Select
 
 
 def acf_func():
@@ -14,17 +15,8 @@ def acf_func():
 
 
 def _choose_section():
-    header = ["Index", "Option"]
-    rows = [
-        ["0", "Create new section"],
-        ["1", "Select section"],
-        ["2", "Edit Section"],
-        ["3", "Exit"],
-    ]
-
-    Menu.display("Welcome to ACF CLI", header, rows)
-
-    choice = Menu.choose_option()
+    menu_options = ["Create new section", "Select section", "Edit Section", "Exit"]
+    choice = Menu.select_with_fzf(menu_options)
 
     if choice == 0:
         Print.info("Create new section selected.")
