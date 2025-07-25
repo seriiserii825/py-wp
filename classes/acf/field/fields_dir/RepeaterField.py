@@ -13,6 +13,7 @@ class RepeaterField(Field):
         print(
             f"[yellow]{prefix}{index}) {self.label} - {self.name} - {self.type}"
             f" - {self.instructions} - Required: {self.required} - Width: {self.width}"
+            f" - layout: {self.layout}"
         )
 
     def parse_fields(self, fields, parent_key):

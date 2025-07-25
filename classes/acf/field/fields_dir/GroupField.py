@@ -12,7 +12,7 @@ class GroupField(Field):
         prefix = "--" * indent
         print(
             f"[yellow]{prefix}{index}) {self.label} - "
-            f"{self.name} - {self.type} - {self.layout}"
+            f"{self.name} - {self.type} - layout: {self.layout}"
         )
 
     def parse_fields(self, fields, parent_key):
