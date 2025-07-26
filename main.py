@@ -3,12 +3,13 @@
 from classes.utils.Menu import Menu
 from classes.utils.WPPaths import WPPaths
 from main_menu.acf_func import acf_func
+from main_menu.backup_menu import backup_menu
 from main_menu.plugins_menu import plugins_menu
 from modules.check_is_wp import check_is_wp
 
 
 def menu():
-    acf_func()
+    # acf_func()
     # headers = ["Index", "Option"]
     #
     # row_styles = {
@@ -35,11 +36,11 @@ def menu():
     # else:
     #     print("Invalid choice. Please try again.")
     #     menu()
-    # backup_menu()
+    backup_menu()  # noqa: F821
     # plugins_menu()
 
 
 if __name__ == "__main__":
-    WPPaths.initialize()
     check_is_wp()
+    WPPaths.initialize()
     menu()

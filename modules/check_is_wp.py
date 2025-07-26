@@ -9,3 +9,4 @@ def check_is_wp():
             "This is not a WordPress project."
             " Please run this command in the root of your WordPress project."
         )
+        exit(1)
