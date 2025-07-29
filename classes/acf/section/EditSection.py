@@ -66,7 +66,12 @@ class EditSection:
             for i, group in enumerate(locations):
                 cond = group[0]
                 if cond["param"] == "page":
-                    page = Page.get_page_by_id(cond["value"])
+                    value = (
+                        cond["value"]
+                        if type(cond["value"]) is int
+                        else int(cond["value"])
+                    )
+                    page = Page.get_page_by_id(value)
                     print(f"{i}. {cond['param']} == {page.post_title}({page.ID})")
                 else:
                     print(f"{i}. {cond['param']} == {cond['value']}")
