@@ -44,6 +44,7 @@ class CreateSection:
             "Page",
             "Custom Post Type",
             "Taxonomy",
+            "Options Page",
             "Exit",
         ]
         choice = Menu.select_with_fzf(rows)
@@ -108,11 +109,27 @@ class CreateSection:
         return taxonomy
 
     @classmethod
-    def _create_file(cls, page_id=0, post_type="", taxonomy=""):
+    def new_acf_options_page(cls):
+        options_pages: List[str] = WpData.get_acf_options_pages()
+        print(f"options_pages:: {options_pages:}")
+        if not options_pages:
+            Print.error("No ACF options pages found.")
+            return
+
+        columns = ["Index", "Options Page"]
+        rows = [[str(options_pages.index(i)), i] for i in options_pages]
+        SectionMenu.display("New Section", columns, rows)
+        index = SectionMenu.choose_option()
+        options_page = options_pages[index]
+
+        cls._create_file(post_type="options_page", taxonomy=options_page)
+
+    @classmethod
+    def _create_file(cls, page_id=0, post_type="", taxonomy="", options_page=""):
         group_id = Generate.get_group_id()
         os.system(f"touch {cls.file_path}")
         data = cls.build_acf_data(
-            group_id, cls.section_name, page_id, post_type, taxonomy
+            group_id, cls.section_name, page_id, post_type, taxonomy, options_page
         )
         with open(cls.file_path, "w") as file:
             json.dump([data], file, indent=4)
@@ -125,6 +142,7 @@ class CreateSection:
         page_id: int = 0,
         post_type: str = "",
         taxonomy: str = "",
+        options_page: str = "",
     ) -> dict:
         new_data = {
             "ID": False,
@@ -151,9 +169,13 @@ class CreateSection:
             new_data["location"] = [
                 [{"param": "taxonomy", "operator": "==", "value": taxonomy}]
             ]
-        else:
+        elif page_id:
             new_data["location"] = [
                 [{"param": "page", "operator": "==", "value": page_id}]
+            ]
+        elif options_page:
+            new_data["location"] = [
+                [{"param": "options_page", "operator": "==", "value": options_page}]
             ]
 
         return new_data

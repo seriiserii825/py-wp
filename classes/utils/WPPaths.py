@@ -100,3 +100,9 @@ class WPPaths:
         """Получить путь к папке плагинов WordPress"""
         cls.load()
         return cls.get(PathKey.PLUGIN_WP_PATH)
+
+    @classmethod
+    def get_theme_path(cls) -> Path:
+        """Получить путь к текущей теме WordPress"""
+        cls.load()
+        return cls.get(PathKey.THEME)
