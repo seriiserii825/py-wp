@@ -12,3 +12,5 @@ class FieldDTO:
     layout: str = "block"
     width: int = 100
     message: str = ""
+    ui: int = 0
+    default: int = 0

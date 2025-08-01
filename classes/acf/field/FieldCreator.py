@@ -19,6 +19,8 @@ class FieldCreator:
         width = self.builder.ask_width(selected_type)
         layout = self.builder.ask_layout(selected_type)
         message = self.builder.ask_message(selected_type)
+        ui = self.builder.ui_for_true_false(selected_type)
+        true_false_default = self.builder.default_value_for_true_false(selected_type)
 
         field = FieldDTO(
             key=key,
@@ -29,6 +31,8 @@ class FieldCreator:
             required=required,
             message=message,
             width=width,
+            ui=ui,
+            default=true_false_default,
         )
 
         if selected_type == EFieldType.TAB.value:

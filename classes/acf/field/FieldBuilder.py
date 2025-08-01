@@ -90,3 +90,25 @@ class FieldBuilder:
             layout = input("By default is block, type 'r' for row: ").strip()
             return "row" if layout.lower() == "r" else "block"
         return "block"
+
+    def ui_for_true_false(self, field_type: str) -> int:
+        if field_type == EFieldType.TRUE_FALSE.value:
+            return (
+                1
+                if InputValidator.get_bool(
+                    "Do you want to have UI for this field? (y/n): "
+                )
+                else 0
+            )
+        return 0
+
+    def default_value_for_true_false(self, field_type: str) -> int:
+        if field_type == EFieldType.TRUE_FALSE.value:
+            return (
+                1
+                if InputValidator.get_bool(
+                    "Do you want to set default value for this field? (y/n): "
+                )
+                else 0
+            )
+        return 0

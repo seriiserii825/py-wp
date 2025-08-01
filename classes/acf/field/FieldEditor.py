@@ -50,6 +50,10 @@ class FieldEditor:
             self._edit_width(target)
         elif attr == "layout":
             self._edit_layout(target)
+        elif attr == "ui":
+            target[attr] = self.builder.ui_for_true_false(target["type"])
+        elif attr == "default_value":
+            target[attr] = self.builder.default_value_for_true_false(target["type"])
         else:
             self._edit_generic(target, attr)
 
@@ -65,6 +69,10 @@ class FieldEditor:
         }
         if field.get("type") == "group" or field.get("type") == "repeater":
             attributes["layout"] = field.get("layout", "")
+
+        if field.get("type") == "true_false":
+            attributes["ui"] = field.get("ui", 0)
+            attributes["default_value"] = field.get("default_value", 0)
 
         return attributes
 

@@ -15,6 +15,8 @@ class FieldTemplateFactory:
             "conditional_logic": 0,
             "wrapper": {"width": dto.width, "class": "", "id": ""},
             "message": dto.message,
+            "ui": dto.ui,
+            "default_value": dto.default,
         }
 
         match dto.type:
@@ -26,6 +28,9 @@ class FieldTemplateFactory:
                 base["layout"] = dto.layout
             case EFieldType.MESSAGE.value:
                 base["message"] = dto.message
+            case EFieldType.TRUE_FALSE.value:
+                base["ui"] = dto.ui
+                base["default_value"] = dto.default
             case EFieldType.GALLERY.value:
                 base.update(
                     {
