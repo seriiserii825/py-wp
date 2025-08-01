@@ -1,4 +1,4 @@
-from classes.acf.enum.EFieldType import EFieldType
+from classes.acf.field.FieldBuilder import FieldBuilder
 from classes.utils.InputValidator import InputValidator
 from classes.utils.Print import Print
 from classes.utils.Select import Select
@@ -8,6 +8,7 @@ class FieldEditor:
     def __init__(self, repo, mover):
         self.repo = repo
         self.mover = mover
+        self.builder = FieldBuilder()
 
     def edit_field(self, data, fields):
         index_path = InputValidator.get_string("Enter field index (e.g. 1.2): ")
@@ -86,36 +87,26 @@ class FieldEditor:
         return InputValidator.get_bool(message)
 
     def _edit_required(self, target, attr):
-        new_value = self._confirm("Is this field required? (y/n): ")
+        new_value = self.builder.ask_required(target["type"])
         target[attr] = 0 if not new_value else "true"
 
     def _edit_type(self, target):
-        types = [ft.value for ft in EFieldType]
-        selected_type = Select.select_one(types)
-        if selected_type:
-            target["type"] = selected_type
+        new_type = self.builder.ask_field_type()
+        target["type"] = new_type
 
     def _edit_label(self, target):
-        new_label = self.set_attribute_value("label")
-        target_name = new_label.lower().replace(" ", "_")
-
-        if target_name == target.get("name", ""):
-            Print.error("Name already matches label, no change needed.")
-            return
-
-        target["name"] = target_name
+        new_label = self.builder.ask_label()
+        new_name = self.builder.label_to_name(new_label)
         target["label"] = new_label
+        target["name"] = new_name
 
     def _edit_width(self, target):
-        if "wrapper" not in target:
-            target["wrapper"] = {}
-        target["wrapper"]["width"] = self.set_attribute_value("width")
+        width = self.builder.ask_width(target["type"])
+        target.setdefault("wrapper", {})["width"] = width
 
     def _edit_generic(self, target, attr):
         target[attr] = self.set_attribute_value(attr)
 
     def _edit_layout(self, target):
-        types = ["block", "row"]
-        selected_type = Select.select_one(types)
-        if selected_type:
-            target["layout"] = selected_type
+        layout = self.builder.ask_layout(target["type"])
+        target["layout"] = layout
