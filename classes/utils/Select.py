@@ -22,9 +22,6 @@ class Select:
 
     @staticmethod
     def select_multiple(options: List[str]) -> List[str]:
-        """
-        Displays a terminal menu for selecting multiple options from a list.
-        """
         terminal_menu = TerminalMenu(
             options,
             multi_select=True,
@@ -33,9 +30,10 @@ class Select:
             preview_command="bat --color=always {}",
             preview_size=0.75,
         )
-        # print(menu_entry_indices)
-        # print(terminal_menu.chosen_menu_entries)
-        return terminal_menu.chosen_menu_entries
+        result = terminal_menu.show()
+        print(f"result: {result}")
+        selected = terminal_menu.chosen_menu_entries or []
+        return selected
 
     @staticmethod
     def select_one(options):
