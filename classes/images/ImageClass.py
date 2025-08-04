@@ -33,17 +33,17 @@ class ImagesClass:
             rows,
         )
 
-    def _get_installed_images(self):
+    def _get_installed_images(self) -> list[ImageDto]:
         images_from_command = Command.run_json(
             "wp post list --post_type=attachment --format=json"
         )
+        images: list[ImageDto] = []
 
         if not isinstance(images_from_command, list):
             print("Invalid image data:", images_from_command)
-            images: list[ImageDto] = []
         else:
             # Преобразуем каждый dict в ImageDto
-            images: list[ImageDto] = [
+            images = [
                 ImageDto(
                     id=img["ID"],
                     post_title=img["post_title"],
