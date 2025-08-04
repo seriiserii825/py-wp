@@ -19,7 +19,7 @@ class Backup:
         Command.run("wp ai1wm backup")
         self._deleteMore3Backups()
         self.list_backup()
-        self._lastBackupToDownloads()
+        self._last_backup_to_downloads()
 
     def _delete_vendor(self):
         if os.path.exists(f"{self.theme_dir_path}/vendor"):
@@ -58,17 +58,17 @@ class Backup:
     def list_backup(self):
         os.system("wp ai1wm list-backups")
 
-    def restoreBackup(self):
+    def restore_backup(self):
         self.list_backup()
         fh = FilesHandle()  # noqa: F821
         selected_backup = fh.chooseFile(self.backup_dir_abs_path, ".wpress")
         os.system(f"wp ai1wm restore {selected_backup}")
 
-    def restoreBackupInChrome(self):
+    def restore_backup_in_chrome(self):
         ms = MySelenium()
-        ms.restoreBackupInChrome()
+        ms.restore_backup_in_chrome()
 
-    def restoreFromDownloads(self):
+    def restoer_from_downloads(self):
         self.list_backup()
         downloads_dir = os.path.expanduser("~/Downloads")
         fh = FilesHandle(self.backup_dir_abs_path)
@@ -79,11 +79,11 @@ class Backup:
         self.list_backup()
         os.system(f"wp ai1wm restore {selected_backup}")
 
-    def deleteBackupInChrome(self):
+    def delete_backup_in_chrome(self):
         ms = MySelenium()
-        ms.deleteBackupInChrome()
+        ms.delete_backup_in_chrome()
 
-    def getLastBackupPath(self):
+    def get_last_backup_path(self):
         os.chdir(self.backup_dir_abs_path)
         backup_files = os.listdir()
         backup_files.sort(key=lambda x: os.path.getctime(x), reverse=True)
@@ -92,8 +92,8 @@ class Backup:
         else:
             return backup_files[0]
 
-    def _lastBackupToDownloads(self):
-        last_backup = self.getLastBackupPath()
+    def _last_backup_to_downloads(self):
+        last_backup = self.get_last_backup_path()
         if last_backup:
             backup_path = f"{self.backup_dir_abs_path}/{last_backup}"
             destination = os.path.expanduser("~/Downloads")
@@ -102,15 +102,15 @@ class Backup:
         else:
             print("[red]No backups found to copy.")
 
-    def lastBackupToMnt(self, mnt_path):
-        last_backup = self.getLastBackupPath()
+    def last_backup_to_mnt(self, mnt_path):
+        last_backup = self.get_last_backup_path()
         if last_backup:
             backup_path = f"{self.backup_dir_abs_path}/{last_backup}"
             Command.run(f"cp '{backup_path}' '{mnt_path}'")
         else:
             print("[red]No backups found to copy.")
 
-    def createAndCopyToMnt(self):
+    def create_and_copy_to_mnt(self):
         directory_exists = os.path.isdir("/mnt/Projects")
         if directory_exists:
             path_to_dir = "/mnt/Projects"
@@ -122,7 +122,7 @@ class Backup:
             path_to_selected_dir = f"{path_to_selected_dir}/{selected_project}"
             fh.showOrderFilesByCTime(path_to_selected_dir)
             self.make_backup()
-            self.lastBackupToMnt(path_to_selected_dir)
+            self.last_backup_to_mnt(path_to_selected_dir)
             fh.showOrderFilesByCTime(path_to_selected_dir)
             exit("[green]Backup created and copied to /mnt/Projects/{selected_project}")
         else:

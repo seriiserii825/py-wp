@@ -49,4 +49,4 @@ def backup_menu():
     elif choice == 3:
         print("Creating backup and copying to mount...")
         bc = Backup()
-        bc.createAndCopyToMnt()
+        bc.create_and_copy_to_mnt()

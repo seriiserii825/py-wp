@@ -103,7 +103,7 @@ class MySelenium:
         except TimeoutException:
             return
 
-    def restoreBackupInChrome(self):
+    def restore_backup_in_chrome(self):
         self.loginToSite()
         self.driver.get(self.sitem_login)
         self.waitForCaptcha()
@@ -186,7 +186,7 @@ class MySelenium:
         wps_hide_login.click()
         self.driver.close()
 
-    def deleteBackupInChrome(self):
+    def delete_backup_in_chrome(self):
         self.loginToSite()
         self.driver.get(self.sitem_login)
         self.waitForCaptcha()
