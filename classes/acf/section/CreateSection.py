@@ -122,7 +122,7 @@ class CreateSection:
         index = SectionMenu.choose_option()
         options_page = options_pages[index]
 
-        cls._create_file(post_type="options_page", taxonomy=options_page)
+        cls._create_file(options_page=options_page)
 
     @classmethod
     def _create_file(cls, page_id=0, post_type="", taxonomy="", options_page=""):
