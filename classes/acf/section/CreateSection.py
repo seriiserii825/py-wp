@@ -109,7 +109,7 @@ class CreateSection:
         return taxonomy
 
     @classmethod
-    def new_acf_options_page(cls):
+    def new_acf_options_page(cls) -> None:
         options_pages: List[str] = WpData.get_acf_options_pages()
         print(f"options_pages:: {options_pages:}")
         if not options_pages:
