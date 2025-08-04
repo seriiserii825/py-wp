@@ -1,11 +1,9 @@
 import os
-from datetime import datetime
 
 from pyfzf.pyfzf import FzfPrompt
 from rich import print
 from simple_term_menu import TerminalMenu
 
-from classes.utils.Menu import Menu
 from classes.utils.Select import Select
 
 
@@ -76,7 +74,6 @@ class FilesHandle:
         return selected_item[0]
 
     def chooseFile(self, path_to_dir, extension=None):
-        self.showOrderFilesByCTime(path_to_dir)
         choosed_files = []
         for entry in os.listdir(path_to_dir):
             if os.path.isfile(os.path.join(path_to_dir, entry)):
@@ -95,32 +92,6 @@ class FilesHandle:
             f.write(text)
         os.system(f"bat {file_path}")
 
-    def showOrderFilesByCTime(self, dir_path):
-        print(f"Listing files in ================ {dir_path}")
-
-        files = os.listdir(dir_path)
-        if not files:
-            print("[red]No files found in the directory.")
-            return
-        # Collect (filename, ctime) tuples
-        file_ctimes = [(f, os.path.getctime(f)) for f in files if os.path.isfile(f)]
-
-        # Sort by ctime in reverse order
-        file_ctimes.sort(key=lambda x: x[1], reverse=True)
-
-        tb_headers = ["Id", "File name", "Created at"]
-        tb_rows = []
-
-        for i, (file, ctime) in enumerate(file_ctimes):
-            ctime_human = datetime.fromtimestamp(ctime).strftime("%Y-%m-%d %H:%M:%S")
-            tb_rows.append([i + 1, file, ctime_human])
-
-        Menu.display(
-            "Files ordered by creation time",
-            tb_headers,
-            tb_rows,
-        )
-
     def selectMultiple(self, options):
         terminal_menu = TerminalMenu(
             options,
@@ -131,6 +102,4 @@ class FilesHandle:
             preview_size=0.75,
         )
         terminal_menu.show()
-        # print(menu_entry_indices)
-        # print(terminal_menu.chosen_menu_entries)
         return terminal_menu.chosen_menu_entries

@@ -1,5 +1,7 @@
+from pathlib import Path
 import subprocess
 import json
+import shlex
 
 from classes.utils.Print import Print
 
@@ -52,3 +54,8 @@ class Command:
             raise ValueError(
                 f"Failed to parse JSON output from '{cmd}':\n{output}"
             ) from err
+
+    @staticmethod
+    def build(cmd: str, *args: Path | str) -> str:
+        quoted = [shlex.quote(str(a)) for a in args]
+        return f"{cmd} {' '.join(quoted)}"
