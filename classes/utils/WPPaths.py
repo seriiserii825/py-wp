@@ -13,6 +13,7 @@ class PathKey(str, Enum):
     SCRIPT_DIR = "script_dir"
     PLUGIN_WP_PATH = "plugin_wp_path"
     BACKUPS_PATH = "backups_path"
+    LIST_CSV = "list_csv"
 
 
 class WPPaths:
@@ -40,6 +41,9 @@ class WPPaths:
             PathKey.SCRIPT_DIR.value: str(cls.get_script_dir_path()),
             PathKey.PLUGIN_WP_PATH.value: f"{cls._user_dir_path}/Documents/plugins-wp",
             PathKey.BACKUPS_PATH.value: str((wp_content / "ai1wm-backups").resolve()),
+            PathKey.LIST_CSV.value: str(
+                (cls.get_script_dir_path() / "list.csv").resolve()
+            ),
         }
 
         with open(cls._paths_file, "w") as f:
@@ -117,3 +121,9 @@ class WPPaths:
         if not backup_folder_path.exists():
             backup_folder_path.mkdir(parents=True, exist_ok=True)
         return backup_folder_path
+
+    @classmethod
+    def get_list_csv_path(cls) -> Path:
+        """Получить путь к файлу list.csv"""
+        cls.load()
+        return cls.get(PathKey.LIST_CSV)

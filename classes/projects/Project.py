@@ -1,5 +1,6 @@
 import csv
-import os
+
+from classes.utils.WPPaths import WPPaths
 
 
 class Project:
@@ -9,9 +10,7 @@ class Project:
 
     def getProject(self):
         projects = ()
-        ROOT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-        # print(ROOT_DIR)
-        csv_file_path = os.path.join(ROOT_DIR, "list.csv")
+        csv_file_path = WPPaths.get_list_csv_path()
         with open(csv_file_path) as my_file:
             reader = csv.reader(my_file, delimiter=",")
             for row in reader:

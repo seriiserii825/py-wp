@@ -50,3 +50,7 @@ def backup_menu():
         print("Creating backup and copying to mount...")
         bc = Backup()
         bc.create_and_copy_to_mnt()
+    elif choice == 4:
+        print("Creating backup on server...")
+        bc = Backup()
+        bc.make_backup_in_chrome()
