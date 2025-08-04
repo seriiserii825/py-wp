@@ -1,6 +1,8 @@
 import os
 from typing_extensions import List
 from classes.utils.Command import Command
+from classes.utils.Menu import Menu
+from classes.utils.Select import Select
 from classes.utils.WPPaths import WPPaths
 from dto.PageDto import PageDto
 
@@ -8,15 +10,24 @@ from dto.PageDto import PageDto
 class Page:
     pages: List[PageDto] = []
 
+    @classmethod
+    def list_pages(cls):
+        pages = cls.get_page_list()
+        headers = ["ID", "Title", "Status", "Date"]
+        data = [
+            [str(page.ID), page.post_title, page.post_status, page.post_date]
+            for page in pages
+        ]
+        Menu.display(
+            "List of Pages",
+            headers,
+            data,
+        )
+
     @staticmethod
     def get_page_list() -> List[PageDto]:  # noqa: F821
         data = Command.run_json("wp post list --post_type=page --format=json")
         return [PageDto(**item) for item in data]
-
-    @staticmethod
-    def list_pages():
-        command = "wp post list --post_type=page"
-        Command.run(command)
 
     @classmethod
     def get_page_by_id(cls, page_id: int) -> PageDto:
@@ -30,8 +41,10 @@ class Page:
     @staticmethod
     def create_one():
         title = input("Enter the title: ")
-        command = "wp post create --post_type=page"
-        f" --post_status=publish --post_title='{title}'"
+        command = (
+            f"wp post create --post_type=page --post_status=publish "
+            f"--post_title='{title}'"
+        )
         Command.run(command)
 
     @staticmethod
@@ -41,28 +54,32 @@ class Page:
         titles = titles.split(",")
         for title in titles:
             title = title.strip()
-            command = "wp post create --post_type=page"
-            f"--post_status=publish --post_title='{title}'"
+            command = (
+                f"wp post create --post_type=page "
+                f"--post_status=publish --post_title='{title}'"
+            )
             Command.run(command)
 
-    @staticmethod
-    def delete_one():
-        command = "wp post list --post_type=page"
-        Command.run(command)
-        ids = input("Enter the id of the page you want to delete: ")
-        delete_command = f"wp post delete {ids} --force"
-        Command.run(delete_command)
+    @classmethod
+    def delete_one(cls):
+        pages = cls.get_page_list()
+        pages_to_delete = [f"{page.ID}-{page.post_title}" for page in pages]
+        selected_page = Select.select_one(pages_to_delete)
+        if selected_page:
+            page_id = int(selected_page.split("-")[0])
+            Command.run(f"wp post delete {page_id} --force")
+            print(f"Page with ID {page_id} deleted successfully.")
 
     @staticmethod
     def delete_multiple():
-        command = "wp post list --post_type=page"
-        Command.run(command)
-        ids = input(
-            "Enter the ids of the pages you want to delete separated by commas: "
-        )
-        ids = ids.split(",")
-        for id in ids:
-            Command.run(f"wp post delete {id} --force")
+        pages = Page.get_page_list()
+        pages_to_delete = [f"{page.ID}-{page.post_title}" for page in pages]
+        selected_pages = Select.select_multiple(pages_to_delete)
+        if selected_pages:
+            for selected_page in selected_pages:
+                page_id = int(selected_page.split("-")[0])
+                Command.run(f"wp post delete {page_id} --force")
+                print(f"Page with ID {page_id} deleted successfully.")
 
     @classmethod
     def ignore(cls):
