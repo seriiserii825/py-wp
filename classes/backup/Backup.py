@@ -68,11 +68,10 @@ class Backup:
         ms = MySelenium()
         ms.restore_backup_in_chrome()
 
-    def restoer_from_downloads(self):
-        self.list_backup()
+    def restore_from_downloads(self):
         downloads_dir = os.path.expanduser("~/Downloads")
         fh = FilesHandle(self.backup_dir_abs_path)
-        fh.listFiles(downloads_dir)
+        fh.listFiles(downloads_dir, ".wpress")
         selected_backup = fh.chooseFile(downloads_dir, ".wpress")
         print(f"selected_backup: {selected_backup}")
         os.system(f'cp ~/Downloads/{selected_backup} "{self.backup_dir_abs_path}"')

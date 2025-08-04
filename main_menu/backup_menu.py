@@ -58,3 +58,7 @@ def backup_menu():
         print("Restoring backup...")
         bc = Backup()
         bc.restore_backup()
+    elif choice == 6:
+        print("Restoring from downloads...")
+        bc = Backup()
+        bc.restore_from_downloads()

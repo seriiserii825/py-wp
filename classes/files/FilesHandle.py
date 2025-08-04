@@ -10,15 +10,16 @@ from classes.utils.Select import Select
 class FilesHandle:
     def __init__(self, basepath: str = ""):
         self.basepath = basepath if basepath != "" else "."
-        print(f"self.basepath: {self.basepath}")
 
-    def listFiles(self, path_to_list=""):
-        if path_to_list:
-            self.basepath = path_to_list
+    def listFiles(self, path_to_list, file_extension=None):
         print(f"[green]Listing files in ================ {self.basepath}")
-        for entry in os.listdir(self.basepath):
+        for entry in os.listdir(path_to_list):
             if os.path.isfile(os.path.join(self.basepath, entry)):
-                print(entry)
+                if file_extension:
+                    if entry.endswith(file_extension):
+                        print(entry)
+                else:
+                    print(entry)
 
     def listDir(self, path_to_list=""):
         if path_to_list:
