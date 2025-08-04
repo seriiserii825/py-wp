@@ -6,6 +6,7 @@ from main_menu.acf_func import acf_func
 from main_menu.backup_menu import backup_menu
 from main_menu.image_menu import image_menu
 from main_menu.init import init, reset_settings
+from main_menu.page_menu import page_menu
 from main_menu.plugins_menu import plugins_menu
 from modules.check_is_wp import check_is_wp
 
@@ -20,7 +21,8 @@ def menu():
         3: "bold green",
         4: "bold yellow",
         5: "bold green",
-        6: "bold red"
+        6: "bold blue",
+        7: "bold red"
     }
     rows = [
         ["0", "ACF"],
@@ -29,7 +31,8 @@ def menu():
         ["3", "Init"],
         ["4", "Reset Settings"],
         ["5", "Images"],
-        ["6", "Exit"]
+        ["6", "Pages"],
+        ["7", "Exit"]
     ]
     Menu.display("Main Menu", headers, rows, row_styles=row_styles)
     choice = Menu.choose_option()
@@ -50,7 +53,11 @@ def menu():
         exit(0)
     elif choice == 5:
         image_menu()
+        menu()
     elif choice == 6:
+        page_menu()
+        menu()
+    elif choice == 7:
         print("Exiting the program. Goodbye!")
         exit(0)
     else:
