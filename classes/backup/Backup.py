@@ -60,7 +60,7 @@ class Backup:
 
     def restore_backup(self):
         self.list_backup()
-        fh = FilesHandle()  # noqa: F821
+        fh = FilesHandle()
         selected_backup = fh.chooseFile(self.backup_dir_abs_path, ".wpress")
         os.system(f"wp ai1wm restore {selected_backup}")
 

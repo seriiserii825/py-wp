@@ -54,3 +54,7 @@ def backup_menu():
         print("Creating backup on server...")
         bc = Backup()
         bc.make_backup_in_chrome()
+    elif choice == 5:
+        print("Restoring backup...")
+        bc = Backup()
+        bc.restore_backup()

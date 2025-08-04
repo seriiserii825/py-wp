@@ -75,15 +75,11 @@ class FilesHandle:
         selected_item = fzf.prompt(items)
         return selected_item[0]
 
-    def chooseFile(self, path_to_dir="", extension=None):
-        if path_to_dir:
-            self.basepath = path_to_dir
-        else:
-            self.basepath = os.getcwd()
-        self.showOrderFilesByCTime(self.basepath)
+    def chooseFile(self, path_to_dir, extension=None):
+        self.showOrderFilesByCTime(path_to_dir)
         choosed_files = []
-        for entry in os.listdir(self.basepath):
-            if os.path.isfile(os.path.join(self.basepath, entry)):
+        for entry in os.listdir(path_to_dir):
+            if os.path.isfile(os.path.join(path_to_dir, entry)):
                 if extension:
                     if entry.endswith(extension):
                         choosed_files.append(entry)
@@ -100,18 +96,17 @@ class FilesHandle:
         os.system(f"bat {file_path}")
 
     def showOrderFilesByCTime(self, dir_path):
-        current_path = os.getcwd()
-        os.chdir(dir_path)
         print(f"Listing files in ================ {dir_path}")
 
-        files = os.listdir()
+        files = os.listdir(dir_path)
+        if not files:
+            print("[red]No files found in the directory.")
+            return
         # Collect (filename, ctime) tuples
         file_ctimes = [(f, os.path.getctime(f)) for f in files if os.path.isfile(f)]
 
         # Sort by ctime in reverse order
         file_ctimes.sort(key=lambda x: x[1], reverse=True)
-
-        os.chdir(current_path)  # Restore original working directory
 
         tb_headers = ["Id", "File name", "Created at"]
         tb_rows = []

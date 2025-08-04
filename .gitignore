@@ -49,3 +49,5 @@ venv/
 # Sphinx documentation
 docs/_build/
 uv.lock
+list.csv
+google-data.csv
