@@ -12,6 +12,7 @@ class PathKey(str, Enum):
     THEME = "theme_dir"
     SCRIPT_DIR = "script_dir"
     PLUGIN_WP_PATH = "plugin_wp_path"
+    BACKUPS_PATH = "backups_path"
 
 
 class WPPaths:
@@ -38,6 +39,7 @@ class WPPaths:
             PathKey.THEME.value: str(base_dir.resolve()),
             PathKey.SCRIPT_DIR.value: str(cls.get_script_dir_path()),
             PathKey.PLUGIN_WP_PATH.value: f"{cls._user_dir_path}/Documents/plugins-wp",
+            PathKey.BACKUPS_PATH.value: str((wp_content / "ai1wm-backups").resolve()),
         }
 
         with open(cls._paths_file, "w") as f:
@@ -106,3 +108,12 @@ class WPPaths:
         """Получить путь к текущей теме WordPress"""
         cls.load()
         return cls.get(PathKey.THEME)
+
+    @classmethod
+    def get_backups_path(cls) -> Path:
+        """Получить путь к папке резервных копий"""
+        cls.load()
+        backup_folder_path = cls.get(PathKey.BACKUPS_PATH)
+        if not backup_folder_path.exists():
+            backup_folder_path.mkdir(parents=True, exist_ok=True)
+        return cls.get(PathKey.BACKUPS_PATH)

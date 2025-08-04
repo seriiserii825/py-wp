@@ -5,5 +5,6 @@
   "plugins_dir": "/home/serii/Local Sites/lc-md-service/app/public/wp-content/plugins",
   "theme_dir": "/home/serii/Local Sites/lc-md-service/app/public/wp-content/themes/bs-md-service",
   "script_dir": "/home/serii/Documents/python/py-wp",
-  "plugin_wp_path": "/home/serii/Documents/plugins-wp"
+  "plugin_wp_path": "/home/serii/Documents/plugins-wp",
+  "backups_path": "/home/serii/Local Sites/lc-md-service/app/public/wp-content/ai1wm-backups"
 }
