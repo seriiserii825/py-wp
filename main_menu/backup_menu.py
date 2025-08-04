@@ -10,24 +10,24 @@ def backup_menu():
     menu_colors = {
         "1": "green",
         "2": "yellow",
-        "2.1": "yellow",
-        "2.2": "yellow",
-        "3": "blue",
-        "4": "blue",
+        "3": "yellow",
+        "4": "yellow",
         "5": "blue",
-        "5.1": "red",
-        "6": "red",
+        "6": "blue",
+        "7": "blue",
+        "8": "red",
+        "9": "red",
     }
     menu_items = [
         ["1", "List Backups"],
         ["2", "Create Backup"],
-        ["2.1", "Create and Copy to Mount"],
-        ["2.2", "Create Backup on Server"],
-        ["3", "Restore Backup"],
-        ["4", "Restore from Downloads"],
-        ["5", "Restore in Browser"],
-        ["5.1", "Delete in Browser"],
-        ["6", "Exit"],
+        ["3", "Create and Copy to Mount"],
+        ["4", "Create Backup on Server"],
+        ["5", "Restore Backup"],
+        ["6", "Restore from Downloads"],
+        ["7", "Restore in Browser"],
+        ["8", "Delete in Browser"],
+        ["9", "Exit"],
     ]
 
     Menu.display(
@@ -45,9 +45,8 @@ def backup_menu():
     elif choice == 2:
         print("Creating backup...")
         bc = Backup()
-        bc.makeBackup()
-        # Call the function to create a backup
-    elif choice == 2.1:
+        bc.make_backup()
+    elif choice == 3:
         print("Creating backup and copying to mount...")
         bc = Backup()
-        bc.makeBackupInChrome()
+        bc.createAndCopyToMnt()

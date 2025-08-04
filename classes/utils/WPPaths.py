@@ -116,4 +116,4 @@ class WPPaths:
         backup_folder_path = cls.get(PathKey.BACKUPS_PATH)
         if not backup_folder_path.exists():
             backup_folder_path.mkdir(parents=True, exist_ok=True)
-        return cls.get(PathKey.BACKUPS_PATH)
+        return backup_folder_path

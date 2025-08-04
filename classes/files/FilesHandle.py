@@ -10,7 +10,7 @@ from classes.utils.Select import Select
 
 
 class FilesHandle:
-    def __init__(self, basepath: str):
+    def __init__(self, basepath: str = ""):
         self.basepath = basepath if basepath != "" else "."
         print(f"self.basepath: {self.basepath}")
 
