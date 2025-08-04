@@ -3,6 +3,7 @@
 from classes.utils.Menu import Menu
 from classes.utils.WPPaths import WPPaths
 from main_menu.acf_func import acf_func
+from main_menu.backup_menu import backup_menu
 from main_menu.plugins_menu import plugins_menu
 from modules.check_is_wp import check_is_wp
 
@@ -14,12 +15,14 @@ def menu():
     row_styles = {
         0: "bold blue",
         1: "bold green",
-        2: "bold red"
+        2: "bold blue",
+        3: "bold red"
     }
     rows = [
         ["0", "ACF"],
         ["1", "Plugins"],
-        ["2", "Exit"]
+        ["2", "Backups"],
+        ["3", "Exit"]
     ]
     Menu.display("Main Menu", headers, rows, row_styles=row_styles)
     choice = Menu.choose_option()
@@ -30,6 +33,9 @@ def menu():
         plugins_menu()
         menu()
     elif choice == 2:
+        backup_menu()  # noqa: F821
+        menu()
+    elif choice == 3:
         print("Exiting the program. Goodbye!")
         exit(0)
     else:
