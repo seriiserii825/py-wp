@@ -8,7 +8,7 @@ def image_menu():
     print("[green]1) Show all")
     print("[green]2) Upload all")
     print("[blue]3) Select")
-    print("[red]4) Delete Image")
+    print("[red]4) Delete images by select")
     print("[red]5) Exit")
 
     choice = input("Make your choice:")
