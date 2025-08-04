@@ -13,12 +13,12 @@ class Backup:
         self.driver = None
 
     def make_backup(self):
-        self.listBackup()
+        self.list_backup()
         self._delete_node_modules()
         self._delete_vendor()
         Command.run("wp ai1wm backup")
         self._deleteMore3Backups()
-        self.listBackup()
+        self.list_backup()
         self._lastBackupToDownloads()
 
     def _delete_vendor(self):
@@ -51,15 +51,15 @@ class Backup:
         else:
             print("[green]Backups less than 3")
 
-    def make_backupInChrome(self):
+    def make_backup_in_chrome(self):
         ms = MySelenium()
         ms.make_backup_in_chrome()
 
-    def listBackup(self):
+    def list_backup(self):
         os.system("wp ai1wm list-backups")
 
     def restoreBackup(self):
-        self.listBackup()
+        self.list_backup()
         fh = FilesHandle()  # noqa: F821
         selected_backup = fh.chooseFile(self.backup_dir_abs_path, ".wpress")
         os.system(f"wp ai1wm restore {selected_backup}")
@@ -69,14 +69,14 @@ class Backup:
         ms.restoreBackupInChrome()
 
     def restoreFromDownloads(self):
-        self.listBackup()
+        self.list_backup()
         downloads_dir = os.path.expanduser("~/Downloads")
         fh = FilesHandle(self.backup_dir_abs_path)
         fh.listFiles(downloads_dir)
         selected_backup = fh.chooseFile(downloads_dir, ".wpress")
         print(f"selected_backup: {selected_backup}")
         os.system(f'cp ~/Downloads/{selected_backup} "{self.backup_dir_abs_path}"')
-        self.listBackup()
+        self.list_backup()
         os.system(f"wp ai1wm restore {selected_backup}")
 
     def deleteBackupInChrome(self):

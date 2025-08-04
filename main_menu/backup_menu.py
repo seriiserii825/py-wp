@@ -41,7 +41,7 @@ def backup_menu():
     if choice == 1:
         print("Listing backups...")
         bc = Backup()
-        bc.listBackup()
+        bc.list_backup()
     elif choice == 2:
         print("Creating backup...")
         bc = Backup()
