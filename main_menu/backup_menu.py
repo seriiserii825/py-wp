@@ -62,3 +62,14 @@ def backup_menu():
         print("Restoring from downloads...")
         bc = Backup()
         bc.restore_from_downloads()
+    elif choice == 7:
+        print("Restoring in browser...")
+        bc = Backup()
+        bc.restore_backup_in_chrome()
+    elif choice == 8:
+        print("Deleting backup in browser...")
+        bc = Backup()
+        bc.delete_backup_in_chrome()
+    elif choice == 9:
+        print("Exiting backup menu...")
+        return
