@@ -48,7 +48,7 @@ class MySelenium:
             else:
                 break
 
-    def makeBackupInChrome(self):
+    def make_backup_in_chrome(self):
         self.loginToSite()
         self.driver.get(self.sitem_login)
         self.waitForCaptcha()
