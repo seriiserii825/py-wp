@@ -42,10 +42,12 @@ def backup_menu():
         print("Listing backups...")
         bc = Backup()
         bc.list_backup()
+        backup_menu()
     elif choice == 1:
         print("Creating backup...")
         bc = Backup()
         bc.make_backup()
+        backup_menu()
     elif choice == 2:
         print("Creating backup and copying to mount...")
         bc = Backup()
@@ -54,22 +56,27 @@ def backup_menu():
         print("Creating backup on server...")
         bc = Backup()
         bc.make_backup_in_chrome()
+        backup_menu()
     elif choice == 4:
         print("Restoring backup...")
         bc = Backup()
         bc.restore_backup()
+        backup_menu()
     elif choice == 5:
         print("Restoring from downloads...")
         bc = Backup()
         bc.restore_from_downloads()
+        backup_menu()
     elif choice == 6:
         print("Restoring in browser...")
         bc = Backup()
         bc.restore_backup_in_chrome()
+        backup_menu()
     elif choice == 7:
         print("Deleting backup in browser...")
         bc = Backup()
         bc.delete_backup_in_chrome()
+        backup_menu()
     elif choice == 8:
         print("Exiting backup menu...")
         return
