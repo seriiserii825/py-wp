@@ -30,6 +30,12 @@ class Page:
             PageFileHandler.add_ignored_id(selected[0])
             Print.success(f"Ignored page ID {selected[0]}")
 
+        ignored_ids = PageFileHandler.get_ignored_ids()
+        PageDisplayer.display(
+            "Ignored Pages",
+            [p for p in cls.pages if p.ID in ignored_ids],
+        )
+
     @classmethod
     def create_one(cls):
         title = input("Enter page title: ").strip()
