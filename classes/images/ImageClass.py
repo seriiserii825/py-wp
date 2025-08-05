@@ -115,7 +115,7 @@ class ImagesClass:
 
     def select_images(self):
         images = self.get_images()
-        selected_images = Select.select_multiple(images)
+        selected_images = Select.select_with_fzf(images)
         self.import_images(selected_images)
 
     def import_images(self, images: list[str]):

@@ -4,6 +4,7 @@ from pyfzf.pyfzf import FzfPrompt
 from rich import print
 from simple_term_menu import TerminalMenu
 
+from classes.utils.Print import Print
 from classes.utils.Select import Select
 
 
@@ -84,7 +85,8 @@ class FilesHandle:
                 else:
                     choosed_files.append(entry)
         if len(choosed_files) == 0:
-            exit("[red]No files found")
+            Print.error("No files found")
+            exit()
         else:
             return Select.select_one(choosed_files)
 
