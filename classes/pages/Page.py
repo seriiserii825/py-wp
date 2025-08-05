@@ -1,4 +1,3 @@
-import os
 from typing_extensions import List
 from classes.utils.Command import Command
 from classes.utils.Menu import Menu
@@ -18,6 +17,8 @@ class Page:
             [str(page.ID), page.post_title, page.post_status, page.post_date]
             for page in pages
         ]
+        # sort by date
+        data.sort(key=lambda x: x[3], reverse=False)
         Menu.display(
             "List of Pages",
             headers,
@@ -62,24 +63,27 @@ class Page:
 
     @classmethod
     def delete_one(cls):
-        pages = cls.get_page_list()
-        pages_to_delete = [f"{page.ID}-{page.post_title}" for page in pages]
-        selected_page = Select.select_one(pages_to_delete)
-        if selected_page:
-            page_id = int(selected_page.split("-")[0])
+        pages_id = cls._select_page()
+        page_id = pages_id[0]
+        Command.run(f"wp post delete {page_id} --force")
+        print(f"Page with ID {page_id} deleted successfully.")
+
+    @classmethod
+    def delete_multiple(cls):
+        pages_id = cls._select_page()
+        for page_id in pages_id:
             Command.run(f"wp post delete {page_id} --force")
             print(f"Page with ID {page_id} deleted successfully.")
 
-    @staticmethod
-    def delete_multiple():
-        pages = Page.get_page_list()
+    @classmethod
+    def _select_page(cls) -> list[int]:
+        pages = cls.get_page_list()
         pages_to_delete = [f"{page.ID}-{page.post_title}" for page in pages]
-        selected_pages = Select.select_multiple(pages_to_delete)
-        if selected_pages:
-            for selected_page in selected_pages:
-                page_id = int(selected_page.split("-")[0])
-                Command.run(f"wp post delete {page_id} --force")
-                print(f"Page with ID {page_id} deleted successfully.")
+        selected_pages = Select.select_with_fzf(pages_to_delete)
+        pages_id = [
+            int(selected_page.split("-")[0]) for selected_page in selected_pages
+        ]
+        return pages_id
 
     @classmethod
     def ignore(cls):
