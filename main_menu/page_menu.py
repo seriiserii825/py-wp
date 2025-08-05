@@ -4,7 +4,7 @@ from classes.utils.Menu import Menu
 
 
 def page_menu():
-    Page.list_pages()
+    Page.list_all()
 
     menu_header = ["Index", "Option"]
     menu_colors = {
@@ -37,7 +37,7 @@ def page_menu():
 
     if choice == 0:
         print("Listing pages...")
-        Page.list_pages()
+        Page.list_all()
         page_menu()
     elif choice == 1:
         print("Creating one page...")
@@ -45,12 +45,12 @@ def page_menu():
         page_menu()
     elif choice == 2:
         print("Creating multiple pages...")
-        Page.create_multiple()
+        Page.create_many()
         page_menu()
     elif choice == 3:
         print("Deleting one page...")
-        Page.delete_one()
-        Page.list_pages()
+        Page.delete()
+        Page.list_all()
         page_menu()
     elif choice == 4:
         print("Deleting multiple pages...")
@@ -58,7 +58,7 @@ def page_menu():
         page_menu()
     elif choice == 5:
         print("[yellow]Ignoring page operation. Returning to main menu.")
-        Page.ignore()
+        Page.ignore_page()
         page_menu()
     elif choice == 6:
         print("[red]Exiting the program. Goodbye!")

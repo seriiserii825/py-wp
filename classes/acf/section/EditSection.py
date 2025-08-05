@@ -4,7 +4,6 @@ from typing import Any, Optional
 
 from classes.acf.AcfTransfer import AcfTransfer
 from classes.acf.section.CreateSection import CreateSection
-from classes.acf.section.SectionMenu import SectionMenu
 from classes.exception.NewSectionException import NewSectionException
 from classes.pages.Page import Page
 from classes.utils.InputValidator import InputValidator
