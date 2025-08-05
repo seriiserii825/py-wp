@@ -9,11 +9,12 @@ def page_menu():
     menu_header = ["Index", "Option"]
     menu_colors = {
         0: "green",
-        1: "yellow",
-        2: "yellow",
-        3: "blue",
-        4: "blue",
-        5: "red",
+        1: "blue",
+        2: "blue",
+        3: "red",
+        4: "red",
+        5: "yellow",
+        6: "red",
     }
     menu_items = [
         ["0", "List Pages"],
@@ -21,7 +22,8 @@ def page_menu():
         ["2", "Create Multiple Pages"],
         ["3", "Delete One Page"],
         ["4", "Delete Multiple Pages"],
-        ["5", "Exit"],
+        ["5", "Ignore page"],
+        ["6", "Exit"],
     ]
 
     Menu.display(
@@ -55,6 +57,10 @@ def page_menu():
         Page.delete_multiple()
         page_menu()
     elif choice == 5:
+        print("[yellow]Ignoring page operation. Returning to main menu.")
+        Page.ignore()
+        page_menu()
+    elif choice == 6:
         print("[red]Exiting the program. Goodbye!")
         return
     else:
