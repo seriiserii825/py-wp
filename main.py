@@ -8,6 +8,7 @@ from main_menu.image_menu import image_menu
 from main_menu.init import init, reset_settings
 from main_menu.page_menu import page_menu
 from main_menu.plugins_menu import plugins_menu
+from main_menu.theme_menu import theme_menu
 from modules.check_is_wp import check_is_wp
 
 
@@ -22,7 +23,8 @@ def menu():
         4: "bold yellow",
         5: "bold green",
         6: "bold blue",
-        7: "bold red"
+        7: "bold green",
+        8: "bold red"
     }
     rows = [
         ["0", "ACF"],
@@ -32,7 +34,8 @@ def menu():
         ["4", "Reset Settings"],
         ["5", "Images"],
         ["6", "Pages"],
-        ["7", "Exit"]
+        ["7", "Themes"],
+        ["8", "Exit"]
     ]
     Menu.display("Main Menu", headers, rows, row_styles=row_styles)
     choice = Menu.choose_option()
@@ -58,6 +61,9 @@ def menu():
         page_menu()
         menu()
     elif choice == 7:
+        theme_menu()
+        menu()
+    elif choice == 8:
         print("Exiting the program. Goodbye!")
         exit(0)
     else:

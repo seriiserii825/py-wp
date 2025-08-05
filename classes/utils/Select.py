@@ -7,7 +7,7 @@ from simple_term_menu import TerminalMenu
 
 class Select:
     @staticmethod
-    def select_with_fzf(options):
+    def select_with_fzf(options) -> List[str]:
         input_text = "\n".join(options)
         result = subprocess.run(
             ["fzf", "--multi"], input=input_text.encode(), stdout=subprocess.PIPE
