@@ -212,3 +212,10 @@ class ContactForm:
         Menu.display(
             table_title, table_columns, table_rows, row_styles={"color": "blue"}
         )
+
+    @staticmethod
+    def show_contact_form_files(form_files_paths: FormFilesDto) -> None:
+        form_html = form_files_paths.html
+        form_mail = form_files_paths.mail
+        Command.run(f"bat {form_html}")
+        Command.run(f"bat {form_mail}")

@@ -19,15 +19,14 @@ def contact_form_submenu(
         contact_form_submenu(
             form_files_paths, all_fields, required_fields, submited_fields
         )
-    # elif option == "2":
-    #     showContactFormFiles(form_files_paths)
-    #     submenu(
-    #         form_files_paths,
-    #         all_fields,
-    #         required_fields,
-    #         submited_fields,
-    #         project_folder,
-    #     )
+    elif option == "2":
+        ContactForm.show_contact_form_files(form_files_paths)
+        contact_form_submenu(
+            form_files_paths,
+            all_fields,
+            required_fields,
+            submited_fields,
+        )
     # elif option == "3":
     #     showRandomFields()
     #     submenu(

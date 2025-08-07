@@ -19,7 +19,7 @@ class Command:
             )
             Print.success(f"Command: {cmd} executed successfully.")
             if result.stdout.strip():
-                Print.info(f"Command output: {result.stdout.strip()}")
+                print(f"{result.stdout.strip()}")
             return result.stdout.strip()
 
         except subprocess.CalledProcessError as err:
