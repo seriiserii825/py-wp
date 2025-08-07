@@ -5,7 +5,7 @@ class FileTypeEnum(Enum):
     PHP = ("php", True)
     PHPS = ("phps", True)
     PHPP = ("phpp", False)
-    PHPI = ("phpi", True)
+    PHPI = ("phpi", False)
     SCSS = ("scss", True)
     JS = ("js", True)
 
