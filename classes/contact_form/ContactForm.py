@@ -4,6 +4,7 @@ from classes.contact_form.ContactFormFetcher import ContactFormFetcher
 from classes.contact_form.ContactFormFileService import ContactFormFileService
 from classes.contact_form.FieldParserService import FieldParserService
 from classes.contact_form.FieldValidatorService import FieldValidatorService
+from classes.contact_form.FormFieldDisplayer import FormFieldDisplayer
 from classes.contact_form.HoneypotChecker import HoneypotChecker
 from classes.contact_form.form_dto.FormFilesDto import FormFilesDto
 from classes.utils.Command import Command
@@ -65,26 +66,11 @@ class ContactForm:
     def show_contact_form_fields(
         all_fields: list[str], required_fields: list[str], submited_fields: list[str]
     ) -> None:
-        # sort submited_fields by required_fields
-        sorted_submited_fields = []
-        for field in all_fields:
-            if field in submited_fields:
-                sorted_submited_fields.append(field)
-        sorted_submited_fields += [
-            field for field in submited_fields if field not in all_fields
-        ]
-
-        table_title = "Contact Form Fields"
-        table_columns = ["All fields", "Required fields", "Submitted fields"]
-        table_rows = []
-        for field in sorted_submited_fields:
-            if field in required_fields:
-                table_rows.append([field, field, field])
-            else:
-                table_rows.append([field, "[red]No required", field])
-        Menu.display(
-            table_title, table_columns, table_rows, row_styles={
-                "color": "blue"}
+        ffd = FormFieldDisplayer()
+        ffd.show(
+            all_fields=all_fields,
+            required_fields=required_fields,
+            submitted_fields=submited_fields,
         )
 
     @staticmethod
