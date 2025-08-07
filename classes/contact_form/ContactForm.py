@@ -2,6 +2,7 @@ from pathlib import Path
 
 from classes.contact_form.ContactFormFetcher import ContactFormFetcher
 from classes.contact_form.ContactFormFileService import ContactFormFileService
+from classes.contact_form.HoneypotChecker import HoneypotChecker
 from classes.contact_form.form_dto.FormFilesDto import FormFilesDto
 from classes.utils.Command import Command
 from classes.utils.Menu import Menu
@@ -32,21 +33,8 @@ class ContactForm:
 
     @staticmethod
     def check_honeypot(form_files_paths: FormFilesDto) -> None:
-        fields = []
-        form_html = form_files_paths.html
-        items = []
-        with open(form_html, "r") as f:
-            line = f.read().strip()
-            fields = line.split("[")
-            for field in fields:
-                if "]" in field:
-                    items.append(field.split("]")[0])
-        # check for honeypot field if exists
-        honeypot = [item for item in items if "honeypot" in item]
-        if honeypot:
-            Print.info(f"Honeypot field found: [green]{honeypot[0]}[/green]")
-        else:
-            Print.error("Honeypot field not found.")
+        hc = HoneypotChecker()
+        hc.check(form_files_paths.html)
 
     @staticmethod
     def get_required_fields(form_files_paths: FormFilesDto) -> FormFieldsDto:
