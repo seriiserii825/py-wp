@@ -1,5 +1,6 @@
 from pathlib import Path
 from classes.files.FileCreatorInterface import FileCreatorInterface
+from classes.files.FileWriter import FileWriter
 from classes.files.FilesHandle import FilesHandle
 from classes.utils.InputValidator import InputValidator
 
@@ -60,15 +61,30 @@ class PHPFileCreator(FileCreatorInterface):
         if not file_abs_path.exists():
             file_abs_path.touch()
         file_abs_path.parent.mkdir(parents=True, exist_ok=True)
-        # html = f'<div class="{filename}">\n</div>\n'
-        # FileWriter.write_file(php_path, html)
 
-        # front_page = Path("front-page.php")
-        # if front_page.exists():
-        #     include = (
-        #         f"<?php"
-        #         f' get_template_part("{php_path.relative_to("template-parts")}"); ?>\n'
-        #     )
-        #     if include not in front_page.read_text():
-        #         with front_page.open("a") as f:
-        #             f.write(include)
+    def template_to_file(self, file_path: str) -> None:
+        file_name = Path(file_path).name.split(".")[0]
+        abs_path = Path(file_path).resolve()
+        html = f'<div class="{file_name}">\n</div>\n'
+        FileWriter.write_file(abs_path, html)
+        template_path = file_path.split("template-parts/")[-1].replace(".php", "")
+        print(f"template_path: {template_path}")
+
+        front_page = Path("front-page.php")
+        if front_page.exists():
+            include = f'<?php get_template_part("template-parts/{template_path}"); ?>\n'
+            if include not in front_page.read_text():
+                with front_page.open("r") as f:
+                    lines = f.readlines()
+                if any("get_footer" in line for line in lines):
+                    index = lines.index(
+                        next(line for line in lines if "get_footer" in line)
+                    )
+                    lines.insert(index, include)
+
+                else:
+                    lines.append(include)
+                with front_page.open("w") as f:
+                    f.writelines(lines)
+        else:
+            print("front-page.php does not exist. Skipping include.")
