@@ -35,32 +35,47 @@ class FilesHandle:
                     print(entry.name)
 
     def create_or_choose_directory(self, path_to_dir="") -> str:
-        current_path = ""
         abs_path = str(Path(path_to_dir).resolve())  # ✅ Абсолютный путь
         if not os.path.exists(abs_path):
             os.makedirs(abs_path)
 
         self.list_dir(abs_path)
+
+        if not self._has_dirs(path_to_dir):
+            return self._create_dir(abs_path)
+
         select_or_create = Select.select_one(["Select", "Create"])
         if select_or_create == "Create":
-            dir_name = InputValidator.get_string("Enter directory name: ")
-            current_path = str(Path(abs_path) / dir_name)
-            os.makedirs(current_path)
-            print("Directory created")
-            return current_path
+            return self._create_dir(abs_path)
         else:
             selected_dir = self.choose_dir(abs_path)
             return str(Path(path_to_dir) / selected_dir[0])
 
+    def _create_dir(self, abs_path):
+        dir_name = InputValidator.get_string("Enter directory name: ")
+        current_path = str(Path(abs_path) / dir_name)
+        os.makedirs(current_path)
+        print("Directory created")
+        return current_path
+
     def choose_dir(self, path_to_dir):
         choosed_dir = []
-        with os.scandir(path_to_dir) as entries:
+        abs_path = Path(path_to_dir).resolve()
+        with os.scandir(abs_path) as entries:
             for entry in entries:
                 if entry.is_dir():
                     choosed_dir.append(entry.name)
         choosed_dir.sort()
         selected_dir = Select.select_with_fzf(choosed_dir)
         return selected_dir
+
+    def _has_dirs(self, path_to_dir):
+        abs_path = Path(path_to_dir).resolve()
+        with os.scandir(abs_path) as entries:
+            for entry in entries:
+                if entry.is_dir():
+                    return True
+        return False
 
     def choose_file(self, path_to_dir, extension=None):
         choosed_files = []
