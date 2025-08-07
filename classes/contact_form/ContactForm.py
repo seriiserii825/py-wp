@@ -1,6 +1,7 @@
 from pathlib import Path
 
 from classes.contact_form.ContactFormFetcher import ContactFormFetcher
+from classes.contact_form.ContactFormFileService import ContactFormFileService
 from classes.contact_form.form_dto.FormFilesDto import FormFilesDto
 from classes.utils.Command import Command
 from classes.utils.Menu import Menu
@@ -23,19 +24,11 @@ class ContactForm:
         return cf.fetch()
 
     @staticmethod
-    def formToFiles(form: ContactFormDto) -> FormFilesDto:
-        form_id = form.id
-        form_html_path = form.form_folder_path + "/html.txt"
-        command = f"wp post meta get {form_id} _form --allow-root > {form_html_path}"
-        Command.run(command)
-
-        form_file_path = form.form_folder_path + "/mail.txt"
-        command = f"wp post meta get {form_id} _mail --allow-root > {form_file_path}"
-        Command.run(command)
-        return FormFilesDto(
-            html=form_html_path,
-            mail=form_file_path,
+    def form_to_files(form: ContactFormDto) -> FormFilesDto:
+        cf = ContactFormFileService(
+            command=Command(),
         )
+        return cf.extract_form_files(form)
 
     @staticmethod
     def check_honeypot(form_files_paths: FormFilesDto) -> None:
