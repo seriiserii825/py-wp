@@ -1,6 +1,7 @@
 from pathlib import Path
 from classes.files.FileWriter import FileWriter
 from classes.files.AbstractFileCreator import AbstractFileCreator
+from classes.files.PathManagerEnum import PathManagerEnum
 from classes.utils.Command import Command
 from classes.utils.Print import Print
 
@@ -12,7 +13,7 @@ class PHPIconCreator(AbstractFileCreator):
         except ValueError as e:
             Print.error(f"Error: {e}")
             exit(1)
-        return "template-parts/icons"
+        return PathManagerEnum.PHPICON.value
 
     def get_extension(self) -> str:
         return "php"
