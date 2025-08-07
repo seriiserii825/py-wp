@@ -8,8 +8,7 @@ def contact_form_submenu(
     print("[blue]1. Show contact form fields")
     print("[green]2. Show files")
     print("[blue]3. Show random_fields")
-    print("[yellow]4. Generate email")
-    print("[red]5. Exit")
+    print("[red]4. Exit")
 
     option = input("Select an option: ")
     if option == "1":
@@ -35,15 +34,6 @@ def contact_form_submenu(
             required_fields,
             submited_fields,
         )
-    # elif option == "4":
-    #     generateEmail(all_fields, form_files_paths, project_folder)
-    #     submenu(
-    #         form_files_paths,
-    #         all_fields,
-    #         required_fields,
-    #         submited_fields,
-    #         project_folder,
-    #     )
-    # else:
-    #     print("[red]Invalid option")
-    #     exit()
+    else:
+        print("[red]Invalid option")
+        exit()
