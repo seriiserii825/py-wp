@@ -27,15 +27,14 @@ def contact_form_submenu(
             required_fields,
             submited_fields,
         )
-    # elif option == "3":
-    #     showRandomFields()
-    #     submenu(
-    #         form_files_paths,
-    #         all_fields,
-    #         required_fields,
-    #         submited_fields,
-    #         project_folder,
-    #     )
+    elif option == "3":
+        ContactForm.show_random_fields()
+        contact_form_submenu(
+            form_files_paths,
+            all_fields,
+            required_fields,
+            submited_fields,
+        )
     # elif option == "4":
     #     generateEmail(all_fields, form_files_paths, project_folder)
     #     submenu(

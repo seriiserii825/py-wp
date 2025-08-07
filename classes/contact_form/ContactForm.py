@@ -141,22 +141,6 @@ class ContactForm:
         return response
 
     @staticmethod
-    def get_random_fields() -> list[RandomFieldDto]:
-        file_name = "random_fields.csv"
-        script_dir_path = WPPaths.get_script_dir_path()
-        file_path = Path(f"{script_dir_path}/contact_forms/{file_name}")
-        with open(file_path, "r") as f:
-            lines = f.readlines()
-            result = []
-            # print each line
-            for line in lines:
-                # remove the newline character
-                line = line.replace("\n", "")
-                fields = line.split(",")
-                result.append(RandomFieldDto(name=fields[0], value=fields[1:]))
-        return result
-
-    @staticmethod
     def check_random_fields(
         all_fields: list[str],
         random_fields: list[RandomFieldDto],
@@ -219,3 +203,33 @@ class ContactForm:
         form_mail = form_files_paths.mail
         Command.run(f"bat {form_html}")
         Command.run(f"bat {form_mail}")
+
+    @classmethod
+    def show_random_fields(cls) -> None:
+        random_fields = cls.get_random_fields()
+        random_fields = sorted(random_fields, key=lambda k: k.name)
+        table_title = "Random Fields"
+        table_columns = ["Field", "Values"]
+        table_rows = []
+        for random_field in random_fields:
+            values = ", ".join(random_field.value)
+            table_rows.append([random_field.name, values])
+        Menu.display(
+            table_title, table_columns, table_rows, row_styles={"color": "blue"}
+        )
+
+    @staticmethod
+    def get_random_fields() -> list[RandomFieldDto]:
+        file_name = "random_fields.csv"
+        script_dir_path = WPPaths.get_script_dir_path()
+        file_path = Path(f"{script_dir_path}/contact_forms/{file_name}")
+        with open(file_path, "r") as f:
+            lines = f.readlines()
+            result = []
+            # print each line
+            for line in lines:
+                # remove the newline character
+                line = line.replace("\n", "")
+                fields = line.split(",")
+                result.append(RandomFieldDto(name=fields[0], value=fields[1:]))
+        return result
