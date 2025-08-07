@@ -28,7 +28,8 @@ class FilesHandle:
 
     def list_dir(self, path_to_list=""):
         print(f"[blue]Listing directories in ================ {path_to_list}")
-        with os.scandir(path_to_list) as entries:
+        abs_path = Path(path_to_list).resolve()
+        with os.scandir(abs_path) as entries:
             for entry in entries:
                 if entry.is_dir():
                     print(entry.name)
