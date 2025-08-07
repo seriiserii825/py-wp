@@ -5,6 +5,7 @@ from classes.contact_form.ContactFormFileService import ContactFormFileService
 from classes.contact_form.FieldParserService import FieldParserService
 from classes.contact_form.FieldValidatorService import FieldValidatorService
 from classes.contact_form.FormFieldDisplayer import FormFieldDisplayer
+from classes.contact_form.FormFileDisplayer import FormFileDisplayer
 from classes.contact_form.HoneypotChecker import HoneypotChecker
 from classes.contact_form.form_dto.FormFilesDto import FormFilesDto
 from classes.utils.Command import Command
@@ -75,10 +76,11 @@ class ContactForm:
 
     @staticmethod
     def show_contact_form_files(form_files_paths: FormFilesDto) -> None:
-        form_html = form_files_paths.html
-        form_mail = form_files_paths.mail
-        Command.run(f"bat {form_html}")
-        Command.run(f"bat {form_mail}")
+        ffd = FormFileDisplayer(command=Command())
+        ffd.show(
+            html_path=form_files_paths.html,
+            mail_path=form_files_paths.mail,
+        )
 
     @classmethod
     def show_random_fields(cls) -> None:
