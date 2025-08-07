@@ -1,6 +1,7 @@
 # classes/factory/FileCreatorFactory.py
 from classes.files.FileCreatorInterface import FileCreatorInterface
 from classes.files.PHPFileCreator import PHPFileCreator
+from classes.files.PHPSFileCreator import PHPSFileCreator
 from classes.files.SCSSFileCreator import SCSSFileCreator
 from enum_folder.FileTypeEnum import FileTypeEnum
 
@@ -11,8 +12,8 @@ class FileCreatorFactory:
         match file_type_enum:
             case FileTypeEnum.PHP:
                 return PHPFileCreator()
-            # case FileTypeEnum.PHPS:
-            #     return PHPSFileCreator()
+            case FileTypeEnum.PHPS:
+                return PHPSFileCreator()
             case FileTypeEnum.SCSS:
                 return SCSSFileCreator()
             # Add more cases
