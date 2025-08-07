@@ -6,3 +6,4 @@ class ContactFormDto:
     id: str
     title: str
     csv_file_path: str
+    form_folder_path: str

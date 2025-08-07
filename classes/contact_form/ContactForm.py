@@ -46,8 +46,27 @@ class ContactForm:
         for symbol in replaced_symbols:
             form_name = form_name.replace(symbol, "-")
         form_id = selected_form.split("-")[1]
+        script_dir_path = WPPaths.get_script_dir_path()
+        form_folder_path = str(
+            Path(f"{script_dir_path}/{theme_name}/{form_name}-{form_id}")
+        )
+        if not Path(form_folder_path).exists():
+            Path(form_folder_path).mkdir(parents=True, exist_ok=True)
         return ContactFormDto(
             id=form_id,
             title=form_name,
             csv_file_path=str(csv_file_path),
+            form_folder_path=form_folder_path,
         )
+
+    @staticmethod
+    def formToFiles(form: ContactFormDto) -> dict:
+        form_id = form.id
+        form_html_path = form.form_folder_path + "/html.txt"
+        command = f"wp post meta get {form_id} _form --allow-root > {form_html_path}"
+        Command.run(command)
+
+        form_file_path = form.form_folder_path + "/mail.txt"
+        command = f"wp post meta get {form_id} _mail --allow-root > {form_file_path}"
+        Command.run(command)
+        return {"html": form_html_path, "mail": form_file_path}
