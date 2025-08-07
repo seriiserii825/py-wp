@@ -1,90 +1,37 @@
 from pathlib import Path
-from classes.files.FileCreatorInterface import FileCreatorInterface
 from classes.files.FileWriter import FileWriter
-from classes.files.FilesHandle import FilesHandle
-from classes.utils.InputValidator import InputValidator
+from classes.files.AbstractFileCreator import AbstractFileCreator
+from classes.utils.Command import Command
 
 
-class PHPFileCreator(FileCreatorInterface):
-    def create_file(self) -> str:
-        root_dir = "template-parts"
-        dir_path = self._get_dir_path(root_dir)
-        file_path = self._file_path(dir_path)
-        self._create_file(file_path)
-        return file_path
+class PHPFileCreator(AbstractFileCreator):
+    def get_root_dir(self) -> str:
+        return "template-parts"
 
-    def _get_dir_path(self, root_dir) -> str:
-        base_path = Path(root_dir).resolve()
-        current_path = str(base_path)
-
-        while True:
-            selected_path = FilesHandle().create_or_choose_directory(str(current_path))
-            current_path = selected_path
-
-            print(f"Selected folder: {current_path}")
-            choice = input("Go deeper into subfolder? (y/n): ").strip().lower()
-
-            if choice != "y":
-                break
-
-        return str(Path(current_path).resolve())
-
-    def _file_path(self, path_to_dir) -> str:
-        FilesHandle().list_files(path_to_dir)
-        file_name = InputValidator.get_string("Enter file name without extension: ")
-        file_name = self._remove_extension(file_name)
-        file_name = file_name.strip()
-        file_name = self._clear_whitespaces(file_name)
-        file_name = self._add_extension(file_name, "php")
-        return str(Path(f"{path_to_dir}/{file_name}").resolve())
-
-    def _remove_extension(self, file_name: str) -> str:
-        if "." in file_name:
-            return file_name.split(".")[0]
-        return file_name
-
-    def _clear_whitespaces(self, file_name: str) -> str:
-        return file_name.strip().replace(" ", "-").lower()
-
-    def _add_extension(self, file_name: str, extension: str) -> str:
-        if not file_name.endswith(f".{extension}"):
-            return f"{file_name}.{extension}"
-        return file_name
-
-    def _create_file(self, file_path: str) -> None:
-        file_abs_path = Path(file_path).resolve()
-        if file_abs_path.exists():
-            overwrite = input("File already exists. Overwrite? (y/n): ")
-            if overwrite.strip().lower() != "y":
-                print("Aborted.")
-                return
-        if not file_abs_path.exists():
-            file_abs_path.touch()
-        file_abs_path.parent.mkdir(parents=True, exist_ok=True)
+    def get_extension(self) -> str:
+        return "php"
 
     def template_to_file(self, file_path: str) -> None:
-        file_name = Path(file_path).name.split(".")[0]
-        abs_path = Path(file_path).resolve()
+        file_name = Path(file_path).stem
         html = f'<div class="{file_name}">\n</div>\n'
-        FileWriter.write_file(abs_path, html)
+        FileWriter.write_file(Path(file_path), html)
+
         template_path = file_path.split("template-parts/")[-1].replace(".php", "")
         print(f"template_path: {template_path}")
 
         front_page = Path("front-page.php")
         if front_page.exists():
             include = f'<?php get_template_part("template-parts/{template_path}"); ?>\n'
-            if include not in front_page.read_text():
-                with front_page.open("r") as f:
-                    lines = f.readlines()
-                if any("get_footer" in line for line in lines):
-                    index = lines.index(
-                        next(line for line in lines if "get_footer" in line)
-                    )
-                    lines.insert(index, include)
-
+            content = front_page.read_text()
+            if include not in content:
+                lines = content.splitlines(keepends=True)
+                for i, line in enumerate(lines):
+                    if "get_footer" in line:
+                        lines.insert(i, include)
+                        break
                 else:
                     lines.append(include)
-                with front_page.open("w") as f:
-                    f.writelines(lines)
+                front_page.write_text("".join(lines))
         else:
             print("front-page.php does not exist. Skipping include.")
+        Command.run(f"bat '{str(Path(front_page).resolve())}'")
