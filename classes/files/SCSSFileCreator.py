@@ -1,12 +1,13 @@
 from pathlib import Path
 from classes.files.FileWriter import FileWriter
 from classes.files.AbstractFileCreator import AbstractFileCreator
+from classes.files.PathManagerEnum import PathManagerEnum
 from classes.utils.Command import Command
 
 
 class SCSSFileCreator(AbstractFileCreator):
     def get_root_dir(self) -> str:
-        return "src/scss/blocks"
+        return PathManagerEnum.SCSSFILE.value
 
     def get_extension(self) -> str:
         return "scss"
