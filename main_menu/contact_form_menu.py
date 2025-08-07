@@ -1,4 +1,5 @@
 from classes.contact_form.ContactForm import ContactForm
+from main_menu.contact_form_submenu import contact_form_submenu
 
 
 def contact_form_menu():
@@ -10,3 +11,9 @@ def contact_form_menu():
     submitted_fields = ContactForm.get_submited_fields(form_files_paths)
     random_fields = ContactForm.get_random_fields()
     ContactForm.check_random_fields(all_fields, random_fields, submitted_fields)
+    contact_form_submenu(
+        form_files_paths,
+        all_fields,
+        required_fields,
+        submitted_fields
+    )
