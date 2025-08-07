@@ -18,8 +18,9 @@ class FilesHandle:
         if not files:
             print("[yellow]No files found in this directory.")
             return
+        sorted_files = sorted(files, key=lambda f: f.name.lower())
 
-        for f in files:
+        for f in sorted_files:
             if file_extension:
                 if f.name.endswith(file_extension):
                     print(f.name)
@@ -30,7 +31,11 @@ class FilesHandle:
         print(f"[blue]Listing directories in ================ {path_to_list}")
         abs_path = Path(path_to_list).resolve()
         with os.scandir(abs_path) as entries:
-            for entry in entries:
+            sored_dirs = sorted(
+                (entry for entry in entries if entry.is_dir()),
+                key=lambda e: e.name.lower(),
+            )
+            for entry in sored_dirs:
                 if entry.is_dir():
                     print(entry.name)
 

@@ -6,8 +6,11 @@ from classes.utils.InputValidator import InputValidator
 
 
 class AbstractFileCreator(FileCreatorInterface, ABC):
-    def create_file(self) -> str:
-        dir_path = self._get_dir_path()
+    def create_file(self, use_dir=True) -> str:
+        if use_dir:
+            dir_path = self._get_dir_path()
+        else:
+            dir_path = self.get_root_dir()
         file_path = self._file_path(dir_path)
         self._create_file(file_path)
         return file_path
@@ -42,7 +45,7 @@ class AbstractFileCreator(FileCreatorInterface, ABC):
             overwrite = input("File already exists. Overwrite? (y/n): ")
             if overwrite.strip().lower() != "y":
                 print("Aborted.")
-                return
+                exit(0)
         file_abs_path.parent.mkdir(parents=True, exist_ok=True)
         file_abs_path.touch(exist_ok=True)
 

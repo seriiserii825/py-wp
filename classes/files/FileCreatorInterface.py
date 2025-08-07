@@ -3,7 +3,7 @@ from abc import ABC, abstractmethod
 
 class FileCreatorInterface(ABC):
     @abstractmethod
-    def create_file(self) -> str:
+    def create_file(self, use_dir=True) -> str:
         pass
 
     @abstractmethod
