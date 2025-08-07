@@ -7,6 +7,8 @@ from classes.contact_form.FieldValidatorService import FieldValidatorService
 from classes.contact_form.FormFieldDisplayer import FormFieldDisplayer
 from classes.contact_form.FormFileDisplayer import FormFileDisplayer
 from classes.contact_form.HoneypotChecker import HoneypotChecker
+from classes.contact_form.RandomFieldDisplayer import RandomFieldDisplayer
+from classes.contact_form.RandomFieldService import RandomFieldService
 from classes.contact_form.form_dto.FormFilesDto import FormFilesDto
 from classes.utils.Command import Command
 from classes.utils.Menu import Menu
@@ -84,31 +86,14 @@ class ContactForm:
 
     @classmethod
     def show_random_fields(cls) -> None:
-        random_fields = cls.get_random_fields()
-        random_fields = sorted(random_fields, key=lambda k: k.name)
-        table_title = "Random Fields"
-        table_columns = ["Field", "Values"]
-        table_rows = []
-        for random_field in random_fields:
-            values = ", ".join(random_field.value)
-            table_rows.append([random_field.name, values])
-        Menu.display(
-            table_title, table_columns, table_rows, row_styles={
-                "color": "blue"}
+        rfd = RandomFieldDisplayer()
+        rfd.show(
+            random_fields=cls.get_random_fields(),
         )
 
     @staticmethod
     def get_random_fields() -> list[RandomFieldDto]:
-        file_name = "random_fields.csv"
-        script_dir_path = WPPaths.get_script_dir_path()
-        file_path = Path(f"{script_dir_path}/contact_forms/{file_name}")
-        with open(file_path, "r") as f:
-            lines = f.readlines()
-            result = []
-            # print each line
-            for line in lines:
-                # remove the newline character
-                line = line.replace("\n", "")
-                fields = line.split(",")
-                result.append(RandomFieldDto(name=fields[0], value=fields[1:]))
-        return result
+        rfs = RandomFieldService(
+            wp_paths=WPPaths(),
+        )
+        return rfs.get_random_fields()
