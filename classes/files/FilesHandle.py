@@ -12,7 +12,7 @@ class FilesHandle:
     def __init__(self, basepath: str = ""):
         self.basepath = basepath if basepath != "" else "."
 
-    def listFiles(self, path_to_list, file_extension=None):
+    def list_files(self, path_to_list, file_extension=None):
         print(f"[green]Listing files in ================ {self.basepath}")
         for entry in os.listdir(path_to_list):
             if os.path.isfile(os.path.join(self.basepath, entry)):
@@ -22,7 +22,7 @@ class FilesHandle:
                 else:
                     print(entry)
 
-    def listDir(self, path_to_list=""):
+    def list_dir(self, path_to_list=""):
         if path_to_list:
             self.basepath = path_to_list
         print(f"[blue]Listing directories in ================ {self.basepath}")
@@ -31,12 +31,12 @@ class FilesHandle:
                 if entry.is_dir():
                     print(entry.name)
 
-    def createOrChooseDirectory(self, path_to_dir=""):
+    def create_or_choose_directory(self, path_to_dir=""):
         if path_to_dir:
             self.basepath = path_to_dir
         else:
             self.basepath = os.getcwd()
-        self.listDir(self.basepath)
+        self.list_dir(self.basepath)
         select_or_create = Select.select_one(["Select", "Create"])
         if select_or_create == "Create":
             dir_name = input("Enter directory name:")
@@ -48,10 +48,10 @@ class FilesHandle:
                 print("Directory created")
                 return dir_name
         else:
-            selected_dir = self.chooseDir()
+            selected_dir = self.choose_dir()
             return selected_dir
 
-    def chooseDir(self):
+    def choose_dir(self):
         choosed_dir = []
         with os.scandir(self.basepath) as entries:
             for entry in entries:
@@ -61,7 +61,7 @@ class FilesHandle:
         selected_dir = Select.select_with_fzf(choosed_dir)
         return selected_dir
 
-    def listFilesWithPrefix(self, prefix):
+    def list_filesWithPrefix(self, prefix):
         print(f"Listing directories in ================ {self.basepath}")
         for entry in os.listdir(self.basepath):
             if os.path.isfile(os.path.join(self.basepath, entry)):
@@ -70,12 +70,12 @@ class FilesHandle:
                         print(entry)
         print(f"Listing directories in ================ {self.basepath}")
 
-    def selectWithFzf(self, items):
+    def select_with_fzf(self, items):
         fzf = FzfPrompt()
         selected_item = fzf.prompt(items)
         return selected_item[0]
 
-    def chooseFile(self, path_to_dir, extension=None):
+    def choose_file(self, path_to_dir, extension=None):
         choosed_files = []
         for entry in os.listdir(path_to_dir):
             if os.path.isfile(os.path.join(path_to_dir, entry)):
@@ -90,12 +90,12 @@ class FilesHandle:
         else:
             return Select.select_one(choosed_files)
 
-    def appendToFile(self, file_path, text):
+    def append_to_file(self, file_path, text):
         with open(file_path, "a") as f:
             f.write(text)
         os.system(f"bat {file_path}")
 
-    def selectMultiple(self, options):
+    def select_multiple(self, options):
         terminal_menu = TerminalMenu(
             options,
             multi_select=True,

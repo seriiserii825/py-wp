@@ -61,7 +61,7 @@ class Backup:
     def restore_backup(self):
         self.list_backup()
         fh = FilesHandle()
-        selected_backup = fh.chooseFile(self.backup_dir_abs_path, ".wpress")
+        selected_backup = fh.choose_file(self.backup_dir_abs_path, ".wpress")
         os.system(f"wp ai1wm restore {selected_backup}")
 
     def restore_backup_in_chrome(self):
@@ -71,8 +71,8 @@ class Backup:
     def restore_from_downloads(self):
         downloads_dir = os.path.expanduser("~/Downloads")
         fh = FilesHandle(self.backup_dir_abs_path)
-        fh.listFiles(downloads_dir, ".wpress")
-        selected_backup = fh.chooseFile(downloads_dir, ".wpress")
+        fh.list_files(downloads_dir, ".wpress")
+        selected_backup = fh.choose_file(downloads_dir, ".wpress")
         print(f"selected_backup: {selected_backup}")
         os.system(f'cp ~/Downloads/{selected_backup} "{self.backup_dir_abs_path}"')
         self.list_backup()
@@ -114,10 +114,10 @@ class Backup:
         if directory_exists:
             path_to_dir = "/mnt/Projects"
             fh = FilesHandle(path_to_dir)
-            selected_dir = fh.createOrChooseDirectory(path_to_dir)
+            selected_dir = fh.create_or_choose_directory(path_to_dir)
             path_to_selected_dir = f"{path_to_dir}/{selected_dir}"
-            fh.listDir(path_to_selected_dir)
-            selected_project = fh.createOrChooseDirectory(path_to_selected_dir)
+            fh.list_dir(path_to_selected_dir)
+            selected_project = fh.create_or_choose_directory(path_to_selected_dir)
             path_to_selected_dir = f"{path_to_selected_dir}/{selected_project}"
             fh.showOrderFilesByCTime(path_to_selected_dir)
             self.make_backup()
