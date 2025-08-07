@@ -13,12 +13,12 @@ def file_type_menu() -> FileTypeEnum:
         5: "bold red",
     }
     rows = [
-        ["0", FileTypeEnum.PHP.value],
-        ["1", f"{FileTypeEnum.PHPS.value} (php and scss)"],
-        ["2", f"{FileTypeEnum.PHPP.value} (php page)"],
-        ["3", f"{FileTypeEnum.PHPI.value} (php icon)"],
-        ["4", f"{FileTypeEnum.SCSS.value} (scss)"],
-        ["5", f"{FileTypeEnum.JS.value} (js)"],
+        ["0", FileTypeEnum.PHP.label],
+        ["1", f"{FileTypeEnum.PHPS.label} (php and scss)"],
+        ["2", f"{FileTypeEnum.PHPP.label} (php page)"],
+        ["3", f"{FileTypeEnum.PHPI.label} (php icon)"],
+        ["4", f"{FileTypeEnum.SCSS.label} (scss)"],
+        ["5", f"{FileTypeEnum.JS.label} (js)"],
     ]
     Menu.display("File Type Menu", headers, rows, row_styles=row_styles)
 

@@ -2,6 +2,7 @@ from pathlib import Path
 from classes.files.FileWriter import FileWriter
 from classes.files.AbstractFileCreator import AbstractFileCreator
 from classes.utils.Command import Command
+from classes.utils.Select import Select
 
 
 class PHPFileCreator(AbstractFileCreator):
@@ -17,21 +18,19 @@ class PHPFileCreator(AbstractFileCreator):
         FileWriter.write_file(Path(file_path), html)
 
         template_path = file_path.split("template-parts/")[-1].replace(".php", "")
-        print(f"template_path: {template_path}")
 
-        front_page = Path("front-page.php")
-        if front_page.exists():
-            include = f'<?php get_template_part("template-parts/{template_path}"); ?>\n'
-            content = front_page.read_text()
-            if include not in content:
-                lines = content.splitlines(keepends=True)
-                for i, line in enumerate(lines):
-                    if "get_footer" in line:
-                        lines.insert(i, include)
-                        break
-                else:
-                    lines.append(include)
-                front_page.write_text("".join(lines))
-        else:
-            print("front-page.php does not exist. Skipping include.")
-        Command.run(f"bat '{str(Path(front_page).resolve())}'")
+        listed_files = [str(file_name) for file_name in Path(".").glob("*.php")]
+        selected_file = Select.select_one(listed_files)
+        file_to_include = Path(selected_file)
+        include = f'<?php get_template_part("template-parts/{template_path}"); ?>\n'
+        content = file_to_include.read_text()
+        if include not in content:
+            lines = content.splitlines(keepends=True)
+            for i, line in enumerate(lines):
+                if "get_footer" in line:
+                    lines.insert(i, include)
+                    break
+            else:
+                lines.append(include)
+            file_to_include.write_text("".join(lines))
+        Command.run(f"bat '{str(Path(file_to_include).resolve())}'")
