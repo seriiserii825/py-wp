@@ -18,7 +18,7 @@ class PHPSFileCreator(AbstractFileCreator):
 
         # Also create SCSS file with same name under `src/scss/blocks/`
         scss_creator = SCSSFileCreator()
-        scss_file_path = f"{Path('src/scss/blocks')}/{template_path}"
+        scss_file_path = f"{Path('src/scss/blocks')}/{template_path}.scss"
         scss_creator.template_to_file(str(scss_file_path))
 
         # Show both files with bat
