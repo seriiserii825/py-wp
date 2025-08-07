@@ -1,6 +1,5 @@
 from pathlib import Path
 from classes.files.AbstractFileCreator import AbstractFileCreator
-from classes.files.PathManagerEnum import PathManagerEnum
 from classes.files.PhpTemplateToFile import PhpTemplateToFile
 from classes.utils.Command import Command
 from classes.files.SCSSFileCreator import SCSSFileCreator
@@ -8,7 +7,7 @@ from classes.files.SCSSFileCreator import SCSSFileCreator
 
 class PHPSFileCreator(AbstractFileCreator):
     def get_root_dir(self) -> str:
-        return PathManagerEnum.PHPFILE.value
+        return "template-parts"
 
     def get_extension(self) -> str:
         return "php"

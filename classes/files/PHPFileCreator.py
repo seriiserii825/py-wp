@@ -1,11 +1,10 @@
 from classes.files.AbstractFileCreator import AbstractFileCreator
-from classes.files.PathManagerEnum import PathManagerEnum
 from classes.files.PhpTemplateToFile import PhpTemplateToFile
 
 
 class PHPFileCreator(AbstractFileCreator):
     def get_root_dir(self) -> str:
-        return PathManagerEnum.PHPFILE.value
+        return "template-parts"
 
     def get_extension(self) -> str:
         return "php"
