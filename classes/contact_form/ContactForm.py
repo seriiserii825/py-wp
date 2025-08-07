@@ -1,5 +1,6 @@
 from pathlib import Path
 
+from classes.contact_form.ContactFormFetcher import ContactFormFetcher
 from classes.contact_form.form_dto.FormFilesDto import FormFilesDto
 from classes.utils.Command import Command
 from classes.utils.Menu import Menu
@@ -14,55 +15,12 @@ from dto.RandomFieldDto import RandomFieldDto
 class ContactForm:
     @staticmethod
     def get_contact_form() -> ContactFormDto:
-        script_dir_path = WPPaths.get_script_dir_path()
-        theme_path = WPPaths.get_theme_path()
-        theme_name = f"{theme_path.name}"
-        csv_file_path = Path(f"{script_dir_path}/contact_forms/{theme_name}.csv")
-        if not csv_file_path.parent.exists():
-            csv_file_path.parent.mkdir(parents=True, exist_ok=True)
-        command = (
-            f"wp post list --post_type=wpcf7_contact_form --format=csv "
-            f"--allow-root > {csv_file_path}"
+        cf = ContactFormFetcher(
+            wp_paths=WPPaths(),
+            command=Command(),
+            selector=Select(),
         )
-        Command.run(command)
-        result = []
-        with open(csv_file_path, "r") as f:
-            lines = f.readlines()
-            for index, line in enumerate(lines):
-                if index == 0:
-                    continue
-                fields = line.split(",")
-                result.append(f"{fields[1]}-{fields[0]}")
-        selected_form = Select.select_one(result)
-        replaced_symbols = [
-            " ",
-            "(",
-            ")",
-            "/",
-            "\\",
-            ":",
-            "*",
-            "?",
-            '"',
-            "<",
-            ">",
-        ]
-        form_name = selected_form.split("-")[0].lower()
-        for symbol in replaced_symbols:
-            form_name = form_name.replace(symbol, "-")
-        form_id = selected_form.split("-")[1]
-        script_dir_path = WPPaths.get_script_dir_path()
-        form_folder_path = str(
-            Path(f"{script_dir_path}/{theme_name}/{form_name}-{form_id}")
-        )
-        if not Path(form_folder_path).exists():
-            Path(form_folder_path).mkdir(parents=True, exist_ok=True)
-        return ContactFormDto(
-            id=form_id,
-            title=form_name,
-            csv_file_path=str(csv_file_path),
-            form_folder_path=form_folder_path,
-        )
+        return cf.fetch()
 
     @staticmethod
     def formToFiles(form: ContactFormDto) -> FormFilesDto:
@@ -100,7 +58,8 @@ class ContactForm:
     @staticmethod
     def get_required_fields(form_files_paths: FormFilesDto) -> FormFieldsDto:
         fields = []
-        ignored_fields = ["timecheck_enabled", "honeypot", "acceptance", "submit"]
+        ignored_fields = ["timecheck_enabled",
+                          "honeypot", "acceptance", "submit"]
         form_html = form_files_paths.html
         items = []
         with open(form_html, "r") as f:
@@ -194,7 +153,8 @@ class ContactForm:
             else:
                 table_rows.append([field, "[red]No required", field])
         Menu.display(
-            table_title, table_columns, table_rows, row_styles={"color": "blue"}
+            table_title, table_columns, table_rows, row_styles={
+                "color": "blue"}
         )
 
     @staticmethod
@@ -215,7 +175,8 @@ class ContactForm:
             values = ", ".join(random_field.value)
             table_rows.append([random_field.name, values])
         Menu.display(
-            table_title, table_columns, table_rows, row_styles={"color": "blue"}
+            table_title, table_columns, table_rows, row_styles={
+                "color": "blue"}
         )
 
     @staticmethod
