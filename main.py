@@ -5,6 +5,7 @@ from classes.utils.WPPaths import WPPaths
 from main_menu.acf_func import acf_func
 from main_menu.backup_menu import backup_menu
 from main_menu.contact_form_menu import contact_form_menu
+from main_menu.file_menu import file_menu
 from main_menu.image_menu import image_menu
 from main_menu.init import init, reset_settings
 from main_menu.page_menu import page_menu
@@ -26,7 +27,8 @@ def menu():
         6: "bold blue",
         7: "bold green",
         8: "bold blue",
-        9: "bold red"
+        9: "bold green",
+        10: "bold red"
     }
     rows = [
         ["0", "ACF"],
@@ -38,7 +40,8 @@ def menu():
         ["6", "Pages"],
         ["7", "Themes"],
         ["8", "Contact Form"],
-        ["9", "Exit"]
+        ["9", "Files"],
+        ["10", "Exit"]
     ]
     Menu.display("Main Menu", headers, rows, row_styles=row_styles)
     choice = Menu.choose_option()
@@ -70,6 +73,9 @@ def menu():
         contact_form_menu()
         menu()
     elif choice == 9:
+        file_menu()
+        menu()
+    elif choice == 10:
         print("Exiting the program. Goodbye!")
         exit(0)
     else:
