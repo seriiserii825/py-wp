@@ -9,18 +9,16 @@ def file_type_menu() -> FileTypeEnum:
         1: "bold yellow",
         2: "bold yellow",
         3: "bold yellow",
-        4: "bold yellow",
-        5: "bold blue",
-        6: "bold red",
+        4: "bold blue",
+        5: "bold red",
     }
     rows = [
         ["0", FileTypeEnum.PHP.value],
         ["1", f"{FileTypeEnum.PHPS.value} (php and scss)"],
-        ["2", f"{FileTypeEnum.PHPC.value} (php component)"],
-        ["3", f"{FileTypeEnum.PHPP.value} (php page)"],
-        ["4", f"{FileTypeEnum.PHPI.value} (php icon)"],
-        ["5", f"{FileTypeEnum.SCSS.value} (scss)"],
-        ["6", f"{FileTypeEnum.JS.value} (js)"],
+        ["2", f"{FileTypeEnum.PHPP.value} (php page)"],
+        ["3", f"{FileTypeEnum.PHPI.value} (php icon)"],
+        ["4", f"{FileTypeEnum.SCSS.value} (scss)"],
+        ["5", f"{FileTypeEnum.JS.value} (js)"],
     ]
     Menu.display("File Type Menu", headers, rows, row_styles=row_styles)
 
@@ -30,14 +28,12 @@ def file_type_menu() -> FileTypeEnum:
     elif choice == 1:
         return FileTypeEnum.PHPS
     elif choice == 2:
-        return FileTypeEnum.PHPC
-    elif choice == 3:
         return FileTypeEnum.PHPP
-    elif choice == 4:
+    elif choice == 3:
         return FileTypeEnum.PHPI
-    elif choice == 5:
+    elif choice == 4:
         return FileTypeEnum.SCSS
-    elif choice == 6:
+    elif choice == 5:
         return FileTypeEnum.JS
     else:
         print("Invalid option. Please try again.")

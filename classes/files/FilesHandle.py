@@ -1,79 +1,65 @@
 import os
+from pathlib import Path
 
-from pyfzf.pyfzf import FzfPrompt
 from rich import print
 from simple_term_menu import TerminalMenu
 
+from classes.utils.InputValidator import InputValidator
 from classes.utils.Print import Print
 from classes.utils.Select import Select
 
 
 class FilesHandle:
-    def __init__(self, basepath: str = ""):
-        self.basepath = basepath if basepath != "" else "."
+    def list_files(self, path_to_list, file_extension=None) -> None:
+        abs_path = Path(path_to_list).resolve()
+        print(f"[green]Listing files in ================ {abs_path}")
 
-    def list_files(self, path_to_list, file_extension=None):
-        print(f"[green]Listing files in ================ {self.basepath}")
-        for entry in os.listdir(path_to_list):
-            if os.path.isfile(os.path.join(self.basepath, entry)):
-                if file_extension:
-                    if entry.endswith(file_extension):
-                        print(entry)
-                else:
-                    print(entry)
+        files = [f for f in abs_path.iterdir() if f.is_file()]
+        if not files:
+            print("[yellow]No files found in this directory.")
+            return
+
+        for f in files:
+            if file_extension:
+                if f.name.endswith(file_extension):
+                    print(f.name)
+            else:
+                print(f.name)
 
     def list_dir(self, path_to_list=""):
-        if path_to_list:
-            self.basepath = path_to_list
-        print(f"[blue]Listing directories in ================ {self.basepath}")
-        with os.scandir(self.basepath) as entries:
+        print(f"[blue]Listing directories in ================ {path_to_list}")
+        with os.scandir(path_to_list) as entries:
             for entry in entries:
                 if entry.is_dir():
                     print(entry.name)
 
-    def create_or_choose_directory(self, path_to_dir=""):
-        if path_to_dir:
-            self.basepath = path_to_dir
-        else:
-            self.basepath = os.getcwd()
-        self.list_dir(self.basepath)
+    def create_or_choose_directory(self, path_to_dir="") -> str:
+        current_path = ""
+        abs_path = str(Path(path_to_dir).resolve())  # ✅ Абсолютный путь
+        if not os.path.exists(abs_path):
+            os.makedirs(abs_path)
+
+        self.list_dir(abs_path)
         select_or_create = Select.select_one(["Select", "Create"])
         if select_or_create == "Create":
-            dir_name = input("Enter directory name:")
-            if dir_name == "":
-                print("Directory name is required")
-                exit()
-            else:
-                os.makedirs(self.basepath + "/" + dir_name)
-                print("Directory created")
-                return dir_name
+            dir_name = InputValidator.get_string("Enter directory name: ")
+            current_path = str(Path(abs_path) / dir_name)
+            os.makedirs(current_path)
+            print("Directory created")
+            return current_path
         else:
-            selected_dir = self.choose_dir()
-            return selected_dir
+            selected_dir = self.choose_dir(abs_path)
+            return str(Path(path_to_dir) / selected_dir[0])
 
-    def choose_dir(self):
+    def choose_dir(self, path_to_dir):
         choosed_dir = []
-        with os.scandir(self.basepath) as entries:
+        with os.scandir(path_to_dir) as entries:
             for entry in entries:
                 if entry.is_dir():
                     choosed_dir.append(entry.name)
         choosed_dir.sort()
         selected_dir = Select.select_with_fzf(choosed_dir)
         return selected_dir
-
-    def list_filesWithPrefix(self, prefix):
-        print(f"Listing directories in ================ {self.basepath}")
-        for entry in os.listdir(self.basepath):
-            if os.path.isfile(os.path.join(self.basepath, entry)):
-                for item in prefix:
-                    if entry.startswith(item):
-                        print(entry)
-        print(f"Listing directories in ================ {self.basepath}")
-
-    def select_with_fzf(self, items):
-        fzf = FzfPrompt()
-        selected_item = fzf.prompt(items)
-        return selected_item[0]
 
     def choose_file(self, path_to_dir, extension=None):
         choosed_files = []

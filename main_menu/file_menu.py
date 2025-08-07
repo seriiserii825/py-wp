@@ -1,6 +1,9 @@
+from classes.files.FileCreatorFactory import FileCreatorFactory
 from main_menu.file_type_menu import file_type_menu
 
 
 def file_menu():
     file_type = file_type_menu()
-    print(f"file_type: {file_type.value}")
+    file = FileCreatorFactory.get_creator(file_type)
+    file_path = file.create_file()
+    print(f"file_path: {file_path}")
