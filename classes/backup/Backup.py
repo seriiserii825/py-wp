@@ -113,16 +113,12 @@ class Backup:
         directory_exists = os.path.isdir("/mnt/Projects")
         if directory_exists:
             path_to_dir = "/mnt/Projects"
-            fh = FilesHandle(path_to_dir)
-            selected_dir = fh.create_or_choose_directory(path_to_dir)
-            path_to_selected_dir = f"{path_to_dir}/{selected_dir}"
+            fh = FilesHandle()
+            path_to_selected_dir = fh.create_or_choose_directory(path_to_dir)
             fh.list_dir(path_to_selected_dir)
-            selected_project = fh.create_or_choose_directory(path_to_selected_dir)
-            path_to_selected_dir = f"{path_to_selected_dir}/{selected_project}"
-            fh.showOrderFilesByCTime(path_to_selected_dir)
+            path_to_selected_dir = fh.create_or_choose_directory(path_to_selected_dir)
             self.make_backup()
             self.last_backup_to_mnt(path_to_selected_dir)
-            fh.showOrderFilesByCTime(path_to_selected_dir)
             exit("[green]Backup created and copied to /mnt/Projects/{selected_project}")
         else:
             exit("[red]Directory /mnt/Projects not exists!")

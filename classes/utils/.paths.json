@@ -1,11 +1,11 @@
 {
-  "base_dir": "/home/serii/Local Sites/lc-erapra-veneto/app/public/wp-content/themes/bs-erapra-veneto",
-  "wp_content_dir": "/home/serii/Local Sites/lc-erapra-veneto/app/public/wp-content",
-  "uploads_dir": "/home/serii/Local Sites/lc-erapra-veneto/app/public/wp-content/uploads",
-  "plugins_dir": "/home/serii/Local Sites/lc-erapra-veneto/app/public/wp-content/plugins",
-  "theme_dir": "/home/serii/Local Sites/lc-erapra-veneto/app/public/wp-content/themes/bs-erapra-veneto",
+  "base_dir": "/home/serii/Local Sites/lc-drstefanopetrillocom/app/public/wp-content/themes/lm-dr-stefano-petrillo",
+  "wp_content_dir": "/home/serii/Local Sites/lc-drstefanopetrillocom/app/public/wp-content",
+  "uploads_dir": "/home/serii/Local Sites/lc-drstefanopetrillocom/app/public/wp-content/uploads",
+  "plugins_dir": "/home/serii/Local Sites/lc-drstefanopetrillocom/app/public/wp-content/plugins",
+  "theme_dir": "/home/serii/Local Sites/lc-drstefanopetrillocom/app/public/wp-content/themes/lm-dr-stefano-petrillo",
   "script_dir": "/home/serii/Documents/python/py-wp",
   "plugin_wp_path": "/home/serii/Documents/plugins-wp",
-  "backups_path": "/home/serii/Local Sites/lc-erapra-veneto/app/public/wp-content/ai1wm-backups",
+  "backups_path": "/home/serii/Local Sites/lc-drstefanopetrillocom/app/public/wp-content/ai1wm-backups",
   "list_csv": "/home/serii/Documents/python/py-wp/list.csv"
 }
