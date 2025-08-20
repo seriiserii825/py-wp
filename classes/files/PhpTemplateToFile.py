@@ -9,7 +9,7 @@ class PhpTemplateToFile:
     @staticmethod
     def php_to_file(file_path: str) -> str:
         file_name = Path(file_path).stem
-        html = f'<div class="{file_name}">\n</div>\n'
+        html = f'<?php \n ?>\n<div class="{file_name}">\n</div>\n'
         FileWriter.write_file(Path(file_path), html)
 
         template_path = file_path.split("template-parts/")[-1].replace(".php", "")
