@@ -1,3 +1,4 @@
+from datetime import datetime
 import os
 from pathlib import Path
 
@@ -10,7 +11,7 @@ from classes.utils.Select import Select
 
 
 class FilesHandle:
-    def list_files(self, path_to_list, file_extension=None) -> None:
+    def list_files(self, path_to_list, file_extension=None, mtime=None) -> None:
         abs_path = Path(path_to_list).resolve()
         print(f"[green]Listing files in ================ {abs_path}")
 
@@ -23,9 +24,20 @@ class FilesHandle:
         for f in sorted_files:
             if file_extension:
                 if f.name.endswith(file_extension):
-                    print(f.name)
+                    self._show_file(f, mtime)
             else:
-                print(f.name)
+                self._show_file(f, mtime)
+
+    def _show_file(self, file_path, mtime):
+        timestamp = file_path.stat().st_mtime
+        file_name = file_path.name
+        if mtime:
+            # Convert timestamp → human readable
+            human_mtime = datetime.fromtimestamp(
+                timestamp).strftime("%Y-%m-%d %H:%M:%S")
+            print(f"{file_name} - {human_mtime}")
+        else:
+            print(file_name)
 
     def list_dir(self, path_to_list=""):
         print(f"[blue]Listing directories in ================ {path_to_list}")

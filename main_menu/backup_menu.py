@@ -6,38 +6,19 @@ from main_menu.check_for_base_plugins import check_for_base_plugins
 def backup_menu():
     check_for_base_plugins()
 
-    menu_header = ["Index", "Action"]
-    menu_colors = {
-        0: "green",
-        1: "yellow",
-        2: "yellow",
-        3: "yellow",
-        4: "blue",
-        5: "blue",
-        6: "blue",
-        7: "red",
-        8: "red",
-    }
     menu_items = [
-        ["0", "List Backups"],
-        ["1", "Create Backup"],
-        ["2", "Create and Copy to Mount"],
-        ["3", "Create Backup on Server"],
-        ["4", "Restore Backup"],
-        ["5", "Restore from Downloads"],
-        ["6", "Restore in Browser"],
-        ["7", "Delete in Browser"],
-        ["8", "Exit"],
+        "List Backups",
+        "Create Backup",
+        "Create and Copy to Mount",
+        "Create Backup on Server",
+        "Restore Backup",
+        "Restore from Downloads",
+        "Restore in Browser",
+        "Delete in Browser",
+        "Exit",
     ]
 
-    Menu.display(
-        title="Backup Menu",
-        columns=menu_header,
-        rows=menu_items,
-        row_styles=menu_colors,
-    )
-
-    choice = Menu.choose_option()
+    choice = Menu.select_with_fzf(menu_items)
     if choice == 0:
         print("Listing backups...")
         bc = Backup()
