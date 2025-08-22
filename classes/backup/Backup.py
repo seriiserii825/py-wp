@@ -119,6 +119,7 @@ class Backup:
             path_to_selected_dir = fh.create_or_choose_directory(path_to_selected_dir)
             self.make_backup()
             self.last_backup_to_mnt(path_to_selected_dir)
-            exit("[green]Backup created and copied to /mnt/Projects/{selected_project}")
+            last_backup = self.get_last_backup_path()
+            print(f"[green]Backup created and copied to /mnt/Projects/{last_backup}")
         else:
             exit("[red]Directory /mnt/Projects not exists!")

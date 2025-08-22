@@ -1,5 +1,0 @@
-after create backup and copy to mnt
-Command: cp '/home/serii/Local Sites/lc-opera-loudspeakers/app/public/wp-content/ai1wm-backups/lc-opera-loudspeakers.local-20250822-080710-kj6b2x.wpress'
-'/mnt/Projects/O/bs-opera-loudspeakers' executed successfully.
-====================
-[green]Backup created and copied to /mnt/Projects/{selected_project}
