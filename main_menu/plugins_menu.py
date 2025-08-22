@@ -2,31 +2,20 @@ from classes.csv.BasePluginsCsv import BasePluginsCsv
 from classes.csv.OtherPluginsCsv import OtherPluginsCsv
 from classes.plugin.Plugin import Plugin
 from classes.utils.Menu import Menu
+from classes.utils.Select import Select
 
 
 def plugins_menu():
-    headers = ["Index", "Description"]
     rows = [
-        ["0", "List installed plugins"],
-        ["1", "List base plugins from csv file"],
-        ["2", "List other plugins from csv file"],
-        ["3", "Install all base plugins"],
-        ["4", "Install from other plugins"],
-        ["5", "Uninstall plugin"],
-        ["6", "Exit"],
+        "List installed",
+        "List base from csv file",
+        "List other from csv file",
+        "Install base",
+        "Install other",
+        "Uninstall",
+        "Exit",
     ]
-    row_styles = {
-        0: "bold blue",
-        1: "bold blue",
-        2: "bold blue",
-        3: "bold green",
-        4: "bold green",
-        5: "bold red",
-        6: "bold red",
-    }
-    Menu.display("Plugins Menu", headers, rows, row_styles=row_styles)
-    choice = Menu.choose_option()
-    print(f"choice: {choice}")
+    choice = Menu.select_with_fzf(rows)
 
     if choice == 0:
         pi = Plugin()

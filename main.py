@@ -29,8 +29,7 @@ def menu():
         "Files",
         "Exit"
     ]
-    selected_option = Select.select_one(options)
-    choice = options.index(selected_option) if selected_option in options else -1
+    choice = Menu.select_with_fzf(options)
     if choice == 0:
         acf_func()
         menu()
