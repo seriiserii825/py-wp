@@ -103,10 +103,22 @@ class MySelenium:
         except TimeoutException:
             return
 
+    def _go_next_if_no_login_element(self):
+        elements = self.driver.find_elements(By.ID, "user_login")
+        if elements:  # list is not empty
+            print("Login element exists")
+        else:
+            go_next = input("Go next? [y/n]: ")
+            if go_next == "y":
+                print("Go next")
+            else:
+                exit(1)
+
     def restore_backup_in_chrome(self):
         self.loginToSite()
         self.driver.get(self.sitem_login)
         self.waitForCaptcha()
+        self._go_next_if_no_login_element()
         login_element = self.driver.find_element(By.ID, "user_login")
         login_element.send_keys(self.project_login)
         password_element = self.driver.find_element(By.ID, "user_pass")
@@ -160,6 +172,7 @@ class MySelenium:
         self.loginToSite()
         self.driver.get(self.sitem_login)
         self.waitForCaptcha()
+        self._go_next_if_no_login_element()
         login_element = self.driver.find_element(By.ID, "user_login")
         login_element.send_keys(self.project_login)
         password_element = self.driver.find_element(By.ID, "user_pass")
