@@ -29,4 +29,4 @@ def _choose_section():
         new_section()
     elif choice == 3:
         Print.error("Exiting ACF CLI.")
-        exit()
+        return

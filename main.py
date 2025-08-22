@@ -1,6 +1,7 @@
 #!/usr/bin/python3
 
 from classes.utils.Menu import Menu
+from classes.utils.Select import Select
 from classes.utils.WPPaths import WPPaths
 from main_menu.acf_func import acf_func
 from main_menu.backup_menu import backup_menu
@@ -15,36 +16,21 @@ from modules.check_is_wp import check_is_wp
 
 
 def menu():
-    headers = ["Index", "Option"]
-
-    row_styles = {
-        0: "bold blue",
-        1: "bold green",
-        2: "bold blue",
-        3: "bold red",
-        4: "bold red",
-        5: "bold green",
-        6: "bold blue",
-        7: "bold green",
-        8: "bold blue",
-        9: "bold green",
-        10: "bold red"
-    }
-    rows = [
-        ["0", "ACF"],
-        ["1", "Plugins"],
-        ["2", "Backups"],
-        ["3", "Init"],
-        ["4", "Reset Settings"],
-        ["5", "Images"],
-        ["6", "Pages"],
-        ["7", "Themes"],
-        ["8", "Contact Form"],
-        ["9", "Files"],
-        ["10", "Exit"]
+    options = [
+        "ACF",
+        "Plugins",
+        "Backups",
+        "Init",
+        "Reset Settings",
+        "Images",
+        "Pages",
+        "Themes",
+        "Contact Form",
+        "Files",
+        "Exit"
     ]
-    Menu.display("Main Menu", headers, rows, row_styles=row_styles)
-    choice = Menu.choose_option()
+    selected_option = Select.select_one(options)
+    choice = options.index(selected_option) if selected_option in options else -1
     if choice == 0:
         acf_func()
         menu()
