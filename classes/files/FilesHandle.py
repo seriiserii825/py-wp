@@ -11,7 +11,7 @@ from classes.utils.Select import Select
 
 
 class FilesHandle:
-    def list_files(self, path_to_list, file_extension=None, mtime=None) -> None:
+    def list_files(self, path_to_list, file_extension=None, mtime=True) -> None:
         abs_path = Path(path_to_list).resolve()
         print(f"[green]Listing files in ================ {abs_path}")
 

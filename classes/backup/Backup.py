@@ -71,7 +71,7 @@ class Backup:
     def restore_from_downloads(self):
         downloads_dir = os.path.expanduser("~/Downloads")
         fh = FilesHandle()
-        fh.list_files(downloads_dir, ".wpress")
+        fh.list_files(downloads_dir, ".wpress", mtime=True)
         selected_backup = fh.choose_file(downloads_dir, ".wpress")
         print(f"selected_backup: {selected_backup}")
         os.system(f'cp ~/Downloads/{selected_backup} "{self.backup_dir_abs_path}"')
