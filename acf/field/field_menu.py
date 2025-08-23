@@ -1,4 +1,6 @@
 import shutil
+import subprocess
+
 from pathlib import Path
 from classes.acf.AcfTransfer import AcfTransfer
 from classes.acf.field.FieldMenu import FieldMenu
@@ -39,7 +41,7 @@ def acf_menu(section_file_json_path):
         elif choice == 5:
             f_menu.copy_group_to_clipboard()
         elif choice == 6:
-            upload_changes()
+            upload_changes(section_file_json_path=section_file_json_path)
         elif choice == 7:
             print("Exiting ACF Field Menu.")
             break
@@ -47,10 +49,13 @@ def acf_menu(section_file_json_path):
             print("Invalid choice. Please try again.")
 
 
-def upload_changes():
+def upload_changes(section_file_json_path: str | Path):
     print("Uploading changes to WordPress...")
     copy_acf_folder_to_downloads()
     AcfTransfer.wp_import()
+    print("Update field order from json file")
+    update_fields_order(section_file_json_path=section_file_json_path)
+    print("Upload completed.")
 
 
 def copy_acf_folder_to_downloads():
@@ -66,3 +71,30 @@ def copy_acf_folder_to_downloads():
         print(f"ACF folder copied to {destination}")
     else:
         print("ACF folder does not exist in the theme directory.")
+
+
+def update_fields_order(section_file_json_path: str | Path):
+    """
+    section_file_json_path — путь до JSON файла (str или Path).
+    Вызывает bash-скрипт fix-order.sh и передает ему этот путь.
+    """
+    script_dir = WPPaths.get_script_dir_path()
+    script = f"{script_dir}/bash-scripts/json-acf-menu-order.sh"
+
+    section_file_json_path = Path(section_file_json_path).resolve()
+
+    try:
+        result = subprocess.run(
+            [script, str(section_file_json_path)],
+            check=True,
+            capture_output=True,
+            text=True
+        )
+        print("stdout:", result.stdout)
+        print("stderr:", result.stderr)
+        return result.returncode
+    except subprocess.CalledProcessError as e:
+        print(f"Error running {script}: {e}")
+        print("stdout:", e.stdout)
+        print("stderr:", e.stderr)
+        return e.returncode
