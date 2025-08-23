@@ -1,6 +1,9 @@
+import shutil
+from pathlib import Path
 from classes.acf.AcfTransfer import AcfTransfer
 from classes.acf.field.FieldMenu import FieldMenu
 from classes.utils.Menu import Menu
+from classes.utils.WPPaths import WPPaths
 
 
 def field_menu(section_file_json_path):
@@ -46,4 +49,20 @@ def acf_menu(section_file_json_path):
 
 def upload_changes():
     print("Uploading changes to WordPress...")
+    copy_acf_folder_to_downloads()
     AcfTransfer.wp_import()
+
+
+def copy_acf_folder_to_downloads():
+    theme_path = WPPaths.get_theme_path()
+    acf_folder = theme_path / "acf"
+    downloads_path = Path.home() / "Downloads"
+    # copy to downloads
+    if acf_folder.exists() and acf_folder.is_dir():
+        destination = downloads_path / "acf"
+        if destination.exists():
+            shutil.rmtree(destination)
+        shutil.copytree(acf_folder, destination)
+        print(f"ACF folder copied to {destination}")
+    else:
+        print("ACF folder does not exist in the theme directory.")
