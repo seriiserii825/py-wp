@@ -41,3 +41,11 @@ class InputValidator:
             elif value in ("n", "no"):
                 return False
             print("Invalid input. Please enter 'y' or 'n'.")
+
+    @staticmethod
+    def get_bool_true_default(prompt="Enter 'n' for no or 'y' by default: "):
+        while True:
+            value = input(prompt).strip().lower()
+            if value in ("n", "no"):
+                return False
+            return True

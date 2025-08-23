@@ -9,6 +9,7 @@ class FieldTemplateFactory:
             "key": dto.key,
             "label": dto.label,
             "name": dto.name,
+            "aria-label": dto.aria_label,
             "type": dto.type,
             "instructions": dto.instructions,
             "required": dto.required,

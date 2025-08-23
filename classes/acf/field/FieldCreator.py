@@ -11,21 +11,26 @@ class FieldCreator:
 
     def create(self) -> dict | list[dict]:
         label = self.builder.ask_label()
-        name = self.builder.label_to_name(label)
-        key = Generate.get_field_id()
         selected_type = self.builder.ask_field_type()
+        if selected_type == "tab":
+            name = ""
+        else:
+            name = self.builder.label_to_name(label)
+        key = Generate.get_field_id()
 
         required = self.builder.ask_required(selected_type)
         width = self.builder.ask_width(selected_type)
         layout = self.builder.ask_layout(selected_type)
         message = self.builder.ask_message(selected_type)
         ui = self.builder.ui_for_true_false(selected_type)
-        true_false_default = self.builder.default_value_for_true_false(selected_type)
+        true_false_default = self.builder.default_value_for_true_false(
+            selected_type)
 
         field = FieldDTO(
             key=key,
             label=label,
             name=name,
+            aria_label="",
             type=selected_type,
             layout=layout,
             required=required,

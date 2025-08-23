@@ -16,13 +16,15 @@ class FieldBuilder:
         return label.replace(" ", "_").lower()
 
     def ask_field_type(self) -> str:
-        types = [ft.value for ft in EFieldType]  # noqa: F821
-        return Select.select_one(types)  # noqa: F821
+        types = [ft.value for ft in EFieldType]
+        return Select.select_one(types)
 
-    def ask_required(self, field_type: str) -> bool:
+    def ask_required(self, field_type: str) -> int | bool:
         if self.is_simple_field(field_type):
-            return InputValidator.get_bool("Field is required? (y/n): ")
-        return False
+            bool_result = InputValidator.get_bool_true_default(
+                "Is required, for no type 'n', 'y' by default: ")
+            return True if bool_result else 0
+        return 0
 
     def ask_width(self, field_type: str) -> int:
         if not self.is_simple_field(field_type):
