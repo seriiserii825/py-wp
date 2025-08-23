@@ -1,0 +1,2 @@
+Select search with fzf not select right word throw error close app
+
