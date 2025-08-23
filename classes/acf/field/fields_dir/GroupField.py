@@ -8,10 +8,11 @@ class GroupField(Field):
         super().__init__(field_data)
         self.sub_fields = field_data.get("sub_fields", [])
 
-    def print_field(self, index, indent=0):
+    def print_field(self, index, indent=0, active=False):
         prefix = "--" * indent
+        color = "red" if active else "yellow"
         print(
-            f"[yellow]{prefix}{index}) {self.label} - "
+            f"[{color}]{prefix}{index}) {self.label} - "
             f"{self.name} - {self.type} - layout: {self.layout}"
         )
 

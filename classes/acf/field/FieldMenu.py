@@ -24,6 +24,14 @@ class FieldMenu:
             if field:
                 field.print_field_with_subfields(index=index, indent=0)
 
+    def show_only_tab_group(self, active_index: int = 0):
+        _, fields = self._load_fields()
+        for index, field_data in enumerate(fields):
+            field = create_field(field_data)
+            if field:
+                field.print_field(index=index, indent=0,
+                                  active=active_index == index)
+
     def create_field(self):
         data, fields = self._load_fields()
         new_field = self.creator.create()
@@ -38,24 +46,28 @@ class FieldMenu:
     def _move_after_create(self, fields: list, data):
         try:
             source_index = str(len(fields) - 1)
-            dest = InputValidator.get_string("Enter destination index (e.g. 0.1): ")
+            dest = InputValidator.get_string(
+                "Enter destination index (e.g. 0.1): ")
             self.mover.move_field(fields, source_index, dest)
             self.repo.save(data)
             print("Field moved successfully.")
         except Exception as e:
             print(f"Error moving newly created field: {e}")
 
-    def move_field(self):
+    def move_field(self) -> str:
         data, fields = self._load_fields()
         self._check_field_is_empty(fields)
         try:
-            source = InputValidator.get_string("Enter source index (e.g. 1.2): ")
-            dest = InputValidator.get_string("Enter destination index (e.g. 0.1): ")
+            source = InputValidator.get_string(
+                "Enter source index (e.g. 1.2): ")
+            dest = InputValidator.get_string(
+                "Enter destination index (e.g. 0.1): ")
             self.mover.move_field(fields, source, dest)
             self.repo.save(data)
             print("Field moved successfully.")
+            return dest
         except Exception as e:
-            print(f"Error moving field: {e}")
+            raise Exception(f"Error moving field: {e}")
 
     def edit_field(self):
         data, fields = self._load_fields()
@@ -76,7 +88,8 @@ class FieldMenu:
         _, fields = self._load_fields()
         self._check_field_is_empty(fields)
         try:
-            source = InputValidator.get_string("Enter group index to copy (e.g. 1): ")
+            source = InputValidator.get_string(
+                "Enter group index to copy (e.g. 1): ")
             self.copy_group.copy_to_clipboard(fields, source)
             print("Group copied to clipboard.")
         except Exception as e:

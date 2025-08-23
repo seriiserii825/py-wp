@@ -15,9 +15,25 @@ def field_menu(section_file_json_path):
 def acf_menu(section_file_json_path):
     f_menu = FieldMenu(section_file_json_path)
 
+    VIEW_ALL = "all"
+    VIEW_TABS = "tabs"
+    current_view = VIEW_ALL  # first open: show all
+
+    def render(index: int = 0):
+        if current_view == VIEW_ALL:
+            print("=== ACF Field Menu: Showing All Fields ===")
+            f_menu.show_all()
+        else:
+            print("=== ACF Field Menu: Showing Only Tab/Group Fields ===")
+            f_menu.show_only_tab_group(index)
+
+    # initial render
+    render()
+
     while True:
-        f_menu.show_all()
         menu_options = [
+            "Show All Fields",
+            "Show Only Tab/Group Fields",
             "Create new field",
             "Move field",
             "Edit field",
@@ -29,20 +45,38 @@ def acf_menu(section_file_json_path):
         ]
         choice = Menu.select_with_fzf(menu_options)
         if choice == 0:
-            f_menu.create_field()
+            current_view = VIEW_ALL
+            f_menu.show_all()
+            render()
         elif choice == 1:
-            f_menu.move_field()
+            current_view = VIEW_TABS
+            f_menu.show_only_tab_group()
+            render()
         elif choice == 2:
-            f_menu.edit_field()
+            f_menu.create_field()
+            render()
         elif choice == 3:
-            f_menu.delete_field()
+            try:
+                index = f_menu.move_field()
+                render(int(index))
+            except Exception as e:
+                print(f"Error moving field: {e}")
+                render()
         elif choice == 4:
-            f_menu.delete_fields()
+            f_menu.edit_field()
+            render()
         elif choice == 5:
-            f_menu.copy_group_to_clipboard()
+            f_menu.delete_field()
+            render()
         elif choice == 6:
-            upload_changes(section_file_json_path=section_file_json_path)
+            f_menu.delete_fields()
+            render()
         elif choice == 7:
+            f_menu.copy_group_to_clipboard()
+            render()
+        elif choice == 8:
+            upload_changes(section_file_json_path=section_file_json_path)
+        elif choice == 9:
             print("Exiting ACF Field Menu.")
             break
         else:
