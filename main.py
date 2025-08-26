@@ -1,7 +1,6 @@
 #!/usr/bin/python3
 
 from classes.utils.Menu import Menu
-from classes.utils.Select import Select
 from classes.utils.WPPaths import WPPaths
 from main_menu.acf_func import acf_func
 from main_menu.backup_menu import backup_menu

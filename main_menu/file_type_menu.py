@@ -3,26 +3,16 @@ from enum_folder.FileTypeEnum import FileTypeEnum
 
 
 def file_type_menu() -> FileTypeEnum:
-    headers = ["Index", "File Type"]
-    row_styles = {
-        0: "bold yellow",
-        1: "bold yellow",
-        2: "bold yellow",
-        3: "bold yellow",
-        4: "bold blue",
-        5: "bold red",
-    }
     rows = [
-        ["0", FileTypeEnum.PHP.label],
-        ["1", f"{FileTypeEnum.PHPS.label} (php and scss)"],
-        ["2", f"{FileTypeEnum.PHPP.label} (php page)"],
-        ["3", f"{FileTypeEnum.PHPI.label} (php icon)"],
-        ["4", f"{FileTypeEnum.SCSS.label} (scss)"],
-        ["5", f"{FileTypeEnum.JS.label} (js)"],
+        FileTypeEnum.PHP.label,
+        f"{FileTypeEnum.PHPS.label} (php and scss)",
+        f"{FileTypeEnum.PHPP.label} (php page)",
+        f"{FileTypeEnum.PHPI.label} (php icon)",
+        f"{FileTypeEnum.SCSS.label} (scss)",
+        f"{FileTypeEnum.JS.label} (js)",
     ]
-    Menu.display("File Type Menu", headers, rows, row_styles=row_styles)
 
-    choice = Menu.choose_option()
+    choice = Menu.select_with_fzf(rows)
     if choice == 0:
         return FileTypeEnum.PHP
     elif choice == 1:
