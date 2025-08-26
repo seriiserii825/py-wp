@@ -29,8 +29,7 @@ class FieldMenu:
         for index, field_data in enumerate(fields):
             field = create_field(field_data)
             if field:
-                field.print_field(index=index, indent=0,
-                                  active=active_index == index)
+                field.print_field(index=index, indent=0, active=active_index == index)
 
     def create_field(self):
         data, fields = self._load_fields()
@@ -46,8 +45,7 @@ class FieldMenu:
     def _move_after_create(self, fields: list, data):
         try:
             source_index = str(len(fields) - 1)
-            dest = InputValidator.get_string(
-                "Enter destination index (e.g. 0.1): ")
+            dest = InputValidator.get_string("Enter destination index (e.g. 0.1): ")
             self.mover.move_field(fields, source_index, dest)
             self.repo.save(data)
             print("Field moved successfully.")
@@ -58,10 +56,15 @@ class FieldMenu:
         data, fields = self._load_fields()
         self._check_field_is_empty(fields)
         try:
-            source = InputValidator.get_string(
-                "Enter source index (e.g. 1.2): ")
-            dest = InputValidator.get_string(
-                "Enter destination index (e.g. 0.1): ")
+            input_dest = InputValidator.get_string(
+                "Enter source and dest separated by comma, 8,4: ",
+                allow_empty=True,
+            )
+            source, dest = (s.strip() for s in input_dest.split(",")) if input_dest else (None, None)
+            if not source:
+                source = InputValidator.get_string("Enter source index (e.g. 0.1): ")
+            if not dest:
+                dest = InputValidator.get_string("Enter destination index (e.g. 0.1): ")
             self.mover.move_field(fields, source, dest)
             self.repo.save(data)
             print("Field moved successfully.")
@@ -88,8 +91,7 @@ class FieldMenu:
         _, fields = self._load_fields()
         self._check_field_is_empty(fields)
         try:
-            source = InputValidator.get_string(
-                "Enter group index to copy (e.g. 1): ")
+            source = InputValidator.get_string("Enter group index to copy (e.g. 1): ")
             self.copy_group.copy_to_clipboard(fields, source)
             print("Group copied to clipboard.")
         except Exception as e:
