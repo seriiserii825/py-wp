@@ -12,9 +12,13 @@ class Page:
 
     @classmethod
     def list_all(cls):
+        cls.init_pages()
+        PageDisplayer.display("List of Pages", cls.pages)
+
+    @classmethod
+    def init_pages(cls):
         raw_pages = Command.run_json("wp post list --post_type=page --format=json")
         cls.pages = [PageDto(**p) for p in raw_pages]
-        PageDisplayer.display("List of Pages", cls.pages)
 
     @classmethod
     def ignore_page(cls):
@@ -24,12 +28,10 @@ class Page:
         if not unignored:
             Print.error("All pages already ignored.")
             return
-
         selected = PageSelector.select_pages(unignored)
         if selected:
             PageFileHandler.add_ignored_id(selected[0])
             Print.success(f"Ignored page ID {selected[0]}")
-
         ignored_ids = PageFileHandler.get_ignored_ids()
         PageDisplayer.display(
             "Ignored Pages",
@@ -60,12 +62,10 @@ class Page:
         if not cls.pages:
             Print.error("No pages available to delete.")
             return
-
         selected = PageSelector.select_with_fzf(cls.pages)
         if not selected:
             Print.error("No pages selected for deletion.")
             return
-
         for page_id in selected:
             PageManager.delete(page_id)
             Print.success(f"Deleted page ID {page_id}")
@@ -76,18 +76,17 @@ class Page:
         if not cls.pages:
             Print.error("No pages available to delete.")
             return
-
         selected = PageSelector.select_with_fzf(cls.pages)
         if not selected:
             Print.error("No pages selected for deletion.")
             return
-
         for page_id in selected:
             PageManager.delete(page_id)
             Print.success(f"Deleted page ID {page_id}")
 
     @classmethod
     def get_page_by_id(cls, page_id: int) -> PageDto:
+        cls.init_pages()
         for page in cls.pages:
             if page.ID == page_id:
                 return page
