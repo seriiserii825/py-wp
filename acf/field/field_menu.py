@@ -90,6 +90,7 @@ def upload_changes(section_file_json_path: str | Path):
     print("Update field order from json file")
     update_fields_order(section_file_json_path=section_file_json_path)
     print("Upload completed.")
+    exit(0)
 
 
 def copy_acf_folder_to_downloads():
