@@ -53,7 +53,7 @@ class AbstractFileCreator(FileCreatorInterface, ABC):
         return file_name.split(".")[0] if "." in file_name else file_name
 
     def _clear_whitespaces(self, file_name: str) -> str:
-        return file_name.strip().replace(" ", "-").lower()
+        return file_name.strip().replace(" ", "-")
 
     def _add_extension(self, file_name: str, extension: str) -> str:
         return (
