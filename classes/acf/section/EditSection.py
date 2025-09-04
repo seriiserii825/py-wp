@@ -18,7 +18,7 @@ class EditSection:
         if not files:
             raise NewSectionException("No ACF files found to edit.")
         Print.info("Choose a file to edit:")
-        chosen = Menu.select_with_fzf(files)
+        chosen = Menu.select_fzf(files)
         return files[chosen]
 
     @staticmethod
