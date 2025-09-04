@@ -28,7 +28,7 @@ def menu():
         "Files",
         "Exit"
     ]
-    choice = Menu.select_with_fzf(options)
+    choice = Menu.select_fzf(options)
     if choice == 0:
         acf_func()
         menu()
@@ -64,7 +64,7 @@ def menu():
         exit(0)
     else:
         print("Invalid choice. Please try again.")
-        menu()
+        exit(0)
 
 
 if __name__ == "__main__":

@@ -50,3 +50,8 @@ class Menu:
     def select_with_fzf(cls, options: List[str]) -> int:
         option = Select.select_one(options)
         return options.index(option) if option else -1
+
+    @classmethod
+    def select_fzf(cls, options: List[str]) -> int:
+        option = Select.select_with_fzf(options)
+        return options.index(option[0]) if option else -1

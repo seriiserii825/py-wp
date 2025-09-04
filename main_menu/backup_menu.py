@@ -18,7 +18,7 @@ def backup_menu():
         "Exit",
     ]
 
-    choice = Menu.select_with_fzf(menu_items)
+    choice = Menu.select_fzf(menu_items)
     if choice == 0:
         print("Listing backups...")
         bc = Backup()
