@@ -12,7 +12,7 @@ def file_type_menu() -> FileTypeEnum:
         f"{FileTypeEnum.JS.label} (js)",
     ]
 
-    choice = Menu.select_with_fzf(rows)
+    choice = Menu.select_fzf(rows)
     if choice == 0:
         return FileTypeEnum.PHP
     elif choice == 1:
