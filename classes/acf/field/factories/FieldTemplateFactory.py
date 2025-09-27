@@ -35,19 +35,13 @@ class FieldTemplateFactory:
             case EFieldType.GALLERY.value:
                 base.update(
                     {
-                        "return_format": "url",
-                        "library": "all",
-                        "min": "",
-                        "max": "",
-                        "min_width": "",
-                        "min_height": "",
-                        "min_size": "",
-                        "max_width": "",
-                        "max_height": "",
-                        "max_size": "",
-                        "mime_types": "",
-                        "insert": "append",
-                        "preview_size": "thumbnail",
+                        "return_format": "array"
+                    }
+                )
+            case EFieldType.IMAGE.value:
+                base.update(
+                    {
+                        "return_format": "array"
                     }
                 )
             case EFieldType.TAB.value:
