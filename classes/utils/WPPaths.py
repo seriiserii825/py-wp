@@ -19,18 +19,50 @@ class PathKey(str, Enum):
 class WPPaths:
     _paths: Dict[str, str] = {}
     _paths_file: Optional[Path] = None
-    _user_dir_path: str = str(Path.home())
+    _user_dir_path: Path = Path.home()
+
+    # ---------- bootstrap-safe helpers ----------
+    @classmethod
+    def _get_script_dir(cls) -> Path:
+        """Directory of this file (classes/utils)."""
+        return Path(__file__).resolve().parent
 
     @classmethod
+    def _resolve_repo_root_or_script_dir(cls) -> Path:
+        """
+        Find the git repo root (first parent with .git) starting from this file.
+        Fallback to this file's parent if no repo root is found.
+        NOTE: This function is safe to call before initialize() and DOES NOT call load.
+        """
+        start = cls._get_script_dir()
+        for parent in [start] + list(start.parents):
+            if (parent / ".git").exists():
+                return parent
+        return start
+
+    @classmethod
+    def _ensure_paths_file(cls) -> Path:
+        """
+        Set the paths file path. Do NOT create/touch it here to avoid empty file reads.
+        """
+        if cls._paths_file is None:
+            cls._paths_file = cls._get_script_dir() / ".paths.json"
+        return cls._paths_file
+
+    # ---------- public API ----------
+    @classmethod
     def initialize(cls, base_dir: Optional[Path] = None):
-        """Вычисляет пути и сохраняет в .paths.json"""
-        cls._ensure_paths_file()
-        assert cls._paths_file is not None
+        """Compute paths and write .paths.json (idempotent)."""
+        paths_file = cls._ensure_paths_file()
 
         if base_dir is None:
             base_dir = Path.cwd()
 
-        wp_content = base_dir.parent.parent  # themes/lm-omp → wp-content
+        # themes/lm-omp → wp-content (adjust if your structure differs)
+        wp_content = base_dir.parent.parent
+
+        # IMPORTANT: do not call get_script_dir_path() here (it calls load()).
+        script_dir_path = cls._resolve_repo_root_or_script_dir()
 
         cls._paths = {
             PathKey.BASE.value: str(base_dir.resolve()),
@@ -38,94 +70,89 @@ class WPPaths:
             PathKey.UPLOADS.value: str((wp_content / "uploads").resolve()),
             PathKey.PLUGINS.value: str((wp_content / "plugins").resolve()),
             PathKey.THEME.value: str(base_dir.resolve()),
-            PathKey.SCRIPT_DIR.value: str(cls.get_script_dir_path()),
-            PathKey.PLUGIN_WP_PATH.value: f"{cls._user_dir_path}/Documents/plugins-wp",
-            PathKey.BACKUPS_PATH.value: str((wp_content / "ai1wm-backups").resolve()),
-            PathKey.LIST_CSV.value: str(
-                (cls.get_script_dir_path() / "list.csv").resolve()
+            PathKey.SCRIPT_DIR.value: str(script_dir_path),
+            PathKey.PLUGIN_WP_PATH.value: str(
+                cls._user_dir_path / "Documents/plugins-wp"
             ),
+            PathKey.BACKUPS_PATH.value: str((wp_content / "ai1wm-backups").resolve()),
+            PathKey.LIST_CSV.value: str((script_dir_path / "list.csv").resolve()),
         }
 
-        with open(cls._paths_file, "w") as f:
-            json.dump(cls._paths, f, indent=2)
-
-    @classmethod
-    def _get_script_dir(cls) -> Path:
-        """Получает директорию скрипта, где находится .paths.json"""
-        script_path = Path(__file__).resolve()
-        return script_path.parent
-
-    @classmethod
-    def _ensure_paths_file(cls):
-        if cls._paths_file is None:
-            cls._paths_file = cls._get_script_dir() / ".paths.json"
-            if not cls._paths_file.exists():
-                cls._paths_file.touch()
+        # Write atomically to avoid partial/empty file states
+        tmp = paths_file.with_suffix(".paths.json.tmp")
+        tmp.write_text(json.dumps(cls._paths, indent=2), encoding="utf-8")
+        tmp.replace(paths_file)
 
     @classmethod
     def load(cls):
-        """Загружает пути из .paths.json"""
-        cls._ensure_paths_file()
-        assert cls._paths_file is not None
+        """Load paths from .paths.json (tolerant to empty/corrupt files)."""
+        paths_file = cls._ensure_paths_file()
 
-        if not cls._paths:
-            if not cls._paths_file.exists():
-                raise FileNotFoundError(
-                    f"{cls._paths_file} not found. Run initialize() first."
-                )
-            with open(cls._paths_file) as f:
-                cls._paths = json.load(f)
+        if cls._paths:
+            return  # already loaded
+
+        if not paths_file.exists() or paths_file.stat().st_size == 0:
+            # Not initialized yet; keep in-memory empty dict
+            cls._paths = {}
+            return
+
+        try:
+            cls._paths = json.loads(paths_file.read_text(encoding="utf-8"))
+        except json.JSONDecodeError:
+            # Corrupted file — treat as uninitialized
+            cls._paths = {}
 
     @classmethod
     def get(cls, key: PathKey) -> Path:
-        """Получить путь по ключу"""
+        """Get a stored path by key."""
         cls.load()
-        return Path(cls._paths[key.value])
+        try:
+            return Path(cls._paths[key.value])
+        except KeyError as e:
+            raise KeyError(
+                f"Key '{key.value}' not found. Have you called WPPaths.initialize()?"
+            ) from e
 
     @classmethod
     def get_plugin_path(cls) -> Path:
-        cls.load()
         return cls.get(PathKey.PLUGINS)
 
     @classmethod
-    def get_csv_folder_path(cls) -> str:
-        """Получить путь к папке CSV"""
-        cls.load()
-        return f"{cls.get_script_dir_path()}/csv"
+    def get_csv_folder_path(cls) -> Path:
+        """Get path to CSV folder (based on script dir)."""
+        # Use the public method but ensure it's safe:
+        return cls.get_script_dir_path() / "csv"
 
     @classmethod
     def get_script_dir_path(cls) -> Path:
-        """Получить путь к директории скриптов"""
+        """
+        Public accessor for the script/repo dir.
+        After initialization, prefers the stored value;
+        otherwise resolves without load loop.
+        """
+        # Try stored value first
         cls.load()
-        path = Path(__file__).resolve().parent
-        for parent in [path] + list(path.parents):
-            if (parent / ".git").exists():
-                return parent
-        raise FileNotFoundError("No .git directory found in script path hierarchy.")
+        stored = cls._paths.get(PathKey.SCRIPT_DIR.value)
+        if stored:
+            return Path(stored)
+
+        # If not initialized yet, resolve directly without touching load()
+        return cls._resolve_repo_root_or_script_dir()
 
     @classmethod
     def get_plugins_wp_path(cls) -> Path:
-        """Получить путь к папке плагинов WordPress"""
-        cls.load()
         return cls.get(PathKey.PLUGIN_WP_PATH)
 
     @classmethod
     def get_theme_path(cls) -> Path:
-        """Получить путь к текущей теме WordPress"""
-        cls.load()
         return cls.get(PathKey.THEME)
 
     @classmethod
     def get_backups_path(cls) -> Path:
-        """Получить путь к папке резервных копий"""
-        cls.load()
         backup_folder_path = cls.get(PathKey.BACKUPS_PATH)
-        if not backup_folder_path.exists():
-            backup_folder_path.mkdir(parents=True, exist_ok=True)
+        backup_folder_path.mkdir(parents=True, exist_ok=True)
         return backup_folder_path
 
     @classmethod
     def get_list_csv_path(cls) -> Path:
-        """Получить путь к файлу list.csv"""
-        cls.load()
         return cls.get(PathKey.LIST_CSV)
