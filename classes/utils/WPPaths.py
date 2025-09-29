@@ -59,6 +59,8 @@ class WPPaths:
     def _ensure_paths_file(cls):
         if cls._paths_file is None:
             cls._paths_file = cls._get_script_dir() / ".paths.json"
+            if not cls._paths_file.exists():
+                cls._paths_file.touch()
 
     @classmethod
     def load(cls):
