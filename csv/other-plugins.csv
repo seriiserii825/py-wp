@@ -12,7 +12,7 @@ stops-core-theme-and-plugin-updates,False
 safe-svg,False
 contact-form-7,False
 contact-form-7-honeypot,False
-wp-mail-smtp,False
+wp-mail-smtp,wp-mail-smtp-pro.zip
 cookie-notice,False
 wps-hide-login,False
 wps-limit-login,False
