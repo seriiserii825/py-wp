@@ -1,0 +1,18 @@
+array (
+  'active' => true,
+  'subject' => '[site_title] — Nuova richiesta da [your-name]',
+  'sender' => '[_site_title] <wordpress@lc-studio-modena-giancarlo.local>',
+  'recipient' => '[_site_admin_email]',
+  'body' => 'Da: [your-name] [your-surname] [your-email]
+Oggetto: [your-subject]
+
+Corpo del messaggio:
+[your-message]
+
+-- 
+Questa è una notifica che segnala l\'invio di un modulo di contatto dal tuo sito web ([_site_title] [_site_url]).',
+  'additional_headers' => 'Reply-To: [your-email]',
+  'attachments' => '',
+  'use_html' => true,
+  'exclude_blank' => true,
+)

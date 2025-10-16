@@ -10,3 +10,4 @@ vete
 scuola
 csm
 braus edera
+studio
