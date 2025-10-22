@@ -4,12 +4,13 @@ from enum_folder.FileTypeEnum import FileTypeEnum
 
 def file_type_menu() -> FileTypeEnum:
     rows = [
-        FileTypeEnum.PHP.label,
-        f"{FileTypeEnum.PHPS.label} (php and scss)",
-        f"{FileTypeEnum.PHPP.label} (php page)",
-        f"{FileTypeEnum.PHPI.label} (php icon)",
-        f"{FileTypeEnum.SCSS.label} (scss)",
-        f"{FileTypeEnum.JS.label} (js)",
+        f"0.{FileTypeEnum.PHP.label} (php)",
+        f"1.{FileTypeEnum.PHPS.label} (php and scss)",
+        f"2.{FileTypeEnum.PHPP.label} (php page)",
+        f"3.{FileTypeEnum.PHPI.label} (php icon)",
+        f"4.{FileTypeEnum.SCSS.label} (scss)",
+        f"5.{FileTypeEnum.JS.label} (js)",
+        "6.Back",
     ]
 
     choice = Menu.select_fzf(rows)
@@ -25,6 +26,8 @@ def file_type_menu() -> FileTypeEnum:
         return FileTypeEnum.SCSS
     elif choice == 5:
         return FileTypeEnum.JS
+    elif choice == 6:
+        return FileTypeEnum.NONE
     else:
         print("Invalid option. Please try again.")
         return file_type_menu()
