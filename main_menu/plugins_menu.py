@@ -7,13 +7,13 @@ from classes.utils.Select import Select
 
 def plugins_menu():
     rows = [
-        "List installed",
-        "List base from csv file",
-        "List other from csv file",
-        "Install base",
-        "Install other",
-        "Uninstall",
-        "Exit",
+        "0.List installed",
+        "1.List base from csv file",
+        "2.List other from csv file",
+        "3.Install base",
+        "4.Install other",
+        "5.Uninstall",
+        "6.Exit",
     ]
     choice = Menu.select_with_fzf(rows)
 
