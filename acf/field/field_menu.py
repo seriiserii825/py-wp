@@ -32,16 +32,16 @@ def acf_menu(section_file_json_path):
 
     while True:
         menu_options = [
-            "Show All Fields",
-            "Show Only Tab/Group Fields",
-            "Create new field",
-            "Move field",
-            "Edit field",
-            "Delete field",
-            "Delete multiple fields",
-            "Copy group to clipboard",
-            "Upload changes to WordPress",
-            "Exit",
+            "0.Show All Fields",
+            "1.Show Only Tab/Group Fields",
+            "2.Create new field",
+            "3.Move field",
+            "4.Edit field",
+            "5.Delete field",
+            "6.Delete multiple fields",
+            "7.Copy group to clipboard",
+            "8.Upload changes to WordPress",
+            "9.Exit",
         ]
         choice = Menu.select_with_fzf(menu_options)
         if choice == 0:

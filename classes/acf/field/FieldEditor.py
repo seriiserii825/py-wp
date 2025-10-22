@@ -20,6 +20,7 @@ class FieldEditor:
         while True:
             attributes = self.get_all_attributes(target)
             editable = self._get_editable(attributes)
+            editable["back"] = "Back"
             self._print_attributes(editable)
 
             selected = Select.select_one(list(editable.keys()))
@@ -27,6 +28,10 @@ class FieldEditor:
 
             if selected is None or selected == "exit":
                 Print.info("Exiting edit mode.")
+                return
+
+            if selected == "back":
+                Print.info("Going back to main menu.\n")
                 return
 
             self._edit_attribute(selected, target)
