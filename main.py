@@ -16,17 +16,17 @@ from modules.check_is_wp import check_is_wp
 
 def menu():
     options = [
-        "ACF",
-        "Plugins",
-        "Backups",
-        "Init",
-        "Reset Settings",
-        "Images",
-        "Pages",
-        "Themes",
-        "Contact Form",
-        "Files",
-        "Exit"
+        "0.ACF",
+        "01.Plugins",
+        "02.Backups",
+        "03.Init",
+        "04.Reset Settings",
+        "05.Images",
+        "06.Pages",
+        "07.Themes",
+        "08.Contact Form",
+        "09.Files",
+        "10.Exit"
     ]
     choice = Menu.select_fzf(options)
     if choice == 0:
