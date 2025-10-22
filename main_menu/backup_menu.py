@@ -7,15 +7,15 @@ def backup_menu():
     check_for_base_plugins()
 
     menu_items = [
-        "List Backups",
-        "Create Backup",
-        "Create and Copy to Mount",
-        "Create Backup on Server",
-        "Restore Backup",
-        "Restore from Downloads",
-        "Restore in Browser",
-        "Delete in Browser",
-        "Exit",
+        "0).List Backups",
+        "1).Create Backup",
+        "2).Create and Copy to Mount",
+        "3).Create Backup on Server",
+        "4).Restore Backup",
+        "5).Restore from Downloads",
+        "6).Restore in Browser",
+        "7).Delete in Browser",
+        "8).Exit",
     ]
 
     choice = Menu.select_fzf(menu_items)
