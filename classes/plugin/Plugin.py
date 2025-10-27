@@ -70,7 +70,13 @@ class Plugin:
         plugin_slugs = [plugin.plugin_slug.strip() for plugin in plugins]
         installed_plugins = self._get_installed_plugins()
         plugins_to_install: list[str] = list(set(plugin_slugs) - set(installed_plugins))
+        # sort by alphabetical order
+        sorted_plugins = self._sort_array_alphabetically(plugins_to_install)
+        # sorted to sequence
+        plugins_to_install = list(sorted_plugins)
+        print(f"plugins_to_install:: {plugins_to_install:}")
         selected_plugin = Select.select_one(plugins_to_install)
+        print(f"selected_plugin: {selected_plugin}")
         if self._is_already_installed(selected_plugin):
             Print.error(f"Plugin '{selected_plugin}' is already installed.")
             return
@@ -90,3 +96,6 @@ class Plugin:
 
     def _sort_plugins(self, plugins: Sequence[str]) -> Sequence[str]:
         return sorted(plugins, key=lambda x: x.lower())
+    
+    def _sort_array_alphabetically(self, array: Sequence[str]) -> Sequence[str]:
+        return sorted(array, key=lambda x: x.lower())
