@@ -43,22 +43,7 @@ class Plugin:
             return
         was_installed = []
         for plugin in plugins:
-            slug = plugin.plugin_slug.strip()
-            filename = plugin.filename.strip()
-            if self._is_already_installed(slug):
-                continue
-            if filename == "False":
-                Command.run(f"wp plugin install {slug} --activate")
-                Print.success(f"Plugin '{slug}' installed successfully.")
-            else:
-                plugin_path = Path(self.plugins_wp_path) / filename
-                if not plugin_path.exists():
-                    Print.error(f"Plugin file {slug} does not exist.")
-                    exit(1)
-                Command.run(f"wp plugin install {plugin_path} --activate")
-                Print.success(
-                    f"Plugin '{slug}' installed successfully from file {filename}."
-                )
+            slug = self._install_plugin(plugin)
             was_installed.append(slug)
         if len(was_installed) == 0:
             Print.error("All plugins are already installed.")
@@ -80,8 +65,9 @@ class Plugin:
         if self._is_already_installed(selected_plugin):
             Print.error(f"Plugin '{selected_plugin}' is already installed.")
             return
-        Command.run(f"wp plugin install {selected_plugin} --activate")
-        Print.success(f"Plugin '{selected_plugin}' has been installed successfully.")
+        self._install_plugin(
+            next(p for p in plugins if p.plugin_slug.strip() == selected_plugin)
+        )
 
     def _is_already_installed(self, plugin_slug: str) -> bool:
         return Path.exists(self.wp_plugins_dir_path / plugin_slug)
@@ -96,6 +82,27 @@ class Plugin:
 
     def _sort_plugins(self, plugins: Sequence[str]) -> Sequence[str]:
         return sorted(plugins, key=lambda x: x.lower())
-    
+
     def _sort_array_alphabetically(self, array: Sequence[str]) -> Sequence[str]:
         return sorted(array, key=lambda x: x.lower())
+
+    def _install_plugin(self, plugin: CsvPluginDto) -> str:
+        slug = plugin.plugin_slug.strip()
+        filename = plugin.filename.strip()
+        if self._is_already_installed(slug):
+            Print.info(f"Plugin '{slug}' is already installed. Skipping.")
+            return ""
+        if filename == "False":
+            Command.run(f"wp plugin install {slug} --activate")
+            Print.success(f"Plugin '{slug}' installed successfully.")
+            return slug
+        else:
+            plugin_path = Path(self.plugins_wp_path) / filename
+            if not plugin_path.exists():
+                Print.error(f"Plugin file {slug} does not exist.")
+                exit(1)
+            Command.run(f"wp plugin install {plugin_path} --activate")
+            Print.success(
+                f"Plugin '{slug}' installed successfully from file {filename}."
+            )
+            return slug
