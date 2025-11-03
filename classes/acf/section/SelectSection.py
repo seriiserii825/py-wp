@@ -15,5 +15,5 @@ class SelectSection:
 
     @classmethod
     def select_section(cls) -> str:
-        file_name = Select.select_one(cls.get_sections_files())
-        return f"acf/{file_name}"
+        file_name = Select.select_with_fzf(cls.get_sections_files())
+        return f"acf/{file_name[0]}"
