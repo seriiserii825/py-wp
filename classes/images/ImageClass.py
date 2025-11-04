@@ -103,7 +103,7 @@ class ImagesClass:
 
     def optimize_image(self, image):
         os.system(
-            f"jpegoptim --strip-all --all-progressive -ptm 80 ~/Downloads/{image}"
+            f"jpegoptim --strip-all --all-progressive -ptm 85 ~/Downloads/{image}"
         )
 
     def upload_image(self, image: str):
