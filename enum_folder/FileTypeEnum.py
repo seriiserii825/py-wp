@@ -3,6 +3,7 @@ from enum import Enum
 
 class FileTypeEnum(Enum):
     PHP = ("php", True)
+    PHPBlock = ("phpb", False)
     PHPS = ("phps", True)
     PHPP = ("phpp", False)
     PHPI = ("phpi", False)
