@@ -9,6 +9,8 @@ from classes.utils.Generate import Generate
 from classes.utils.InputValidator import InputValidator
 from classes.utils.Menu import Menu
 from classes.utils.Print import Print
+from classes.utils.Select import Select
+from classes.utils.WPPaths import WPPaths
 from dto.SectionDto import SectionDTO
 
 
@@ -45,6 +47,7 @@ class CreateSection:
             "Custom Post Type",
             "Taxonomy",
             "Options Page",
+            "Block",
             "Exit",
         ]
         choice = Menu.select_with_fzf(rows)
@@ -98,6 +101,28 @@ class CreateSection:
         taxonomy = cls._select_taxonomy()
         cls._create_file(taxonomy=taxonomy)
 
+    @classmethod
+    def new_block(cls):
+        block = cls._select_block()
+        block_name = block.replace(".php", "")
+        cls._create_file(block=block_name)
+
+    @staticmethod
+    def _select_block() -> str:
+        theme_path = WPPaths.get_theme_path()
+        blocks_dir = os.path.join(theme_path, "blocks")
+        if os.path.exists(blocks_dir):
+            # if dir is empty
+            if not os.listdir(blocks_dir):
+                Print.error(f"No blocks found in '{blocks_dir}'.")
+                return ""
+            blocks: List[str] = os.listdir(blocks_dir)
+            choice = Select.select_one(blocks)
+            return choice
+        else:
+            Print.error(f"Blocks directory '{blocks_dir}' does not exist.")
+            return ""
+
     @staticmethod
     def _select_taxonomy() -> str:
         taxonomies: List[str] = WpData.get_wp_taxonomies()
@@ -125,11 +150,18 @@ class CreateSection:
         cls._create_file(options_page=options_page)
 
     @classmethod
-    def _create_file(cls, page_id=0, post_type="", taxonomy="", options_page=""):
+    def _create_file(
+        cls,
+        page_id=0,
+        post_type="",
+        taxonomy="",
+        options_page="",
+        block=""
+    ):
         group_id = Generate.get_group_id()
         os.system(f"touch {cls.file_path}")
         data = cls.build_acf_data(
-            group_id, cls.section_name, page_id, post_type, taxonomy, options_page
+            group_id, cls.section_name, page_id, post_type, taxonomy, options_page, block
         )
         with open(cls.file_path, "w") as file:
             json.dump([data], file, indent=4)
@@ -143,6 +175,7 @@ class CreateSection:
         post_type: str = "",
         taxonomy: str = "",
         options_page: str = "",
+        block: str = "",
     ) -> dict:
         new_data = {
             "ID": False,
@@ -176,6 +209,10 @@ class CreateSection:
         elif options_page:
             new_data["location"] = [
                 [{"param": "options_page", "operator": "==", "value": options_page}]
+            ]
+        elif block:
+            new_data["location"] = [
+                [{"param": "block", "operator": "==", "value": f"acf/{block}"}]
             ]
 
         return new_data

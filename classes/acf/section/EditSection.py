@@ -141,4 +141,13 @@ class EditSection:
                 "operator": "==",
                 "value": taxonomy,
             }
+        elif choice == 4:
+            block = CreateSection._select_block()
+            block_name = block.replace("-block.php", "")
+            print(f"block_name: {block_name}")
+            return {
+                "param": "block",
+                "operator": "==",
+                "value": f"acf/{block_name}",
+            }
         return None

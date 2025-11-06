@@ -25,6 +25,9 @@ def new_section():
     elif choice == 3:
         CreateSection.new_acf_options_page()
         AcfTransfer.wp_import()
+    elif choice == 4:
+        CreateSection.new_block()
+        AcfTransfer.wp_import()
     else:
         Print.error("Invalid choice. Please try again.")
         return

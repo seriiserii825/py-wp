@@ -26,6 +26,7 @@ class PHPBlockFileCreator(AbstractFileCreator):
 
     def template_to_file(self, file_path: str) -> None:
         file_name = Path(file_path).name
+        file_name_without_block = file_name.replace("-block", "")
         camel_case_name = self._to_camel_case(file_name)
         camel_case_name = camel_case_name.replace(".php", "")
         camel_case_name = camel_case_name.replace("Block", "")
@@ -42,7 +43,7 @@ class PHPBlockFileCreator(AbstractFileCreator):
             'name'            => '{camel_case_name}',
             'title'           => __('{camel_case_name}', 'your-textdomain'),
             'description'     => __('A custom {camel_case_name} block.', 'your-textdomain'),
-            'render_template' => 'template-parts/home/{file_name}',
+            'render_template' => 'template-parts/home/{file_name_without_block}',
             'category'        => 'formatting',
             'icon'            => 'welcome-learn-more',
             'keywords'        => ['{keywords}'],
