@@ -2,6 +2,7 @@ from pathlib import Path
 
 from classes.files.FileWriter import FileWriter
 from classes.utils.Command import Command
+from classes.utils.InputValidator import InputValidator
 from classes.utils.Select import Select
 
 
@@ -11,6 +12,10 @@ class PhpTemplateToFile:
         file_name = Path(file_path).stem
         html = f'<?php \n\n ?>\n<div class="{file_name}">\n</div>\n'
         FileWriter.write_file(Path(file_path), html)
+
+        choice = InputValidator.get_bool('Do you want to include this template in another PHP file? (y/n): ')
+        if not choice:
+            return file_name
 
         template_path = file_path.split("template-parts/")[-1].replace(".php", "")
 
