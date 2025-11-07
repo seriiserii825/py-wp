@@ -2,8 +2,6 @@ from pathlib import Path
 from classes.files.AbstractFileCreator import AbstractFileCreator
 from classes.files.FileWriter import FileWriter
 from classes.files.FilesHandle import FilesHandle
-from classes.files.PhpTemplateToFile import PhpTemplateToFile
-from classes.utils.Command import Command
 from classes.utils.InputValidator import InputValidator
 
 
@@ -20,7 +18,6 @@ class PHPBlockFileCreator(AbstractFileCreator):
             "Enter file name without extension: ")
         file_name = self._remove_extension(file_name)
         file_name = self._clear_whitespaces(file_name)
-        file_name = f"{file_name}-block"
         file_name = self._add_extension(file_name, self.get_extension())
         return str(Path(path_to_dir) / file_name)
 
@@ -58,8 +55,6 @@ class PHPBlockFileCreator(AbstractFileCreator):
 
         """
         FileWriter.write_file(Path(file_path), html)
-        template_path = file_path
-        Command.run(f"bat '{str(Path(template_path).resolve())}'")
         self.append_to_functions_php(file_path)
 
     def _to_camel_case(self, file_name: str) -> str:
@@ -76,4 +71,3 @@ class PHPBlockFileCreator(AbstractFileCreator):
                 f.write("\n" + include)
         else:
             print(f"{include} already exists in functions.php")
-        Command.run(f"bat '{str(functions_php_path.resolve())}'")

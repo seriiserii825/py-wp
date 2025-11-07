@@ -1,6 +1,7 @@
 # classes/factory/FileCreatorFactory.py
 from classes.files.FileCreatorInterface import FileCreatorInterface
 from classes.files.JsFileCreator import JsFileCreator
+from classes.files.PHPBSFileCreator import PHPBSFileCreator
 from classes.files.PHPBlockFileCreator import PHPBlockFileCreator
 from classes.files.PHPFileCreator import PHPFileCreator
 from classes.files.PHPIconCreator import PHPIconCreator
@@ -20,6 +21,8 @@ class FileCreatorFactory:
                 return PHPBlockFileCreator()
             case FileTypeEnum.PHPS:
                 return PHPSFileCreator()
+            case FileTypeEnum.PHPBS:
+                return PHPBSFileCreator()
             case FileTypeEnum.SCSS:
                 return SCSSFileCreator()
             case FileTypeEnum.PHPP:
