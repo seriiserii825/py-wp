@@ -14,7 +14,6 @@ class PHPSFileCreator(AbstractFileCreator):
 
     def template_to_file(self, file_path: str) -> None:
         template_path = PhpTemplateToFile.php_to_file(file_path)
-        print(f"template_path: {template_path}")
 
         # Also create SCSS file with same name under `src/scss/blocks/`
         scss_creator = SCSSFileCreator()

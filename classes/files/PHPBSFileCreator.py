@@ -31,10 +31,8 @@ class PHPBSFileCreator(AbstractFileCreator):
 
     def _block(self, file_path: str):
         template_path = PhpTemplateToFile.php_to_file(file_path)
-        print(f"template_path: {template_path}")
-        exit(1)
+        # template_path = template_path.split("/")[-1]
 
-        # Also create SCSS file with same name under `src/scss/blocks/`
         block_creator = PHPBlockFileCreator()
         block_file_path = f"{Path('blocks/')}/{template_path}.php"
         block_creator.template_to_file(str(block_file_path))
