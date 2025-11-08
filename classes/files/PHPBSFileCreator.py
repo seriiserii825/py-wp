@@ -31,12 +31,7 @@ class PHPBSFileCreator(AbstractFileCreator):
 
     def _block(self, file_path: str):
         template_path = PhpTemplateToFile.php_to_file(file_path)
-        # template_path = template_path.split("/")[-1]
 
         block_creator = PHPBlockFileCreator()
-        block_file_path = f"{Path('blocks/')}/{template_path}.php"
+        block_file_path = f"{Path('blocks/')}/{template_path}-block.php"
         block_creator.template_to_file(str(block_file_path))
-
-        # Show both files with bat
-        Command.run(f"bat '{str(Path(file_path).resolve())}'")
-        Command.run(f"bat '{block_file_path}'")
