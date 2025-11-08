@@ -3,12 +3,15 @@ import os
 from typing import Any, Optional
 
 from classes.acf.AcfTransfer import AcfTransfer
+from classes.acf.section.AcfBlock import AcfBlock
 from classes.acf.section.CreateSection import CreateSection
 from classes.exception.NewSectionException import NewSectionException
 from classes.pages.Page import Page
+from classes.utils.Command import Command
 from classes.utils.InputValidator import InputValidator
 from classes.utils.Menu import Menu
 from classes.utils.Print import Print
+from classes.utils.Select import Select
 
 
 class EditSection:
@@ -71,7 +74,8 @@ class EditSection:
                         else int(cond["value"])
                     )
                     page = Page.get_page_by_id(value)
-                    print(f"{i}. {cond['param']} == {page.post_title}({page.ID})")
+                    print(
+                        f"{i}. {cond['param']} == {page.post_title}({page.ID})")
                 else:
                     print(f"{i}. {cond['param']} == {cond['value']}")
 
@@ -142,12 +146,12 @@ class EditSection:
                 "value": taxonomy,
             }
         elif choice == 4:
-            block = CreateSection._select_block()
-            block_name = block.replace("-block.php", "")
-            print(f"block_name: {block_name}")
+            blocks = AcfBlock.get_blocks()
+            block = Select.select_with_fzf(blocks)
             return {
                 "param": "block",
                 "operator": "==",
-                "value": f"acf/{block_name}",
+                "value": f"{block[0]}",
             }
         return None
+

@@ -2,6 +2,7 @@ import json
 import os
 from typing import Any, List
 
+from classes.acf.section.AcfBlock import AcfBlock
 from classes.acf.section.SectionMenu import SectionMenu
 from classes.data.WpData import WpData
 from classes.exception.NewSectionException import NewSectionException
@@ -104,24 +105,13 @@ class CreateSection:
     @classmethod
     def new_block(cls):
         block = cls._select_block()
-        block_name = block.replace(".php", "")
-        cls._create_file(block=block_name)
+        cls._create_file(block=block)
 
     @staticmethod
     def _select_block() -> str:
-        theme_path = WPPaths.get_theme_path()
-        blocks_dir = os.path.join(theme_path, "blocks")
-        if os.path.exists(blocks_dir):
-            # if dir is empty
-            if not os.listdir(blocks_dir):
-                Print.error(f"No blocks found in '{blocks_dir}'.")
-                return ""
-            blocks: List[str] = os.listdir(blocks_dir)
-            choice = Select.select_one(blocks)
-            return choice
-        else:
-            Print.error(f"Blocks directory '{blocks_dir}' does not exist.")
-            return ""
+        blocks = AcfBlock.get_blocks()
+        block = Select.select_with_fzf(blocks)[0]
+        return block
 
     @staticmethod
     def _select_taxonomy() -> str:
@@ -212,7 +202,7 @@ class CreateSection:
             ]
         elif block:
             new_data["location"] = [
-                [{"param": "block", "operator": "==", "value": f"acf/{block}"}]
+                [{"param": "block", "operator": "==", "value": f"{block}"}]
             ]
 
         return new_data
