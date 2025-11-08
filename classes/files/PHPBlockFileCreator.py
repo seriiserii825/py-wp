@@ -29,6 +29,8 @@ class PHPBlockFileCreator(AbstractFileCreator):
         # blocks/footer/our-services.php: file_path from phpblock
         file_path_without_extension = self._remove_extension(file_path)
         print(f"file_path_without_extension: {file_path_without_extension}")
+        file_path_without_block = file_path_without_extension.removeprefix("blocks/")
+        file_path_without_block = file_path_without_block.replace("-block", "")
         file_name = Path(file_path).name
         file_name_without_extension = self._remove_extension(file_name)
         camel_case_name = self._to_camel_case(file_name)
@@ -48,7 +50,7 @@ class PHPBlockFileCreator(AbstractFileCreator):
             'name'            => '{file_name_without_extension}',
             'title'           => '{name_with_spaces}',
             'description'     => 'A custom {name_with_spaces} block.',
-            'render_template' => 'template-parts/{file_path_without_extension}',
+            'render_template' => 'template-parts/{file_path_without_block}.php',
             'category'        => 'formatting',
             'icon'            => 'welcome-learn-more',
             'keywords'        => [{keywords}],
@@ -86,5 +88,5 @@ class PHPBlockFileCreator(AbstractFileCreator):
 
     def normalize_words(self, spaced: str) -> str:
         if ' ' in spaced:
-            spaced = ', '.join(spaced.split(' '))
+            spaced = ', '.join(map(lambda w: f"'{w}'", spaced.split(' ')))
         return spaced
