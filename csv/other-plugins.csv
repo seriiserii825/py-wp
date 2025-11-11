@@ -28,7 +28,7 @@ webp-express,False
 woo-ajax-mini-cart,False
 woocommerce,False
 woocommerce-advanced-bulk-edit,woocommerce-advanced-bulk-edit-5_2.zip
-wp-mail-smtp,wp-mail-smtp-pro.zip
+fluent-smtp,False
 wp-pagenavi,False
 wp-smushit,False
 wpglobus-plus,wpglobus-plus.zip
