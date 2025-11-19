@@ -89,4 +89,6 @@ class PHPBlockFileCreator(AbstractFileCreator):
     def normalize_words(self, spaced: str) -> str:
         if ' ' in spaced:
             spaced = ', '.join(map(lambda w: f"'{w}'", spaced.split(' ')))
+        else:
+            spaced = f"'{spaced}'"
         return spaced
