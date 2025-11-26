@@ -43,7 +43,7 @@ def acf_menu(section_file_json_path):
             "8.Upload changes to WordPress",
             "9.Exit",
         ]
-        choice = Menu.select_with_fzf(menu_options)
+        choice = Menu.select_fzf(menu_options)
         if choice == 0:
             current_view = VIEW_ALL
             f_menu.show_all()
