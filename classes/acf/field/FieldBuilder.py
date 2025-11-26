@@ -17,7 +17,8 @@ class FieldBuilder:
 
     def ask_field_type(self) -> str:
         types = [ft.value for ft in EFieldType]
-        return Select.select_one(types)
+        choice = Select.select_with_fzf(types)
+        return choice[0]
 
     def ask_required(self, field_type: str) -> int | bool:
         if self.is_simple_field(field_type):
