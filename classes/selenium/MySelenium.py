@@ -1,5 +1,6 @@
 import os
 import time
+from rich import print
 
 import requests
 from selenium import webdriver
@@ -127,6 +128,17 @@ class MySelenium:
         login_button.click()
         backups_url = f"{self.project_url}/wp-admin/admin.php?page=ai1wm_backups"
         self.driver.get(backups_url)
+
+        # check current url is backups_url
+        if self.driver.current_url != backups_url:
+            self.driver.get(backups_url)
+
+        agree_to_delete = input("[red]Do you want to delete existing backups? [y/n]: ")
+        if agree_to_delete == "y":
+            self.choose_backups_to_delete()
+        else:
+            print("Not deleting existing backups")
+
         WebDriverWait(self.driver, 3000).until(
             EC.presence_of_element_located(
                 (
@@ -188,6 +200,9 @@ class MySelenium:
         submit_button.click()
         plugins_url = f"{self.project_url}/wp-admin/plugins.php"
         self.driver.get(plugins_url)
+        # if current_url is not plugins_url, then go to plugins_url
+        if self.driver.current_url != plugins_url:
+            self.driver.get(plugins_url)
         WebDriverWait(self.driver, 3000).until(
             EC.presence_of_element_located(
                 (By.CSS_SELECTOR, "#activate-wps-hide-login")
@@ -211,6 +226,9 @@ class MySelenium:
         login_button.click()
         backups_url = f"{self.project_url}/wp-admin/admin.php?page=ai1wm_backups"
         self.driver.get(backups_url)
+        self.choose_backups_to_delete()
+
+    def choose_backups_to_delete(self):
         number_of_backups = input("[green]Enter number of backups to delete: ")
         if number_of_backups == "":
             exit("[red]Number of backups is empty!")
