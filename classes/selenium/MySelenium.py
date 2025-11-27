@@ -61,6 +61,8 @@ class MySelenium:
         login_button.click()
         backups_url = f"{self.project_url}/wp-admin/admin.php?page=ai1wm_export"
         self.driver.get(backups_url)
+        if self.driver.current_url != backups_url:
+            self.driver.get(backups_url)
         WebDriverWait(self.driver, 30000000).until(
             EC.presence_of_element_located((By.CSS_SELECTOR, ".ai1wm-button-export"))
         )
