@@ -23,7 +23,7 @@ class FieldEditor:
             editable["back"] = "Back"
             self._print_attributes(editable)
 
-            selected = Select.select_one(list(editable.keys()))
+            selected = Select.select_with_fzf(list(editable.keys()))[0]
             Print.info(f"Selected attribute: {selected}")
 
             if selected is None or selected == "exit":
