@@ -38,8 +38,7 @@ class PHPBlockFileCreator(AbstractFileCreator):
         camel_case_name = camel_case_name.replace("Block", "")
         name_with_spaces = self.camel_to_spaced(camel_case_name)
         keywords = self.normalize_words(name_with_spaces.lower())
-        html = f"""
-<?php
+        html = f"""<?php
 add_action('acf/init', 'registerBlock{camel_case_name}');
 
 function registerBlock{camel_case_name}()
