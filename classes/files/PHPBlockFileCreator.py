@@ -39,29 +39,29 @@ class PHPBlockFileCreator(AbstractFileCreator):
         name_with_spaces = self.camel_to_spaced(camel_case_name)
         keywords = self.normalize_words(name_with_spaces.lower())
         html = f"""
-        <?php
-        add_action('acf/init', 'registerBlock{camel_case_name}');
+<?php
+add_action('acf/init', 'registerBlock{camel_case_name}');
 
-        function registerBlock{camel_case_name}()
-        {{
-          if (! function_exists('acf_register_block_type')) return;
+function registerBlock{camel_case_name}()
+{{
+  if (! function_exists('acf_register_block_type')) return;
 
-          acf_register_block_type([
-            'name'            => '{file_name_without_extension}',
-            'title'           => '{name_with_spaces}',
-            'description'     => 'A custom {name_with_spaces} block.',
-            'render_template' => 'template-parts/{file_path_without_block}.php',
-            'category'        => 'formatting',
-            'icon'            => 'welcome-learn-more',
-            'keywords'        => [{keywords}],
-            'supports'        => [
-              'align'  => False,
-              'anchor' => False,
-              'mode'   => True,
-              'jsx'    => False,
-            ],
-          ]);
-        }}
+  acf_register_block_type([
+    'name'            => '{file_name_without_extension}',
+    'title'           => '{name_with_spaces}',
+    'description'     => 'A custom {name_with_spaces} block.',
+    'render_template' => 'template-parts/{file_path_without_block}.php',
+    'category'        => 'formatting',
+    'icon'            => 'welcome-learn-more',
+    'keywords'        => [{keywords}],
+    'supports'        => [
+      'align'  => False,
+      'anchor' => False,
+      'mode'   => True,
+      'jsx'    => False,
+    ],
+  ]);
+}}
 
         """
         FileWriter.write_file(Path(file_path), html)
