@@ -1,4 +1,5 @@
 import os
+from pathlib import Path
 import time
 from rich import print
 
@@ -16,6 +17,7 @@ from classes.projects.Project import Project
 class MySelenium:
     def __init__(self):
         self.service = Service(executable_path="/usr/bin/chromedriver")
+        self.download_dir = str(Path.home() / "Downloads")
         self.options = webdriver.ChromeOptions()
         self.options.add_argument(
             "user-data-dir=/home/serii/.config/google-chrome/My-profile"
@@ -49,6 +51,73 @@ class MySelenium:
             else:
                 break
 
+    def is_download_complete(self, timeout=3600):
+        """
+        Проверяет завершение загрузки файла в Chrome.
+        Ожидает пока не исчезнут .crdownload файлы.
+
+        Args:
+            timeout: максимальное время ожидания в секундах (по умолчанию 1 час)
+        """
+        download_path = Path(self.download_dir)
+        end_time = time.time() + timeout
+
+        while time.time() < end_time:
+            # Ищем временные файлы загрузки Chrome
+            temp_files = list(download_path.glob("*.crdownload"))
+            tmp_files = list(download_path.glob("*.tmp"))
+
+            if not temp_files and not tmp_files:
+                # Даём файлу время на финализацию
+                time.sleep(2)
+                return True
+
+            # Выводим прогресс (опционально)
+            if temp_files:
+                for f in temp_files:
+                    size = f.stat().st_size / (1024 * 1024)  # MB
+                    print(f"Загрузка: {f.name} ({size:.2f} MB)")
+
+            time.sleep(3)
+
+        raise TimeoutError(f"Загрузка не завершилась за {timeout} секунд")
+
+    def wait_for_new_file(self, timeout=3600):
+        """
+        Ожидает появления нового файла и его полной загрузки.
+        Возвращает путь к загруженному файлу.
+        """
+        download_path = Path(self.download_dir)
+
+        # Запоминаем существующие файлы
+        existing_files = set(download_path.glob("*"))
+
+        end_time = time.time() + timeout
+
+        # Ждём появления нового файла
+        while time.time() < end_time:
+            current_files = set(download_path.glob("*"))
+            new_files = current_files - existing_files
+
+            # Исключаем временные файлы
+            completed_files = [
+                f for f in new_files if not f.name.endswith((".crdownload", ".tmp"))
+            ]
+
+            if completed_files:
+                # Ждём завершения загрузки
+                self.is_download_complete(
+                    timeout - (time.time() - (end_time - timeout))
+                )
+                return completed_files[0]
+
+            time.sleep(2)
+
+        raise TimeoutError("Новый файл не появился в директории загрузок")
+
+    def wait(self, sec=30):
+        return WebDriverWait(self.driver, sec)
+
     def make_backup_in_chrome(self):
         self.loginToSite()
         self.driver.get(self.sitem_login)
@@ -61,35 +130,47 @@ class MySelenium:
         login_button.click()
         backups_url = f"{self.project_url}/wp-admin/admin.php?page=ai1wm_export"
         self.driver.get(backups_url)
+
         if self.driver.current_url != backups_url:
             self.driver.get(backups_url)
-        WebDriverWait(self.driver, 30000000).until(
-            EC.presence_of_element_located((By.CSS_SELECTOR, ".ai1wm-button-export"))
+
+        dots_btn = self.wait().until(
+            EC.element_to_be_clickable((By.CSS_SELECTOR, ".ai1wm-button-export"))
         )
-        ai1wm_backup_dots = self.driver.find_element(
-            By.CSS_SELECTOR, ".ai1wm-button-export"
+        dots_btn.click()
+
+        export_btn = self.wait().until(
+            EC.element_to_be_clickable((By.CSS_SELECTOR, "#ai1wm-export-file"))
         )
-        ai1wm_backup_dots.click()
-        WebDriverWait(self.driver, 30000000).until(
-            EC.presence_of_element_located((By.CSS_SELECTOR, "#ai1wm-export-file"))
-        )
-        ai1wm_backup_restore = self.driver.find_element(
-            By.CSS_SELECTOR, "#ai1wm-export-file"
-        )
-        time.sleep(2)
-        ai1wm_backup_restore.click()
-        WebDriverWait(self.driver, 3000000000).until(
-            EC.presence_of_element_located(
+
+        time.sleep(1)
+
+        export_btn.click()
+
+        btn_green = self.wait().until(
+            EC.element_to_be_clickable(
                 (By.CSS_SELECTOR, ".ai1wm-modal-container .ai1wm-button-green")
             )
         )
-        button_green = self.driver.find_element(
-            By.CSS_SELECTOR, ".ai1wm-modal-container .ai1wm-button-green"
-        )
-        button_green.click()
-        WebDriverWait(self.driver, 120, 1).until(self.every_downloads_chrome)
-        self.driver.close()
-        time.sleep(10000000)
+
+        btn_green.click()
+
+        print("Начинается загрузка бэкапа...")
+
+        try:
+            # Ожидаем завершения загрузки (максимум 1 час)
+            downloaded_file = self.wait_for_new_file(timeout=3600)
+            print(f"Бэкап успешно загружен: {downloaded_file}")
+            return downloaded_file
+        except TimeoutError as e:
+            print(f"Ошибка: {e}")
+            raise
+        finally:
+            self.driver.quit()
+
+        # WebDriverWait(self.driver, 120, 1).until(self.every_downloads_chrome)
+        # self.driver.close()
+        # time.sleep(10000000)
 
     def waitForCaptcha(self):
         try:
