@@ -16,6 +16,5 @@ bcm
 petrillo
 elleffe
 ttcar
-agricosta
 maxkebab
 ensurance
