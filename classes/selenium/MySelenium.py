@@ -312,40 +312,63 @@ class MySelenium:
         self.choose_backups_to_delete()
 
     def choose_backups_to_delete(self):
-        number_of_backups = input("[green]Enter number of backups to delete: ")
-        if number_of_backups == "":
+        number_of_backups = input("[green]Enter number of backups to delete: ").strip()
+        if not number_of_backups:
             exit("[red]Number of backups is empty!")
-        print(f"Number of backups: {number_of_backups}")
-        for _ in range(int(number_of_backups)):
-            WebDriverWait(self.driver, 300000).until(
-                EC.presence_of_element_located(
-                    (
-                        By.CSS_SELECTOR,
-                        "table.ai1wm-backups tr:last-of-type .ai1wm-backup-dots",
+
+        try:
+            num_backups = int(number_of_backups)
+        except ValueError:
+            exit("[red]Please enter a valid number!")
+
+        print(f"Number of backups: {num_backups}")
+
+        for i in range(num_backups):
+            try:
+                # Wait for backup table to be ready
+                self.wait(300).until(
+                    EC.presence_of_element_located(
+                        (
+                            By.CSS_SELECTOR,
+                            "table.ai1wm-backups tr:last-of-type .ai1wm-backup-dots",
+                        )
                     )
                 )
-            )
-            ai1wm_backup_dots = self.driver.find_element(
-                By.CSS_SELECTOR,
-                f"table.ai1wm-backups tr:nth-of-type({number_of_backups})\
-                        .ai1wm-backup-dots",
-            )
-            ai1wm_backup_dots.click()
-            WebDriverWait(self.driver, 300000).until(
-                EC.presence_of_element_located(
-                    (
-                        By.CSS_SELECTOR,
-                        "table.ai1wm-backups tr:nth-of-type(2)\
-                                .ai1wm-backup-delete",
+
+                # Always delete the last backup (most recent) - after deletion, next one becomes last
+                dots_button = self.wait(300).until(
+                    EC.element_to_be_clickable(
+                        (
+                            By.CSS_SELECTOR,
+                            "table.ai1wm-backups tr:last-of-type .ai1wm-backup-dots",
+                        )
                     )
                 )
-            )
-            ai1wm_backup_delete = self.driver.find_element(
-                By.CSS_SELECTOR,
-                f"table.ai1wm-backups tr:nth-of-type({number_of_backups})\
-                        .ai1wm-backup-delete",
-            )
-            ai1wm_backup_delete.click()
-            WebDriverWait(self.driver, 1000000).until(EC.alert_is_present())
-            self.driver.switch_to.alert.accept()
-            time.sleep(3)
+                dots_button.click()
+
+                # Wait for delete button and click it
+                delete_button = self.wait(300).until(
+                    EC.element_to_be_clickable(
+                        (
+                            By.CSS_SELECTOR,
+                            "table.ai1wm-backups tr:last-of-type .ai1wm-backup-delete",
+                        )
+                    )
+                )
+                delete_button.click()
+
+                # Handle confirmation alert
+                self.wait(300).until(EC.alert_is_present())
+                self.driver.switch_to.alert.accept()
+
+                # Wait for deletion to complete
+                time.sleep(2)
+
+                print(f"[green]Deleted backup {i + 1} of {num_backups}")
+
+            except TimeoutException as e:
+                print(f"[red]Timeout error deleting backup {i + 1}: {str(e)}")
+                raise
+            except Exception as e:
+                print(f"[red]Error deleting backup {i + 1}: {str(e)}")
+                raise

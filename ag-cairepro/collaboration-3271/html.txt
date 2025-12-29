@@ -1,0 +1,41 @@
+<div class="contacts-block__group">[text* your-name placeholder "Nome*"]</div>
+<div class="contacts-block__group">[text* your-surname placeholder "Cognome*"]</div>
+<h3 class="contacts-block__subtitle">Mi candido per il ruolo di:</h3>
+<div class="contacts-block__radio">
+[radio radio-483 use_label_element "Architetto" "Ingegnere" "Geometra" "Altro"]
+</div>
+<div class="contacts-block__group">[email* your-email placeholder "La tua email*"]</div>
+<div class="contacts-block__group">[text* your-phone placeholder "Il tuo telefono*"]</div>
+<h3 class="contacts-block__subtitle">Carica CV*</h3>
+  <div class="form-group form-group--file">
+    [file* file id:file filetypes:pdf|txt|csv|xml limit:2mb]
+    <div class="form-file__label"></div>
+    <div class="form-file"></div>
+  </div>
+<div class="contacts-block__group contacts-block__group--textarea">
+  [textarea your-message placeholder "Messaggio (opzionale)"]
+</div>
+<div class="contacts-block__privacy">
+  [acceptance acceptance-223] Cliccando su invia dichiari di aver preso visione e di accettare la
+  nostra
+  <a href="/privacy-policy/" target="_blank">privacy policy</a>
+  [/acceptance]
+</div>
+<div class="contacts-block__submit">
+  <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 12 12" fill="none">
+    <g clip-path="url(#clip0_825_3685)">
+      <path d="M1.875 6H10.125" stroke="white" stroke-linecap="round" stroke-linejoin="round" />
+      <path
+        d="M6.75 2.625L10.125 6L6.75 9.375"
+        stroke="white"
+        stroke-linecap="round"
+        stroke-linejoin="round" />
+    </g>
+    <defs>
+      <clipPath id="clip0_825_3685">
+        <rect width="12" height="12" fill="white" />
+      </clipPath>
+    </defs>
+  </svg>
+  [submit "Invia"]
+</div>
