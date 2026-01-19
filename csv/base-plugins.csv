@@ -8,3 +8,4 @@ stops-core-theme-and-plugin-updates,False
 svg-support,False
 wps-hide-login,False
 wps-limit-login,False
+classic-editor,False
