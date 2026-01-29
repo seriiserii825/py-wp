@@ -17,12 +17,15 @@ def image_menu():
         image_menu()
     elif choice == "2":
         image_class.upload_all()
+        image_class.show_images_with_sizes_json()
         image_menu()
     elif choice == "3":
         image_class.select_images()
+        image_class.show_images_with_sizes_json()
         image_menu()
     elif choice == "4":
         image_class.delete_image()
+        image_class.show_images_with_sizes_json()
         image_menu()
     elif choice == "5":
         exit("Goodbye!")

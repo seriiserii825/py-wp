@@ -163,4 +163,3 @@ class ImagesClass:
                     self.upload_image(image)
             else:
                 self.upload_image(image)
-        self.show_images()
