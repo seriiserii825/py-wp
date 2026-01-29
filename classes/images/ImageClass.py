@@ -33,6 +33,32 @@ class ImagesClass:
             rows,
         )
 
+    def show_images_with_sizes(self):
+        Command.run(
+            'wp eval \'foreach(get_posts(["post_type"=>"attachment","numberposts"=>-1]) as $p) { $file = get_attached_file($p->ID); $size = file_exists($file) ? filesize($file)/1024 : 0; printf("ID: %d | %s | %.2f KB\n", $p->ID, $p->post_title, $size); }\''
+        )
+
+    def show_images_with_sizes_json(self):
+        result = Command.run_json(
+            'wp eval \' $atts = get_posts(["post_type"=>"attachment","post_mime_type"=>"image","numberposts"=>-1]); $result = array_map(function($p) { $file = get_attached_file($p->ID); return [ "ID" => $p->ID, "title" => $p->post_title, "file" => basename($file), "date" => date("Y-m-d H:i:s", strtotime($p->post_date)), "size_kb" => file_exists($file) ? round(filesize($file)/1024, 2) : 0 ]; }, $atts); echo json_encode($result, JSON_PRETTY_PRINT); \' | jq'
+        )
+        headers = ["ID", "File", "Date", "Size (KB)"]
+        rows = []
+        for img in result:
+            rows.append(
+                [
+                    str(img["ID"]),
+                    img["file"],
+                    img["date"],
+                    str(img["size_kb"]) + " KB",
+                ]
+            )
+        Menu.display(
+            "Images with Sizes",
+            headers,
+            rows,
+        )
+
     def _get_installed_images(self) -> list[ImageDto]:
         images_from_command = Command.run_json(
             "wp post list --post_type=attachment --format=json"

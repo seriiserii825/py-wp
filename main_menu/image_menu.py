@@ -13,7 +13,7 @@ def image_menu():
 
     choice = input("Make your choice:")
     if choice == "1":
-        image_class.show_images()
+        image_class.show_images_with_sizes_json()
         image_menu()
     elif choice == "2":
         image_class.upload_all()
