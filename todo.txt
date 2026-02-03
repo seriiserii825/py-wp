@@ -26,3 +26,4 @@ farmaciapreceruti
 rsv
 virmec
 vr-sistemi
+infotel
