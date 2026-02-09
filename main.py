@@ -26,7 +26,7 @@ def menu():
         "07).Themes",
         "08).Contact Form",
         "09).Files",
-        "10).Exit"
+        "10).Exit",
     ]
     choice = Menu.select_fzf(options)
     if choice == 0:
@@ -49,7 +49,7 @@ def menu():
         menu()
     elif choice == 6:
         page_menu()
-        menu()
+        exit(0)
     elif choice == 7:
         theme_menu()
         menu()

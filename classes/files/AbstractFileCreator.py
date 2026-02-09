@@ -24,10 +24,10 @@ class AbstractFileCreator(FileCreatorInterface, ABC):
             current_path = selected_path
 
             print(f"Selected folder: {current_path}")
-            choice = input("Go deeper into subfolder? (y/n): ").strip().lower()
-
-            if choice != "y":
-                break
+            # choice = input("Go deeper into subfolder? (y/n): ").strip().lower()
+            #
+            # if choice != "y":
+            break
 
         return str(Path(current_path).resolve())
 

@@ -60,7 +60,8 @@ class Plugin:
         # sorted to sequence
         plugins_to_install = list(sorted_plugins)
         print(f"plugins_to_install:: {plugins_to_install:}")
-        selected_plugin = Select.select_one(plugins_to_install)
+        selected_plugin_arr = Select.select_with_fzf(plugins_to_install)
+        selected_plugin = selected_plugin_arr[0]
         print(f"selected_plugin: {selected_plugin}")
         if self._is_already_installed(selected_plugin):
             Print.error(f"Plugin '{selected_plugin}' is already installed.")

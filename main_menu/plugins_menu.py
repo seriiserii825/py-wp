@@ -2,7 +2,6 @@ from classes.csv.BasePluginsCsv import BasePluginsCsv
 from classes.csv.OtherPluginsCsv import OtherPluginsCsv
 from classes.plugin.Plugin import Plugin
 from classes.utils.Menu import Menu
-from classes.utils.Select import Select
 
 
 def plugins_menu():
@@ -15,7 +14,7 @@ def plugins_menu():
         "5.Uninstall",
         "6.Exit",
     ]
-    choice = Menu.select_with_fzf(rows)
+    choice = Menu.select_fzf(rows)
 
     if choice == 0:
         pi = Plugin()
