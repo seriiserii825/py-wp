@@ -28,6 +28,7 @@ dependencies = [
     "rich (==14.0.0)",
     "selenium>=4.34.2",
     "simple-term-menu (==1.6.6)",
+    "types-requests>=2.32.4.20260107",
     "typing-extensions (==4.14.1)",
     "wcwidth (==0.2.13)",
 ]
