@@ -15,16 +15,16 @@ class PhpTemplateToFile:
         FileWriter.write_file(Path(file_path), html)
 
         choice = InputValidator.get_bool(
-            'Do you want to include this template in another PHP file? (y/n): ')
+            "Do you want to include this template in another PHP file? (y/n): "
+        )
         if not choice:
             return PhpTemplateToFile._return_path(file_path)
 
-        template_path = file_path.split(
-            "template-parts/")[-1].replace(".php", "")
+        template_path = file_path.split("template-parts/")[-1].replace(".php", "")
 
-        listed_files = [str(file_name)
-                        for file_name in Path(".").glob("*.php")]
-        selected_file = Select.select_one(listed_files)
+        listed_files = [str(file_name) for file_name in Path(".").glob("*.php")]
+        selected_file_array = Select.select_with_fzf(listed_files)
+        selected_file = selected_file_array[0]
         file_to_include = Path(selected_file)
         include = f'<?php get_template_part("template-parts/{template_path}"); ?>\n'
         content = file_to_include.read_text()
@@ -44,6 +44,5 @@ class PhpTemplateToFile:
     def _return_path(file_path: str) -> str:
         theme_path = WPPaths.get_theme_path()
         them_with_template_parts = f"{theme_path}/template-parts/"
-        result = file_path.split(
-            them_with_template_parts)[-1].replace(".php", "")
+        result = file_path.split(them_with_template_parts)[-1].replace(".php", "")
         return result
