@@ -10,7 +10,7 @@ class Select:
     def select_with_fzf(options) -> list[str]:
         input_text = "\n".join(options)
         result = subprocess.run(
-            ["fzf", "--multi", "--height", "40%", "--reverse"],
+            ["fzf", "--multi", "--height", "1%", "--reverse"],
             input=input_text.encode(),
             stdout=subprocess.PIPE,
         )
