@@ -125,7 +125,7 @@ class Backup:
         else:
             exit("[red]Directory /mnt/Projects not exists!")
 
-    def remove_backups_on_mnt_by_count(self, mnt_path, count=6):
+    def remove_backups_on_mnt_by_count(self, mnt_path, count=10):
         if os.path.isdir(mnt_path):
             os.chdir(mnt_path)
             backups_array = self._files_to_array()
