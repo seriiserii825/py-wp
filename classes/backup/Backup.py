@@ -121,5 +121,46 @@ class Backup:
             self.last_backup_to_mnt(path_to_selected_dir)
             last_backup = self.get_last_backup_path()
             print(f"[green]Backup created and copied to /mnt/Projects/{last_backup}")
+            self.remove_backups_on_mnt_by_count(path_to_selected_dir)
         else:
             exit("[red]Directory /mnt/Projects not exists!")
+
+    def remove_backups_on_mnt_by_count(self, mnt_path, count=6):
+        if os.path.isdir(mnt_path):
+            os.chdir(mnt_path)
+            backups_array = self._files_to_array()
+            if len(backups_array) == 0:
+                print("[red]No backups found on mount!")
+            elif len(backups_array) > count:
+                self._list_files(backups_array)
+                backup_to_delete = backups_array[count:]
+                print(f"[red]Backups to delete on {mnt_path}: ")
+                self._list_files(backup_to_delete)
+                agree_to_delete = input(
+                    f"[yellow]Do you want to delete these backups on {mnt_path}? (y/n): "
+                )
+                if agree_to_delete.lower() == "y":
+                    for file in backup_to_delete:
+                        os.system(f"rm {file}")
+                    new_files_on_mnt = self._files_to_array()
+                    print(f"[green]Backups deleted. Current backups on {mnt_path}: ")
+                    self._list_files(new_files_on_mnt)
+                else:
+                    print("[green]Backups not deleted.")
+            else:
+                print(f"[green]Backups on {mnt_path} less than or equal to {count}")
+        else:
+            print(f"[red]Directory {mnt_path} does not exist!")
+
+    def _list_files(self, files):
+        for file in files:
+            print(file)
+
+    def _files_to_array(self):
+        backup_files = os.listdir()
+        backup_files.sort(key=lambda x: os.path.getctime(x), reverse=True)
+        backups_array = []
+        for file in backup_files:
+            if file.endswith(".wpress"):
+                backups_array.append(file)
+        return backups_array
