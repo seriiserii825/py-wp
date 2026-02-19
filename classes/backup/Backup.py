@@ -146,9 +146,9 @@ class Backup:
                     print(f"[green]Backups deleted. Current backups on {mnt_path}: ")
                     self._list_files(new_files_on_mnt)
                 else:
-                    print("[green]Backups not deleted.")
+                    print("[red]Backups not deleted.")
             else:
-                print(f"[green]Backups on {mnt_path} less than or equal to {count}")
+                print(f"[red]Backups on {mnt_path} less than or equal to {count}")
         else:
             print(f"[red]Directory {mnt_path} does not exist!")
 
