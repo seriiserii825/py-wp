@@ -11,6 +11,7 @@ class FieldTemplateFactory:
             "name": dto.name,
             "aria-label": dto.aria_label,
             "type": dto.type,
+            "post_type": dto.post_type,
             "instructions": dto.instructions,
             "required": dto.required,
             "conditional_logic": 0,
@@ -33,17 +34,11 @@ class FieldTemplateFactory:
                 base["ui"] = dto.ui
                 base["default_value"] = dto.default
             case EFieldType.GALLERY.value:
-                base.update(
-                    {
-                        "return_format": "array"
-                    }
-                )
+                base.update({"return_format": "array"})
             case EFieldType.IMAGE.value:
-                base.update(
-                    {
-                        "return_format": "array"
-                    }
-                )
+                base.update({"return_format": "array"})
+            case EFieldType.POST_OBJECT.value:
+                base.update({"return_format": "id"})
             case EFieldType.TAB.value:
                 base.update({"placement": "top", "endpoint": 0})
             # Add other types here

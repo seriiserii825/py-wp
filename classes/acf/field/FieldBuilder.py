@@ -1,8 +1,12 @@
+from typing import List
 from classes.acf.enum.EFieldType import EFieldType
 from classes.acf.field.dto.FieldDTO import FieldDTO
 from classes.acf.field.factories.FieldTemplateFactory import FieldTemplateFactory
+from classes.acf.section.SectionMenu import SectionMenu
+from classes.data.WpData import WpData
 from classes.utils.Generate import Generate
 from classes.utils.InputValidator import InputValidator
+from classes.utils.Menu import Menu
 from classes.utils.Select import Select
 
 
@@ -23,7 +27,8 @@ class FieldBuilder:
     def ask_required(self, field_type: str) -> int | bool:
         if self.is_simple_field(field_type):
             bool_result = InputValidator.get_bool_true_default(
-                "Is required, for no type 'n', 'y' by default: ")
+                "Is required, for no type 'n', 'y' by default: "
+            )
             return True if bool_result else 0
         return 0
 
@@ -115,3 +120,32 @@ class FieldBuilder:
                 else 0
             )
         return 0
+
+    def ask_post_type(self) -> str:
+        entity_type = self._choose_type()
+        if entity_type == 0:
+            return "page"
+        elif entity_type == 1:
+            post_type = self._select_custom_post_type()
+            return post_type
+        else:
+            return "exit"
+
+    def _choose_type(self) -> int:
+        rows = [
+            "Page",
+            "Custom Post Type",
+            "Exit",
+        ]
+        choice = Menu.select_with_fzf(rows)
+        print(f"choose_type: {choice}")
+        return choice
+
+    def _select_custom_post_type(self) -> str:
+        row_post_types: List[str] = WpData.get_wp_posts()
+        columns = ["Index", "Post Type"]
+        rows = [[str(row_post_types.index(i)), i] for i in row_post_types]
+        SectionMenu.display("New Section", columns, rows)
+        index = SectionMenu.choose_option()
+        post_type = row_post_types[index]
+        return post_type

@@ -13,3 +13,4 @@ class EFieldType(Enum):
     GROUP = "group"
     REPEATER = "repeater"
     MESSAGE = "message"
+    POST_OBJECT = "post_object"

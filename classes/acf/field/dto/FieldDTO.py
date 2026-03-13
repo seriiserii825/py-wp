@@ -15,3 +15,4 @@ class FieldDTO:
     ui: int = 0
     default: int = 0
     aria_label: str = field(default="", metadata={"alias": "aria-label"})
+    post_type: str = ""

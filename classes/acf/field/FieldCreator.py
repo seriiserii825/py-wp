@@ -18,13 +18,17 @@ class FieldCreator:
             name = self.builder.label_to_name(label)
         key = Generate.get_field_id()
 
+        if selected_type == "post_object":
+            post_type = self.builder.ask_post_type()
+        else:
+            post_type = ""
+
         required = self.builder.ask_required(selected_type)
         width = self.builder.ask_width(selected_type)
         layout = self.builder.ask_layout(selected_type)
         message = self.builder.ask_message(selected_type)
         ui = self.builder.ui_for_true_false(selected_type)
-        true_false_default = self.builder.default_value_for_true_false(
-            selected_type)
+        true_false_default = self.builder.default_value_for_true_false(selected_type)
 
         field = FieldDTO(
             key=key,
@@ -35,6 +39,7 @@ class FieldCreator:
             layout=layout,
             required=required,
             message=message,
+            post_type=post_type,
             width=width,
             ui=ui,
             default=true_false_default,
