@@ -221,9 +221,10 @@ class MySelenium:
 
         save_permalink_url = f"{self.project_url}/wp-admin/options-permalink.php"
         self.driver.get(save_permalink_url)
-        self.wait().until(
+        submit_btn = self.wait().until(
             EC.element_to_be_clickable((By.CSS_SELECTOR, "#submit"))
-        ).click()
+        )
+        self.driver.execute_script("arguments[0].scrollIntoView(); arguments[0].click();", submit_btn)
 
         plugins_url = f"{self.project_url}/wp-admin/plugins.php"
         self.driver.get(plugins_url)
