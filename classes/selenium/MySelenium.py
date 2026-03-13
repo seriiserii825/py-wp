@@ -180,7 +180,7 @@ class MySelenium:
         else:
             print("Not deleting existing backups")
 
-        self.wait(3000).until(
+        self.wait().until(
             EC.element_to_be_clickable(
                 (
                     By.CSS_SELECTOR,
@@ -189,7 +189,7 @@ class MySelenium:
             )
         ).click()
 
-        self.wait(3000).until(
+        self.wait().until(
             EC.element_to_be_clickable(
                 (
                     By.CSS_SELECTOR,
@@ -198,13 +198,14 @@ class MySelenium:
             )
         ).click()
 
-        self.wait(3000).until(
+        self.wait().until(
             EC.element_to_be_clickable(
                 (By.CSS_SELECTOR, ".ai1wm-import-modal-actions .ai1wm-button-green")
             )
         ).click()
 
-        self.wait(3000).until(
+        # Wait for restore to complete — can take a long time
+        self.wait(3600).until(
             EC.presence_of_element_located(
                 (By.CSS_SELECTOR, ".ai1wm-import-modal-content-done")
             )
@@ -220,13 +221,13 @@ class MySelenium:
 
         save_permalink_url = f"{self.project_url}/wp-admin/options-permalink.php"
         self.driver.get(save_permalink_url)
-        self.wait(3000).until(
+        self.wait().until(
             EC.element_to_be_clickable((By.CSS_SELECTOR, "#submit"))
         ).click()
 
         plugins_url = f"{self.project_url}/wp-admin/plugins.php"
         self.driver.get(plugins_url)
-        self.wait(3000).until(
+        self.wait().until(
             EC.element_to_be_clickable((By.CSS_SELECTOR, "#activate-wps-hide-login"))
         ).click()
 
