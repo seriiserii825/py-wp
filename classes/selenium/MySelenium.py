@@ -20,7 +20,7 @@ class MySelenium:
         self.download_dir = str(Path.home() / "Downloads")
         self.options = webdriver.ChromeOptions()
         self.options.add_argument(
-            "user-data-dir=/home/serii/.config/google-chrome/My-profile"
+            f"user-data-dir={Path.home()}/.config/google-chrome/My-profile"
         )  # Path to your chrome profile
         self.driver = webdriver.Chrome(service=self.service, options=self.options)
         current_dir_path = os.getcwd()
@@ -32,7 +32,7 @@ class MySelenium:
         self.project_url = self.project["url"]
         self.sitem_login = self.pr.getLoginUrl(False)
 
-    def _login(self):
+    def _login(self, check_login_element: bool = False):
         """Navigate to login page, handle captcha, and submit credentials."""
         req = requests.get(self.sitem_login)
         if req.status_code != requests.codes["ok"]:
@@ -40,10 +40,16 @@ class MySelenium:
 
         self.driver.get(self.sitem_login)
         self.waitForCaptcha()
-        self._go_next_if_no_login_element()
+        if check_login_element:
+            self._go_next_if_no_login_element()
         self.driver.find_element(By.ID, "user_login").send_keys(self.project_login)
         self.driver.find_element(By.ID, "user_pass").send_keys(self.project_password)
         self.driver.find_element(By.ID, "wp-submit").click()
+
+        # Wait until login completes and wp-admin is loaded
+        WebDriverWait(self.driver, 30).until(
+            lambda d: "/wp-admin" in d.current_url and "wp-login" not in d.current_url
+        )
 
     def is_download_complete(self, timeout=3600):
         """
@@ -91,7 +97,9 @@ class MySelenium:
             ]
 
             if completed_files:
-                self.is_download_complete(end_time - time.time())
+                remaining = end_time - time.time()
+                if remaining > 0:
+                    self.is_download_complete(remaining)
                 return completed_files[0]
 
             time.sleep(2)
@@ -110,11 +118,11 @@ class MySelenium:
             EC.element_to_be_clickable((By.CSS_SELECTOR, ".ai1wm-button-export"))
         ).click()
 
-        self.wait().until(
+        export_btn = self.wait().until(
             EC.element_to_be_clickable((By.CSS_SELECTOR, "#ai1wm-export-file"))
         )
         time.sleep(1)
-        self.driver.find_element(By.CSS_SELECTOR, "#ai1wm-export-file").click()
+        export_btn.click()
 
         self.wait().until(
             EC.element_to_be_clickable(
@@ -134,15 +142,19 @@ class MySelenium:
         finally:
             self.driver.quit()
 
-    def waitForCaptcha(self):
+    def waitForCaptcha(self, timeout: int = 60):
         try:
-            captcha = WebDriverWait(self.driver, 1).until(
+            WebDriverWait(self.driver, 1).until(
                 EC.presence_of_element_located(
                     (By.CSS_SELECTOR, ".aiowps-captcha-answer")
                 )
             )
-            if captcha:
-                time.sleep(10)
+            # Captcha present — wait until it disappears (user solved it)
+            WebDriverWait(self.driver, timeout).until(
+                EC.invisibility_of_element_located(
+                    (By.CSS_SELECTOR, ".aiowps-captcha-answer")
+                )
+            )
         except TimeoutException:
             return
 
@@ -158,7 +170,7 @@ class MySelenium:
                 exit(1)
 
     def restore_backup_in_chrome(self):
-        self._login()
+        self._login(check_login_element=True)
         backups_url = f"{self.project_url}/wp-admin/admin.php?page=ai1wm_backups"
         self.driver.get(backups_url)
 
@@ -198,10 +210,13 @@ class MySelenium:
             )
         )
         time.sleep(1)
-        self.driver.close()
+        self.driver.quit()
+
+        # Give the site time to fully come back up after restore
+        time.sleep(3)
 
         self.driver = webdriver.Chrome(service=self.service, options=self.options)
-        self._login()
+        self._login(check_login_element=True)
 
         save_permalink_url = f"{self.project_url}/wp-admin/options-permalink.php"
         self.driver.get(save_permalink_url)
@@ -215,7 +230,7 @@ class MySelenium:
             EC.element_to_be_clickable((By.CSS_SELECTOR, "#activate-wps-hide-login"))
         ).click()
 
-        self.driver.close()
+        self.driver.quit()
 
     def delete_backup_in_chrome(self):
         self._login()
