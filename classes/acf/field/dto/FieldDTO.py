@@ -1,4 +1,5 @@
 from dataclasses import dataclass, field
+from classes.acf.enum.EFieldType import EFieldType
 
 
 @dataclass
@@ -6,7 +7,7 @@ class FieldDTO:
     key: str
     label: str
     name: str
-    type: str
+    type: EFieldType
     instructions: str = ""
     required: int | bool = 0
     layout: str = "block"

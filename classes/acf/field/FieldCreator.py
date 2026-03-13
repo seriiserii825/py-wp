@@ -12,13 +12,13 @@ class FieldCreator:
     def create(self) -> dict | list[dict]:
         label = self.builder.ask_label()
         selected_type = self.builder.ask_field_type()
-        if selected_type == "tab":
+        if selected_type == EFieldType.TAB:
             name = ""
         else:
             name = self.builder.label_to_name(label)
         key = Generate.get_field_id()
 
-        if selected_type == "post_object":
+        if selected_type == EFieldType.POST_OBJECT:
             post_type = self.builder.ask_post_type()
         else:
             post_type = ""
@@ -45,7 +45,7 @@ class FieldCreator:
             default=true_false_default,
         )
 
-        if selected_type == EFieldType.TAB.value:
+        if selected_type == EFieldType.TAB:
             return self.builder.handle_tab_field(field, label)
 
         return FieldTemplateFactory.create(field)

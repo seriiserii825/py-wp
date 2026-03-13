@@ -19,12 +19,12 @@ class FieldBuilder:
     def label_to_name(self, label: str) -> str:
         return label.replace(" ", "_").lower()
 
-    def ask_field_type(self) -> str:
+    def ask_field_type(self) -> EFieldType:
         types = [ft.value for ft in EFieldType]
         choice = Select.select_with_fzf(types)
-        return choice[0]
+        return EFieldType(choice[0])
 
-    def ask_required(self, field_type: str) -> int | bool:
+    def ask_required(self, field_type: EFieldType) -> int | bool:
         if self.is_simple_field(field_type):
             bool_result = InputValidator.get_bool_true_default(
                 "Is required, for no type 'n', 'y' by default: "
@@ -32,39 +32,28 @@ class FieldBuilder:
             return True if bool_result else 0
         return 0
 
-    def ask_width(self, field_type: str) -> int:
+    def ask_width(self, field_type: EFieldType) -> int:
         if not self.is_simple_field(field_type):
             return self.DEFAULT_WIDTH
         raw = input("Enter field width (0-100), by default is 100: ").strip()
         return int(raw) if raw.isdigit() else self.DEFAULT_WIDTH
 
-    def ask_message(self, field_type: str) -> str:
-        if field_type == EFieldType.MESSAGE.value:
+    def ask_message(self, field_type: EFieldType) -> str:
+        if field_type == EFieldType.MESSAGE:
             return InputValidator.get_string("Enter message text: ")
         return ""
 
-    def ask_layout(self, field_type: str) -> str:
-        if field_type in {EFieldType.GROUP.value, EFieldType.REPEATER.value}:
+    def ask_layout(self, field_type: EFieldType) -> str:
+        if field_type in {EFieldType.GROUP, EFieldType.REPEATER}:
             layout = input("By default is block, type 'r' for row: ").strip()
             return "row" if layout.lower() == "r" else "block"
         return "block"
 
-    def ask_ui(self, field_type: str) -> int:
-        if field_type == EFieldType.TRUE_FALSE.value:
-            return (
-                1
-                if InputValidator.get_bool(
-                    "Do you want to have UI for this field? (y/n): "
-                )
-                else 0
-            )
-        return 0
-
-    def is_simple_field(self, field_type: str) -> bool:
+    def is_simple_field(self, field_type: EFieldType) -> bool:
         return field_type not in {
-            EFieldType.GROUP.value,
-            EFieldType.TAB.value,
-            EFieldType.REPEATER.value,
+            EFieldType.GROUP,
+            EFieldType.TAB,
+            EFieldType.REPEATER,
         }
 
     def handle_tab_field(self, field: FieldDTO, label: str) -> list[dict]:
@@ -80,27 +69,21 @@ class FieldBuilder:
     def create_group(self, label: str) -> dict:
         key = Generate.get_field_id()
         name = self.label_to_name(label)
-        layout = self.determine_layout(EFieldType.GROUP.value)
+        layout = self.ask_layout(EFieldType.GROUP)
 
         field = FieldDTO(
             key=key,
             label=label,
             name=name,
-            type=EFieldType.GROUP.value,
+            type=EFieldType.GROUP,
             layout=layout,
             required=False,
             width=self.DEFAULT_WIDTH,
         )
         return FieldTemplateFactory.create(field)
 
-    def determine_layout(self, field_type: str) -> str:
-        if field_type in {EFieldType.GROUP.value, EFieldType.REPEATER.value}:
-            layout = input("By default is block, type 'r' for row: ").strip()
-            return "row" if layout.lower() == "r" else "block"
-        return "block"
-
-    def ui_for_true_false(self, field_type: str) -> int:
-        if field_type == EFieldType.TRUE_FALSE.value:
+    def ui_for_true_false(self, field_type: EFieldType) -> int:
+        if field_type == EFieldType.TRUE_FALSE:
             return (
                 1
                 if InputValidator.get_bool(
@@ -110,8 +93,8 @@ class FieldBuilder:
             )
         return 0
 
-    def default_value_for_true_false(self, field_type: str) -> int:
-        if field_type == EFieldType.TRUE_FALSE.value:
+    def default_value_for_true_false(self, field_type: EFieldType) -> int:
+        if field_type == EFieldType.TRUE_FALSE:
             return (
                 1
                 if InputValidator.get_bool(
@@ -138,7 +121,6 @@ class FieldBuilder:
             "Exit",
         ]
         choice = Menu.select_with_fzf(rows)
-        print(f"choose_type: {choice}")
         return choice
 
     def _select_custom_post_type(self) -> str:
