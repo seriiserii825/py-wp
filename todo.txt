@@ -33,3 +33,4 @@ storiedelatera
 otp
 fiamma
 iteco
+studio
