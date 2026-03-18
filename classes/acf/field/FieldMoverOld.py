@@ -1,17 +1,11 @@
 class FieldMover:
     @staticmethod
-    def parse_index_path(index_str: str) -> list[int | None]:
-        parts = index_str.rstrip(".").split(".")
-        result: list[int | None] = [int(p) for p in parts]
-        if index_str.endswith("."):
-            result.append(None)
-        return result
+    def parse_index_path(index_str: str) -> list[int]:
+        return [int(i) for i in index_str.split(".")]
 
     @staticmethod
     def get_field_container(fields, index_path, create=False):
         for idx in index_path[:-1]:
-            if idx is None:
-                raise ValueError("Only the last index can be auto-appended")
             field = fields[idx]
             if "sub_fields" not in field:
                 if create:
@@ -34,15 +28,11 @@ class FieldMover:
         source = self.parse_index_path(source_str)
         dest = self.parse_index_path(dest_str)
 
-        # Cache destination parent list before modifying the structure
-        dest_parent = self.get_field_container(fields, dest, create=True)
-
-        # Resolve trailing dot: append to end
-        if dest[-1] is None:
-            dest[-1] = len(dest_parent)
-
         if source == dest:
             return  # nothing to do
+
+        # Cache destination parent list before modifying the structure
+        dest_parent = self.get_field_container(fields, dest, create=True)
 
         # Adjust destination index if necessary
         dest_index = dest[-1]
