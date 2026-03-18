@@ -32,16 +32,39 @@ class MySelenium:
         self.project_url = self.project["url"]
         self.sitem_login = self.pr.getLoginUrl(False)
 
+    def _find_login_url(self) -> str | None:
+        """Try login URLs in order, return the first one that shows the login form."""
+        candidates = [
+            self.sitem_login,
+            f"{self.project_url}/wp-admin",
+            f"{self.project_url}/gestione",
+            f"{self.project_url}/login",
+        ]
+        for url in candidates:
+            self.driver.get(url)
+            self.waitForCaptcha()
+            if self.driver.find_elements(By.ID, "user_login"):
+                return url
+        return None
+
     def _login(self, check_login_element: bool = False):
         """Navigate to login page, handle captcha, and submit credentials."""
-        req = requests.get(self.sitem_login)
-        if req.status_code != requests.codes["ok"]:
-            self.sitem_login = f"{self.project_url}/wp-admin"
+        # Check if already logged in
+        self.driver.get(f"{self.project_url}/wp-admin")
+        if "/wp-admin" in self.driver.current_url and "wp-login" not in self.driver.current_url:
+            return
 
-        self.driver.get(self.sitem_login)
-        self.waitForCaptcha()
+        login_url = self._find_login_url()
+        if login_url is None:
+            raise RuntimeError(
+                f"Login form not found. Tried: {self.sitem_login}, "
+                f"{self.project_url}/wp-admin, {self.project_url}/gestione, "
+                f"{self.project_url}/login"
+            )
+
         if check_login_element:
             self._go_next_if_no_login_element()
+
         self.driver.find_element(By.ID, "user_login").send_keys(self.project_login)
         self.driver.find_element(By.ID, "user_pass").send_keys(self.project_password)
         self.driver.find_element(By.ID, "wp-submit").click()
