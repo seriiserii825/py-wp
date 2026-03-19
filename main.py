@@ -71,7 +71,9 @@ def menu(to_import: bool = False):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("--to-import", action="store_true", help="Import ACF data instead of exporting")
+    parser.add_argument(
+        "--to-import", action="store_true", help="Import ACF data instead of exporting"
+    )
     args = parser.parse_args()
     check_is_wp()
     WPPaths.initialize()
