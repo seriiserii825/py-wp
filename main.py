@@ -1,5 +1,7 @@
 #!/usr/bin/python3
 
+import argparse
+
 from classes.utils.Menu import Menu
 from classes.utils.WPPaths import WPPaths
 from main_menu.acf_func import acf_func
@@ -14,7 +16,7 @@ from main_menu.theme_menu import theme_menu
 from modules.check_is_wp import check_is_wp
 
 
-def menu():
+def menu(to_import: bool = False):
     options = [
         "0).ACF",
         "01).Plugins",
@@ -30,7 +32,7 @@ def menu():
     ]
     choice = Menu.select_fzf(options)
     if choice == 0:
-        acf_func()
+        acf_func(to_import)
         menu()
     elif choice == 1:
         plugins_menu()
@@ -68,6 +70,9 @@ def menu():
 
 
 if __name__ == "__main__":
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--to-import", action="store_true", help="Import ACF data instead of exporting")
+    args = parser.parse_args()
     check_is_wp()
     WPPaths.initialize()
-    menu()
+    menu(to_import=args.to_import)

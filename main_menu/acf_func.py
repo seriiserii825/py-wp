@@ -6,8 +6,11 @@ from classes.utils.Menu import Menu
 from classes.utils.Print import Print
 
 
-def acf_func():
-    AcfTransfer.wp_export()
+def acf_func(to_import: bool = False):
+    if to_import:
+        AcfTransfer.wp_import()
+    else:
+        AcfTransfer.wp_export()
     show_sections()
     _choose_section()
 

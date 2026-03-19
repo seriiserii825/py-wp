@@ -19,6 +19,28 @@ and updating WordPress version info — all from Python scripts.
 
 ---
 
+## Usage
+
+### Alias setup
+
+```bash
+dir_path="/home/serii/Documents/python/py-wp"
+alias wb="${dir_path}/.venv/bin/python3 ${dir_path}/main.py"
+```
+
+### CLI arguments
+
+| Argument | Description |
+|---|---|
+| `--to-import` | Import ACF data from file instead of exporting |
+
+```bash
+wb              # export ACF (default)
+wb --to-import  # import ACF from file
+```
+
+---
+
 ## Installation
 
 Inside folder run script pm to install dependencies and create a virtual environment:
