@@ -105,7 +105,7 @@ class FieldEditor:
 
     def _edit_type(self, target):
         new_type = self.builder.ask_field_type()
-        target["type"] = new_type
+        target["type"] = new_type.value
 
     def _edit_label(self, target):
         new_label = self.builder.ask_label()
