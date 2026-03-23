@@ -27,9 +27,38 @@ class FieldMenu:
     def show_only_tab_group(self, active_index: int = 0):
         _, fields = self._load_fields()
         for index, field_data in enumerate(fields):
+            if field_data.get("type") not in ("tab", "group"):
+                continue
             field = create_field(field_data)
             if field:
-                field.print_field(index=index, indent=0, active=active_index == index)
+                if active_index == index:
+                    field.print_field_with_subfields(index=index, indent=0)
+                else:
+                    field.print_field(index=index, indent=0, active=False)
+
+    def select_tab_group_index(self) -> int | None:
+        from classes.utils.Select import Select
+
+        _, fields = self._load_fields()
+        tab_groups = [
+            (index, fd)
+            for index, fd in enumerate(fields)
+            if fd.get("type") in ("tab", "group")
+        ]
+        if not tab_groups:
+            print("No tab/group fields found.")
+            return None
+
+        options = [
+            f"{idx}) {fd.get('label', fd.get('name', '?'))} ({fd.get('type')})"
+            for idx, fd in tab_groups
+        ]
+        selected = Select.select_with_fzf(options)
+        if not selected or selected == [""]:
+            return None
+
+        pos = options.index(selected[0])
+        return tab_groups[pos][0]
 
     def create_field(self):
         data, fields = self._load_fields()

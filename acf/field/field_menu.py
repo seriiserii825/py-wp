@@ -18,14 +18,15 @@ def acf_menu(section_file_json_path):
     VIEW_ALL = "all"
     VIEW_TABS = "tabs"
     current_view = VIEW_ALL  # first open: show all
+    selected_tab_index = 0
 
-    def render(index: int = 0):
+    def render():
         if current_view == VIEW_ALL:
             print("=== ACF Field Menu: Showing All Fields ===")
             f_menu.show_all()
         else:
             print("=== ACF Field Menu: Showing Only Tab/Group Fields ===")
-            f_menu.show_only_tab_group(index)
+            f_menu.show_only_tab_group(selected_tab_index)
 
     # initial render
     render()
@@ -46,19 +47,20 @@ def acf_menu(section_file_json_path):
         choice = Menu.select_fzf(menu_options)
         if choice == 0:
             current_view = VIEW_ALL
-            f_menu.show_all()
             render()
         elif choice == 1:
-            current_view = VIEW_TABS
-            f_menu.show_only_tab_group()
+            picked = f_menu.select_tab_group_index()
+            if picked is not None:
+                selected_tab_index = picked
+                current_view = VIEW_TABS
             render()
         elif choice == 2:
             f_menu.create_field()
             render()
         elif choice == 3:
             try:
-                index = f_menu.move_field()
-                render(int(index))
+                f_menu.move_field()
+                render()
             except Exception as e:
                 print(f"Error moving field: {e}")
                 render()
