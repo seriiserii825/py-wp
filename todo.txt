@@ -38,4 +38,3 @@ informatik
 totem
 tep
 delle
-maxkebab
