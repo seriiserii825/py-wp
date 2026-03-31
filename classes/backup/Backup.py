@@ -121,7 +121,6 @@ class Backup:
             self.last_backup_to_mnt(path_to_selected_dir)
             last_backup = self.get_last_backup_path()
             print(f"[green]Backup created and copied to /mnt/Projects/{last_backup}")
-            self.remove_backups_on_mnt_by_count(path_to_selected_dir)
         else:
             exit("[red]Directory /mnt/Projects not exists!")
 
