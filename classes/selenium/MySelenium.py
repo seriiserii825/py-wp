@@ -147,7 +147,7 @@ class MySelenium:
         time.sleep(1)
         export_btn.click()
 
-        self.wait().until(
+        self.wait(sec=1800).until(
             EC.element_to_be_clickable(
                 (By.CSS_SELECTOR, ".ai1wm-modal-container .ai1wm-button-green")
             )
