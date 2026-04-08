@@ -16,7 +16,7 @@ from classes.projects.Project import Project
 
 class MySelenium:
     def __init__(self):
-        self.service = Service(executable_path="/usr/bin/chromedriver")
+        self.service = Service()
         self.download_dir = str(Path.home() / "Downloads")
         self.options = webdriver.ChromeOptions()
         self.options.add_argument(
