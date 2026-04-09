@@ -1,4 +1,6 @@
 import os
+import re
+import subprocess
 from pathlib import Path
 import time
 from rich import print
@@ -14,14 +16,39 @@ from selenium.webdriver.support.ui import WebDriverWait
 from classes.projects.Project import Project
 
 
+def _check_chrome_versions():
+    def get_version(cmd: list[str]) -> str | None:
+        try:
+            out = subprocess.check_output(cmd, stderr=subprocess.DEVNULL).decode()
+            match = re.search(r"(\d+)\.\d+\.\d+\.\d+", out)
+            return match.group(1) if match else None
+        except Exception:
+            return None
+
+    chrome = get_version(["google-chrome-stable", "--version"])
+    driver = get_version(["/usr/bin/chromedriver", "--version"])
+
+    if chrome is None or driver is None:
+        print("[yellow]Warning: could not determine Chrome/ChromeDriver versions[/yellow]")
+        return
+
+    if chrome != driver:
+        raise RuntimeError(
+            f"Chrome version ({chrome}) does not match ChromeDriver version ({driver}). "
+            "Update chromedriver to fix this."
+        )
+
+
 class MySelenium:
     def __init__(self):
+        _check_chrome_versions()
         self.service = Service(executable_path="/usr/bin/chromedriver")
         self.download_dir = str(Path.home() / "Downloads")
         self.options = webdriver.ChromeOptions()
         self.options.add_argument(
             f"user-data-dir={Path.home()}/.config/google-chrome/My-profile"
         )  # Path to your chrome profile
+
         self.driver = webdriver.Chrome(service=self.service, options=self.options)
         current_dir_path = os.getcwd()
         self.theme_name = os.path.basename(current_dir_path)
