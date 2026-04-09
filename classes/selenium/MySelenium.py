@@ -29,7 +29,9 @@ def _check_chrome_versions():
     driver = get_version(["/usr/bin/chromedriver", "--version"])
 
     if chrome is None or driver is None:
-        print("[yellow]Warning: could not determine Chrome/ChromeDriver versions[/yellow]")
+        print(
+            "[yellow]Warning: could not determine Chrome/ChromeDriver versions[/yellow]"
+        )
         return
 
     if chrome != driver:
@@ -78,7 +80,10 @@ class MySelenium:
         """Navigate to login page, handle captcha, and submit credentials."""
         # Check if already logged in
         self.driver.get(f"{self.project_url}/wp-admin")
-        if "/wp-admin" in self.driver.current_url and "wp-login" not in self.driver.current_url:
+        if (
+            "/wp-admin" in self.driver.current_url
+            and "wp-login" not in self.driver.current_url
+        ):
             return
 
         login_url = self._find_login_url()
@@ -159,26 +164,58 @@ class MySelenium:
     def wait(self, sec=30):
         return WebDriverWait(self.driver, sec)
 
+    def _find_and_click(self, css: str, *, index: int = 0, timeout: int = 10, js: bool = False) -> None:
+        """Find element by CSS, log result, and click.
+
+        Filters to visible+enabled elements only, then picks by index.
+
+        Args:
+            css: CSS selector string
+            index: which visible match to use (0=first, -1=last)
+            timeout: seconds to wait for at least one visible+enabled element
+            js: use JavaScript click (avoids scroll/overlay interference)
+        """
+
+        idx_label = "last" if index == -1 else f"#{index}"
+        print(f"[dim]>>> searching {idx_label} [{css}][/dim]")
+
+        def visible_and_enabled(driver):
+            els = [
+                el
+                for el in driver.find_elements(By.CSS_SELECTOR, css)
+                if el.is_displayed() and el.is_enabled()
+            ]
+            return els if els else False
+
+        visible = self.wait(timeout).until(
+            visible_and_enabled,
+            message=f"No visible+enabled element for '{css}' after {timeout}s",
+        )
+
+        print(f"[dim]    found {len(visible)} visible element(s)[/dim]")
+        element = visible[index]
+        tag = element.tag_name
+        text = element.text.strip()[:40] or element.get_attribute("class") or ""
+        print(f"[dim]    clicking <{tag}> '{text}'[/dim]")
+
+        if js:
+            self.driver.execute_script("arguments[0].click();", element)
+        else:
+            self.driver.execute_script("arguments[0].scrollIntoView(true);", element)
+            element.click()
+
+        print(f"[dim]    clicked[/dim]")
+
     def make_backup_in_chrome(self):
         self._login()
         backups_url = f"{self.project_url}/wp-admin/admin.php?page=ai1wm_export"
         self.driver.get(backups_url)
 
-        self.wait().until(
-            EC.element_to_be_clickable((By.CSS_SELECTOR, ".ai1wm-button-export"))
-        ).click()
-
-        export_btn = self.wait().until(
-            EC.element_to_be_clickable((By.CSS_SELECTOR, "#ai1wm-export-file"))
-        )
+        self._find_and_click(".ai1wm-button-export")
         time.sleep(1)
-        export_btn.click()
+        self._find_and_click("#ai1wm-export-file")
 
-        self.wait(sec=1800).until(
-            EC.element_to_be_clickable(
-                (By.CSS_SELECTOR, ".ai1wm-modal-container .ai1wm-button-green")
-            )
-        ).click()
+        self._find_and_click(".ai1wm-modal-container .ai1wm-button-green", timeout=1800)
 
         print("Начинается загрузка бэкапа...")
 
@@ -230,29 +267,11 @@ class MySelenium:
         else:
             print("Not deleting existing backups")
 
-        self.wait().until(
-            EC.element_to_be_clickable(
-                (
-                    By.CSS_SELECTOR,
-                    "table.ai1wm-backups tr:nth-of-type(2) .ai1wm-backup-dots",
-                )
-            )
-        ).click()
-
-        self.wait().until(
-            EC.element_to_be_clickable(
-                (
-                    By.CSS_SELECTOR,
-                    "table.ai1wm-backups tr:nth-of-type(2) .ai1wm-backup-restore",
-                )
-            )
-        ).click()
-
-        self.wait().until(
-            EC.element_to_be_clickable(
-                (By.CSS_SELECTOR, ".ai1wm-import-modal-actions .ai1wm-button-green")
-            )
-        ).click()
+        self._find_and_click("table.ai1wm-backups tr .ai1wm-backup-dots", index=0, js=True)
+        time.sleep(2)
+        self._find_and_click(".ai1wm-backup-restore", index=0, js=True)
+        time.sleep(1)
+        self._find_and_click(".ai1wm-import-modal-actions .ai1wm-button-green")
 
         # Wait for restore to complete — can take a long time
         self.wait(3600).until(
@@ -274,13 +293,13 @@ class MySelenium:
         submit_btn = self.wait().until(
             EC.element_to_be_clickable((By.CSS_SELECTOR, "#submit"))
         )
-        self.driver.execute_script("arguments[0].scrollIntoView(); arguments[0].click();", submit_btn)
+        self.driver.execute_script(
+            "arguments[0].scrollIntoView(); arguments[0].click();", submit_btn
+        )
 
         plugins_url = f"{self.project_url}/wp-admin/plugins.php"
         self.driver.get(plugins_url)
-        self.wait().until(
-            EC.element_to_be_clickable((By.CSS_SELECTOR, "#activate-wps-hide-login"))
-        ).click()
+        self._find_and_click("#activate-wps-hide-login")
 
         self.driver.quit()
 
@@ -304,23 +323,11 @@ class MySelenium:
 
         for i in range(num_backups):
             try:
-                self.wait(300).until(
-                    EC.element_to_be_clickable(
-                        (
-                            By.CSS_SELECTOR,
-                            "table.ai1wm-backups tr:last-of-type .ai1wm-backup-dots",
-                        )
-                    )
-                ).click()
-
-                self.wait(300).until(
-                    EC.element_to_be_clickable(
-                        (
-                            By.CSS_SELECTOR,
-                            "table.ai1wm-backups tr:last-of-type .ai1wm-backup-delete",
-                        )
-                    )
-                ).click()
+                self._find_and_click(
+                    "table.ai1wm-backups tr .ai1wm-backup-dots", index=-1, js=True
+                )
+                time.sleep(2)
+                self._find_and_click(".ai1wm-backup-delete", index=-1, js=True)
 
                 self.wait(300).until(EC.alert_is_present())
                 self.driver.switch_to.alert.accept()
@@ -329,9 +336,6 @@ class MySelenium:
 
                 print(f"[green]Deleted backup {i + 1} of {num_backups}")
 
-            except TimeoutException as e:
-                print(f"[red]Timeout error deleting backup {i + 1}: {str(e)}")
-                raise
-            except Exception as e:
-                print(f"[red]Error deleting backup {i + 1}: {str(e)}")
+            except (TimeoutException, RuntimeError) as e:
+                print(f"[red]Error deleting backup {i + 1}: {e}")
                 raise
