@@ -15,7 +15,8 @@ def backup_menu():
         "5).Restore from Downloads",
         "6).Restore in Browser",
         "7).Delete in Browser",
-        "8).Exit",
+        "8).Download Last Backup from Server",
+        "9).Exit",
     ]
 
     choice = Menu.select_fzf(menu_items)
@@ -59,5 +60,10 @@ def backup_menu():
         bc.delete_backup_in_chrome()
         backup_menu()
     elif choice == 8:
+        print("Downloading last backup from server...")
+        bc = Backup()
+        bc.download_last_backup_from_server()
+        backup_menu()
+    elif choice == 9:
         print("Exiting backup menu...")
         return

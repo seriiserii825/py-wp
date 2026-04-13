@@ -19,7 +19,14 @@ class MySelenium:
             downloads_path=self.download_dir,
             accept_downloads=True,
         )
-        self.page: Page = self.context.new_page()
+        # Reuse existing tab from restored session; close extras
+        pages = self.context.pages
+        if pages:
+            self.page: Page = pages[0]
+            for extra in pages[1:]:
+                extra.close()
+        else:
+            self.page: Page = self.context.new_page()
 
         current_dir_path = os.getcwd()
         self.theme_name = os.path.basename(current_dir_path)
@@ -88,11 +95,11 @@ class MySelenium:
         locator = self.page.locator(css)
         locator.first.wait_for(state="visible", timeout=timeout * 1_000)
 
-        all_elements = locator.all()
-        visible = [el for el in all_elements if el.is_visible() and el.is_enabled()]
+        count = locator.count()
+        print(f"[dim]    found {count} element(s)[/dim]")
 
-        print(f"[dim]    found {len(visible)} visible element(s)[/dim]")
-        element = visible[index]
+        # Use locator (not element handle) to avoid stale-element errors during animations
+        element = locator.last if index == -1 else locator.nth(index)
 
         tag = element.evaluate("el => el.tagName.toLowerCase()")
         text = (element.inner_text() or "").strip()[:40] or element.get_attribute("class") or ""
@@ -101,8 +108,8 @@ class MySelenium:
         if js:
             element.dispatch_event("click")
         else:
-            element.scroll_into_view_if_needed()
-            element.click()
+            # click() handles scroll + actionability internally
+            element.click(timeout=30_000)
 
         print(f"[dim]    clicked[/dim]")
 
@@ -199,6 +206,39 @@ class MySelenium:
 
         self.context.close()
         self._playwright.stop()
+
+    def download_last_backup_from_server(self):
+        self._login()
+        backups_url = f"{self.project_url}/wp-admin/admin.php?page=ai1wm_backups"
+        self.page.goto(backups_url)
+
+        # Click dots on the first (latest) backup row in tbody
+        self._find_and_click("table.ai1wm-backups tbody tr .ai1wm-backup-dots", index=0, js=True)
+        time.sleep(1)
+
+        print("Начинается загрузка последнего бэкапа с сервера...")
+
+        # The download link has no class — select by [download] attr inside the open dropdown
+        try:
+            with self.page.expect_download(timeout=3_600_000) as download_info:
+                self._find_and_click(
+                    '.ai1wm-backup-dots-menu[style*="block"] a[download]', index=0, js=True
+                )
+            # Download has started — open chrome://downloads/ to show progress
+            download = download_info.value
+            downloads_page = self.context.new_page()
+            downloads_page.goto("chrome://downloads/")
+            # Wait for download to finish and save to ~/Downloads
+            save_path = Path(self.download_dir) / download.suggested_filename
+            download.save_as(str(save_path))
+            print(f"Бэкап успешно загружен: {save_path}")
+            return save_path
+        except PlaywrightTimeoutError as e:
+            print(f"Ошибка: {e}")
+            raise
+        finally:
+            self.context.close()
+            self._playwright.stop()
 
     def delete_backup_in_chrome(self):
         self._login()
