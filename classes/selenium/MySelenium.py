@@ -10,8 +10,20 @@ from classes.projects.Project import Project
 
 class MySelenium:
     def __init__(self):
-        self._playwright = sync_playwright().start()
         self.download_dir = str(Path.home() / "Downloads")
+        self._playwright = sync_playwright().start()
+        self._launch_browser()
+
+        current_dir_path = os.getcwd()
+        self.theme_name = os.path.basename(current_dir_path)
+        self.pr = Project(self.theme_name)
+        self.project = self.pr.getProject()
+        self.project_login = self.project["login"]
+        self.project_password = self.project["password"]
+        self.project_url = self.project["url"]
+        self.sitem_login = self.pr.getLoginUrl(False)
+
+    def _launch_browser(self) -> None:
         self.context: BrowserContext = self._playwright.chromium.launch_persistent_context(
             user_data_dir=str(Path.home() / ".config/google-chrome/My-profile"),
             channel="chrome",
@@ -26,16 +38,15 @@ class MySelenium:
             for extra in pages[1:]:
                 extra.close()
         else:
-            self.page: Page = self.context.new_page()
+            self.page = self.context.new_page()
 
-        current_dir_path = os.getcwd()
-        self.theme_name = os.path.basename(current_dir_path)
-        self.pr = Project(self.theme_name)
-        self.project = self.pr.getProject()
-        self.project_login = self.project["login"]
-        self.project_password = self.project["password"]
-        self.project_url = self.project["url"]
-        self.sitem_login = self.pr.getLoginUrl(False)
+    def _restart_browser(self) -> None:
+        """Close current context and relaunch — needed after WordPress restore."""
+        try:
+            self.context.close()
+        except Exception:
+            pass
+        self._launch_browser()
 
     def _find_login_url(self) -> str | None:
         """Try login URLs in order, return the first one that shows the login form."""
@@ -174,9 +185,12 @@ class MySelenium:
         else:
             print("Not deleting existing backups")
 
-        self._find_and_click("table.ai1wm-backups tr .ai1wm-backup-dots", index=0, js=True)
+        self._find_and_click("table.ai1wm-backups tbody tr .ai1wm-backup-dots", index=0, js=True)
         time.sleep(2)
-        self._find_and_click(".ai1wm-backup-restore", index=0, js=True)
+        self._find_and_click(
+            '.ai1wm-backup-dots-menu[style*="block"] .ai1wm-backup-restore',
+            index=0, js=True
+        )
         time.sleep(1)
         self._find_and_click(".ai1wm-import-modal-actions .ai1wm-button-green")
 
@@ -186,19 +200,15 @@ class MySelenium:
         )
         time.sleep(1)
 
-        # Reopen page after restore
-        self.page.close()
+        # WordPress restarts after restore — context is killed; relaunch browser
         time.sleep(3)
-        self.page = self.context.new_page()
+        self._restart_browser()
 
         self._login(check_login_element=True)
 
         save_permalink_url = f"{self.project_url}/wp-admin/options-permalink.php"
         self.page.goto(save_permalink_url)
-        submit_btn = self.page.locator("#submit")
-        submit_btn.wait_for(state="visible")
-        submit_btn.scroll_into_view_if_needed()
-        submit_btn.click()
+        self.page.locator("#submit").click()
 
         plugins_url = f"{self.project_url}/wp-admin/plugins.php"
         self.page.goto(plugins_url)
@@ -267,7 +277,10 @@ class MySelenium:
 
                 # Accept the confirmation dialog before clicking delete
                 self.page.once("dialog", lambda dialog: dialog.accept())
-                self._find_and_click(".ai1wm-backup-delete", index=-1, js=True)
+                self._find_and_click(
+                    '.ai1wm-backup-dots-menu[style*="block"] .ai1wm-backup-delete',
+                    index=0, js=True
+                )
 
                 time.sleep(2)
                 print(f"[green]Deleted backup {i + 1} of {num_backups}")
