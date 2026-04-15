@@ -1,6 +1,7 @@
 import os
 import time
 from pathlib import Path
+from urllib.parse import urlparse
 from rich import print
 
 from playwright.sync_api import sync_playwright, Page, BrowserContext, TimeoutError as PlaywrightTimeoutError
@@ -124,6 +125,45 @@ class MySelenium:
 
         print(f"[dim]    clicked[/dim]")
 
+    def _get_visible_link_target(self, css: str, *, index: int = 0, timeout: int = 10) -> tuple[str, str]:
+        """Return href and filename from a visible download link."""
+        idx_label = "last" if index == -1 else f"#{index}"
+        print(f"[dim]>>> resolving link {idx_label} [{css}][/dim]")
+
+        locator = self.page.locator(css)
+        locator.first.wait_for(state="visible", timeout=timeout * 1_000)
+        element = locator.last if index == -1 else locator.nth(index)
+
+        href = element.get_attribute("href")
+        if not href:
+            raise RuntimeError(f"Link has no href for selector: {css}")
+
+        filename = (
+            element.get_attribute("download")
+            or Path(urlparse(href).path).name
+            or "download.bin"
+        )
+        print(f"[dim]    href: {href}[/dim]")
+        print(f"[dim]    filename: {filename}[/dim]")
+        return href, filename
+
+    def _download_from_link(self, css: str, *, index: int = 0, timeout: int = 10):
+        """Trigger browser download using the resolved href instead of a synthetic DOM click."""
+        href, fallback_filename = self._get_visible_link_target(css, index=index, timeout=timeout)
+
+        with self.page.expect_download(timeout=3_600_000) as download_info:
+            self.page.evaluate("url => window.location.assign(url)", href)
+
+        download = download_info.value
+        downloads_page = self.context.new_page()
+        downloads_page.goto("chrome://downloads/")
+
+        suggested_filename = download.suggested_filename or fallback_filename
+        save_path = Path(self.download_dir) / suggested_filename
+        download.save_as(str(save_path))
+        print(f"Бэкап успешно загружен: {save_path}")
+        return save_path
+
     def make_backup_in_chrome(self):
         self._login()
         backups_url = f"{self.project_url}/wp-admin/admin.php?page=ai1wm_export"
@@ -136,15 +176,10 @@ class MySelenium:
         print("Начинается загрузка бэкапа...")
 
         try:
-            with self.page.expect_download(timeout=3_600_000) as download_info:
-                self._find_and_click(
-                    ".ai1wm-modal-container .ai1wm-button-green", timeout=1800
-                )
-            download = download_info.value
-            save_path = Path(self.download_dir) / download.suggested_filename
-            download.save_as(str(save_path))
-            print(f"Бэкап успешно загружен: {save_path}")
-            return save_path
+            return self._download_from_link(
+                ".ai1wm-modal-container a[download]",
+                timeout=1800,
+            )
         except PlaywrightTimeoutError as e:
             print(f"Ошибка: {e}")
             raise
@@ -230,19 +265,10 @@ class MySelenium:
 
         # The download link has no class — select by [download] attr inside the open dropdown
         try:
-            with self.page.expect_download(timeout=3_600_000) as download_info:
-                self._find_and_click(
-                    '.ai1wm-backup-dots-menu[style*="block"] a[download]', index=0, js=True
-                )
-            # Download has started — open chrome://downloads/ to show progress
-            download = download_info.value
-            downloads_page = self.context.new_page()
-            downloads_page.goto("chrome://downloads/")
-            # Wait for download to finish and save to ~/Downloads
-            save_path = Path(self.download_dir) / download.suggested_filename
-            download.save_as(str(save_path))
-            print(f"Бэкап успешно загружен: {save_path}")
-            return save_path
+            return self._download_from_link(
+                '.ai1wm-backup-dots-menu[style*="block"] a[download]',
+                index=0,
+            )
         except PlaywrightTimeoutError as e:
             print(f"Ошибка: {e}")
             raise
