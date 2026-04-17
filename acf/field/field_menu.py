@@ -37,12 +37,15 @@ def acf_menu(section_file_json_path):
             "1.Show Only Tab/Group Fields",
             "2.Create new field",
             "3.Move field",
-            "4.Edit field",
-            "5.Delete field",
-            "6.Delete multiple fields",
-            "7.Copy group to clipboard",
-            "8.Upload changes to WordPress",
-            "9.Exit",
+            "4.Move multiple fields",
+            "5.Edit field",
+            "6.Delete field",
+            "7.Delete multiple fields",
+            "8.Duplicate field",
+            "9.Toggle required by indexes",
+            "10.Copy group to clipboard",
+            "11.Upload changes to WordPress",
+            "12.Exit",
         ]
         choice = Menu.select_fzf(menu_options)
         if choice == 0:
@@ -65,20 +68,29 @@ def acf_menu(section_file_json_path):
                 print(f"Error moving field: {e}")
                 render()
         elif choice == 4:
-            f_menu.edit_field()
+            f_menu.move_multiple_fields()
             render()
         elif choice == 5:
-            f_menu.delete_field()
+            f_menu.edit_field()
             render()
         elif choice == 6:
-            f_menu.delete_fields()
+            f_menu.delete_field()
             render()
         elif choice == 7:
-            f_menu.copy_group_to_clipboard()
+            f_menu.delete_fields()
             render()
         elif choice == 8:
-            upload_changes(section_file_json_path=section_file_json_path)
+            f_menu.duplicate_field()
+            render()
         elif choice == 9:
+            f_menu.toggle_required()
+            render()
+        elif choice == 10:
+            f_menu.copy_group_to_clipboard()
+            render()
+        elif choice == 11:
+            upload_changes(section_file_json_path=section_file_json_path)
+        elif choice == 12:
             print("Exiting ACF Field Menu.")
             break
         else:

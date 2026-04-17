@@ -1,6 +1,7 @@
 from classes.acf.field.factories.FieldFactory import create_field
 from classes.acf.field.FieldCreator import FieldCreator
 from classes.acf.field.FieldDeleter import FieldDeleter
+from classes.acf.field.FieldDuplicator import FieldDuplicator
 from classes.acf.field.FieldEditor import FieldEditor
 from classes.acf.field.FieldMover import FieldMover
 from classes.acf.field.FieldRepository import FieldRepository
@@ -15,6 +16,7 @@ class FieldMenu:
         self.mover = FieldMover()
         self.editor = FieldEditor(self.repo, self.mover)
         self.deleter = FieldDeleter(self.repo, self.mover)
+        self.duplicator = FieldDuplicator(self.repo, self.mover)
         self.copy_group = GroupCopy(file_path)
 
     def show_all(self):
@@ -115,6 +117,78 @@ class FieldMenu:
         data, fields = self._load_fields()
         self._check_field_is_empty(fields)
         self.deleter.delete_multiple(data, fields)
+
+    def duplicate_field(self):
+        data, fields = self._load_fields()
+        self._check_field_is_empty(fields)
+        try:
+            self.duplicator.duplicate_field(data, fields)
+        except Exception as e:
+            print(f"Error duplicating field: {e}")
+
+    def move_multiple_fields(self):
+        data, fields = self._load_fields()
+        self._check_field_is_empty(fields)
+        try:
+            raw = InputValidator.get_string("Enter sources|destination (e.g. 2,3,4,5|10 or 2.1,2.3|2.9): ")
+            if "|" not in raw:
+                print("Invalid format. Use: sources|destination (e.g. 2,3,4|10)")
+                return
+            sources_part, dest_str = raw.split("|", 1)
+            index_strs = [s.strip() for s in sources_part.split(",") if s.strip()]
+            dest_str = dest_str.strip()
+            if not index_strs or not dest_str:
+                print("No indexes provided.")
+                return
+
+            source_paths = [self.mover.parse_index_path(s) for s in index_strs]
+            dest_path = self.mover.parse_index_path(dest_str)
+
+            # Capture dest parent reference BEFORE any removal so nested navigation stays valid
+            dest_parent = self.mover.get_field_container(fields, dest_path, create=True)
+            dest_idx = dest_path[-1] if dest_path[-1] is not None else len(dest_parent)
+
+            # Pop in descending order to keep indexes stable; preserve user order via enumerate
+            indexed = sorted(enumerate(source_paths), key=lambda x: x[1], reverse=True)
+            popped: list[tuple[int, dict]] = []
+            for user_idx, path in indexed:
+                popped.append((user_idx, self.mover.pop_field(fields, path)))
+
+            # Restore user-selection order
+            popped.sort(key=lambda x: x[0])
+
+            # Shift dest index for each source removed from the same parent before it
+            dest_parent_path = dest_path[:-1]
+            removals_before = sum(
+                1 for sp in source_paths
+                if sp[:-1] == dest_parent_path and sp[-1] < dest_idx
+            )
+            adjusted = dest_idx - removals_before
+
+            for offset, (_, field_data) in enumerate(popped):
+                self.mover.insert_field_into(dest_parent, adjusted + offset, field_data)
+                print(f"  [{index_strs[offset]}] '{field_data.get('label', '')}' → {adjusted + offset}")
+
+            self.repo.save(data)
+            print(f"Done. {len(popped)} field(s) moved.")
+        except Exception as e:
+            print(f"Error moving fields: {e}")
+
+    def toggle_required(self):
+        data, fields = self._load_fields()
+        self._check_field_is_empty(fields)
+        try:
+            raw = InputValidator.get_string("Enter field indexes separated by comma (e.g. 0,1.2,3): ")
+            indexes = [s.strip() for s in raw.split(",") if s.strip()]
+            for idx in indexes:
+                field = self.mover.get_field_by_index(fields, idx)
+                field["required"] = 0 if field.get("required") else True
+                state = "required" if field["required"] else "optional"
+                print(f"  [{idx}] '{field.get('label', '')}' → {state}")
+            self.repo.save(data)
+            print("Done.")
+        except Exception as e:
+            print(f"Error toggling required: {e}")
 
     def copy_group_to_clipboard(self):
         _, fields = self._load_fields()
