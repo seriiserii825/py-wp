@@ -58,7 +58,15 @@ class MySelenium:
             f"{self.project_url}/login",
         ]
         for url in candidates:
-            self.page.goto(url)
+            for attempt in range(10):
+                try:
+                    self.page.goto(url)
+                    break
+                except Exception:
+                    if attempt == 9:
+                        raise
+                    print(f"[dim]    server not ready, retrying in 5s... ({attempt + 1}/10)[/dim]")
+                    time.sleep(5)
             self._wait_for_captcha()
             if self.page.locator("#user_login").count() > 0:
                 return url
@@ -227,7 +235,7 @@ class MySelenium:
             index=0, js=True
         )
         time.sleep(1)
-        self._find_and_click(".ai1wm-import-modal-actions .ai1wm-button-green")
+        self._find_and_click(".ai1wm-import-modal-actions .ai1wm-button-green", timeout=30)
 
         # Wait for restore to complete — can take a long time
         self.page.wait_for_selector(
