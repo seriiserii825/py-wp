@@ -23,7 +23,6 @@ class FieldCreator:
         else:
             post_type = ""
 
-        required = self.builder.ask_required(selected_type)
         width = self.builder.ask_width(selected_type)
         layout = self.builder.ask_layout(selected_type)
         message = self.builder.ask_message(selected_type)
@@ -37,7 +36,7 @@ class FieldCreator:
             aria_label="",
             type=selected_type,
             layout=layout,
-            required=required,
+            required=0,
             message=message,
             post_type=post_type,
             width=width,
