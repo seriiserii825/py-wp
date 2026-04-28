@@ -54,21 +54,17 @@ class Plugin:
             return
         plugin_slugs = [plugin.plugin_slug.strip() for plugin in plugins]
         installed_plugins = self._get_installed_plugins()
-        plugins_to_install: list[str] = list(set(plugin_slugs) - set(installed_plugins))
-        # sort by alphabetical order
-        sorted_plugins = self._sort_array_alphabetically(plugins_to_install)
-        # sorted to sequence
-        plugins_to_install = list(sorted_plugins)
-        print(f"plugins_to_install:: {plugins_to_install:}")
-        selected_plugin_arr = Select.select_with_fzf(plugins_to_install)
-        selected_plugin = selected_plugin_arr[0]
-        print(f"selected_plugin: {selected_plugin}")
-        if self._is_already_installed(selected_plugin):
-            Print.error(f"Plugin '{selected_plugin}' is already installed.")
-            return
-        self._install_plugin(
-            next(p for p in plugins if p.plugin_slug.strip() == selected_plugin)
+        plugins_to_install: list[str] = list(
+            sorted(set(plugin_slugs) - set(installed_plugins), key=str.lower)
         )
+        selected_plugins = Select.select_with_fzf(plugins_to_install)
+        if not selected_plugins:
+            Print.error("No plugins selected.")
+            return
+        for selected_plugin in selected_plugins:
+            self._install_plugin(
+                next(p for p in plugins if p.plugin_slug.strip() == selected_plugin)
+            )
 
     def _is_already_installed(self, plugin_slug: str) -> bool:
         return Path.exists(self.wp_plugins_dir_path / plugin_slug)
