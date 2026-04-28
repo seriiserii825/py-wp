@@ -30,8 +30,8 @@ alias wb="${dir_path}/.venv/bin/python3 ${dir_path}/main.py"
 
 ### CLI arguments
 
-| Argument | Description |
-|---|---|
+| Argument      | Description                                    |
+| ------------- | ---------------------------------------------- |
 | `--to-import` | Import ACF data from file instead of exporting |
 
 ```bash
