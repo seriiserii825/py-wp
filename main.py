@@ -12,8 +12,8 @@ from main_menu.image_menu import image_menu
 from main_menu.init import init, reset_settings
 from main_menu.page_menu import page_menu
 from main_menu.plugins_menu import plugins_menu
+from main_menu.site_settings_menu import site_settings_menu
 from main_menu.theme_menu import theme_menu
-from main_menu.translations_menu import update_translations
 from modules.check_is_wp import check_is_wp
 
 
@@ -29,7 +29,7 @@ def menu(to_import: bool = False):
         "07).Themes",
         "08).Contact Form",
         "09).Files",
-        "10).Update Translations",
+        "10).Site Settings",
         "11).Exit",
     ]
     choice = Menu.select_fzf(options)
@@ -64,7 +64,7 @@ def menu(to_import: bool = False):
         file_menu()
         menu()
     elif choice == 10:
-        update_translations()
+        site_settings_menu()
         menu()
     elif choice == 11:
         print("Exiting the program. Goodbye!")
