@@ -8,7 +8,7 @@ from classes.utils.Select import Select
 
 
 class ModuleFileCreator(AbstractFileCreator):
-    _EXTENSIONS = {"php": "php", "scss": "scss", "js": "ts"}
+    _EXTENSIONS = {"php": "php", "scss": "scss", "js": "ts", "phps": "php"}
 
     def __init__(self, module_path: str, file_type: str):
         self._module_path = module_path
@@ -28,6 +28,11 @@ class ModuleFileCreator(AbstractFileCreator):
                 self._write_scss(file_path)
             case "js":
                 self._write_js(file_path)
+            case "phps":
+                self._write_php(file_path)
+                scss_path = Path(file_path).with_suffix(".scss")
+                scss_path.touch(exist_ok=True)
+                self._write_scss(str(scss_path))
 
         Command.run(f"bat '{Path(file_path).resolve()}'")
 

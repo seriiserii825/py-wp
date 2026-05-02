@@ -16,7 +16,7 @@ def file_menu():
     else:
         print("[bold yellow]Standard system detected[/bold yellow]")
 
-    if not InputValidator.get_bool("Continue? (y/n): "):
+    if not InputValidator.get_bool_true_default("Continue? (Enter/n): "):
         return
 
     if is_modules:
@@ -42,7 +42,10 @@ def _module_menu():
     module_path = FilesHandle().create_or_choose_directory("modules")
     print(f"[green]Module: {module_path}[/green]")
 
-    file_type = Select.select_one(["php", "scss", "js", "Back"])
+    selected = Select.select_with_fzf(["php", "scss", "js", "phps", "Back"])
+    if not selected:
+        return
+    file_type = selected[0]
     if file_type == "Back":
         return
 
