@@ -10,9 +10,16 @@ from classes.utils.Select import Select
 class ModuleFileCreator(AbstractFileCreator):
     _EXTENSIONS = {"php": "php", "scss": "scss", "js": "ts", "phps": "php"}
 
-    def __init__(self, module_path: str, file_type: str):
+    def __init__(self, module_path: str, file_type: str, preset_name: str | None = None):
         self._module_path = module_path
         self._file_type = file_type
+        self._preset_name = preset_name
+
+    def _file_path(self, path_to_dir) -> str:
+        if self._preset_name is not None:
+            file_name = self._add_extension(self._preset_name, self.get_extension())
+            return str(Path(path_to_dir) / file_name)
+        return super()._file_path(path_to_dir)
 
     def get_root_dir(self) -> str:
         return self._module_path

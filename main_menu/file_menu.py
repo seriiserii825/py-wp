@@ -1,3 +1,5 @@
+from pathlib import Path
+
 from classes.files.FileCreatorFactory import FileCreatorFactory
 from classes.files.FilesHandle import FilesHandle
 from classes.files.ModuleFileCreator import ModuleFileCreator
@@ -49,6 +51,17 @@ def _module_menu():
     if file_type == "Back":
         return
 
-    creator = ModuleFileCreator(module_path, file_type)
+    preset_name = None
+    if file_type == "scss":
+        module_name = Path(module_path).name
+        scss_exists = (Path(module_path) / f"{module_name}.scss").exists()
+        if not scss_exists:
+            print(f"[yellow]No SCSS file found for module '{module_name}'.[/yellow]")
+            print("[blue]Create new one?.")
+            choice = Select.select_with_fzf([module_name, "other"])
+            if choice and choice[0] == module_name:
+                preset_name = module_name
+
+    creator = ModuleFileCreator(module_path, file_type, preset_name=preset_name)
     file_path = creator.create_file(use_dir=False)
     creator.template_to_file(file_path)
