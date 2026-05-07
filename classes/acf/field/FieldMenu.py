@@ -1,3 +1,6 @@
+from pathlib import Path
+
+from classes.acf.AcfSnapshotService import AcfSnapshotService
 from classes.acf.field.factories.FieldFactory import create_field
 from classes.acf.field.FieldCreator import FieldCreator
 from classes.acf.field.FieldDeleter import FieldDeleter
@@ -245,6 +248,12 @@ class FieldMenu:
             except Exception as e:
                 print(f"[red]Unexpected error during reorder: {e}[/red]")
                 return
+
+    def reorder_from_snapshot(self, script_dir: Path, project_name: str) -> None:
+        AcfSnapshotService.reorder_from_snapshot(
+            Path(self.repo.path), script_dir, project_name
+        )
+        print("Fields reordered from snapshot.")
 
     def copy_group_to_clipboard(self):
         _, fields = self._load_fields()

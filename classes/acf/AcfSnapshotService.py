@@ -12,11 +12,15 @@ class AcfSnapshotService:
         return slug
 
     @staticmethod
+    def _field_id(field: dict) -> str:
+        return field.get("name") or field.get("label", "")
+
+    @staticmethod
     def _extract_fields(fields: list) -> list:
         result = []
         for field in fields:
             entry: dict = {
-                "name": field.get("name", ""),
+                "name": AcfSnapshotService._field_id(field),
                 "type": field.get("type", ""),
             }
             sub = field.get("sub_fields") or field.get("fields") or []
@@ -41,3 +45,46 @@ class AcfSnapshotService:
                     json.dumps(fields, indent=4, ensure_ascii=False),
                     encoding="utf-8",
                 )
+
+    @staticmethod
+    def _apply_order(real_fields: list, snapshot_fields: list) -> list:
+        by_name = {AcfSnapshotService._field_id(f): f for f in real_fields}
+        ordered = []
+        for snap in snapshot_fields:
+            name = snap.get("name")
+            if name in by_name:
+                field = by_name.pop(name)
+                snap_sub = snap.get("sub_fields", [])
+                if snap_sub:
+                    for sub_key in ("sub_fields", "fields"):
+                        if field.get(sub_key):
+                            field[sub_key] = AcfSnapshotService._apply_order(
+                                field[sub_key], snap_sub
+                            )
+                            break
+                ordered.append(field)
+        ordered.extend(by_name.values())
+        for i, field in enumerate(ordered):
+            field["menu_order"] = i
+        return ordered
+
+    @staticmethod
+    def reorder_from_snapshot(
+        section_file_json_path: Path, script_dir: Path, project_name: str
+    ) -> None:
+        data = json.loads(section_file_json_path.read_text(encoding="utf-8"))
+        group = data[0]
+        title = group.get("title", section_file_json_path.stem)
+        slug = AcfSnapshotService._slugify(title)
+
+        snapshot_path = script_dir / "projects" / project_name / f"{slug}.json"
+        if not snapshot_path.exists():
+            raise FileNotFoundError(f"Snapshot not found: {snapshot_path}")
+
+        snapshot_fields = json.loads(snapshot_path.read_text(encoding="utf-8"))
+        group["fields"] = AcfSnapshotService._apply_order(
+            group.get("fields", []), snapshot_fields
+        )
+        section_file_json_path.write_text(
+            json.dumps(data, indent=4, ensure_ascii=False), encoding="utf-8"
+        )

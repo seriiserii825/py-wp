@@ -51,7 +51,8 @@ def acf_menu(section_file_json_path):
             "11.Toggle required by indexes",
             "12.Copy group to clipboard",
             "13.Upload changes to WordPress",
-            "14.Exit",
+            "14.Reorder from snapshot",
+            "15.Exit",
         ]
         choice = Menu.select_fzf(menu_options)
         if choice == 0:
@@ -103,6 +104,16 @@ def acf_menu(section_file_json_path):
         elif choice == 13:
             upload_changes(section_file_json_path=section_file_json_path)
         elif choice == 14:
+            try:
+                project_name = WPPaths.get_theme_path().name
+                script_dir = WPPaths.get_script_dir_path()
+                f_menu.reorder_from_snapshot(script_dir, project_name)
+                render()
+            except FileNotFoundError as e:
+                print(f"Snapshot not found: {e}")
+            except Exception as e:
+                print(f"Error reordering from snapshot: {e}")
+        elif choice == 15:
             print("Exiting ACF Field Menu.")
             break
         else:

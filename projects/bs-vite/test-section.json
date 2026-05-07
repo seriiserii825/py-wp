@@ -1,6 +1,6 @@
 [
     {
-        "name": "",
+        "name": "Intro",
         "type": "tab"
     },
     {
@@ -18,7 +18,7 @@
         ]
     },
     {
-        "name": "",
+        "name": "Features",
         "type": "tab"
     },
     {
@@ -36,7 +36,7 @@
         ]
     },
     {
-        "name": "",
+        "name": "About",
         "type": "tab"
     },
     {
