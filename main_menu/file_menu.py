@@ -44,7 +44,8 @@ def _module_menu():
     module_path = FilesHandle().create_or_choose_directory("modules")
     print(f"[green]Module: {module_path}[/green]")
 
-    selected = Select.select_with_fzf(["php", "scss", "js", "phps", "api", "Back"])
+    selected = Select.select_with_fzf(
+        ["php", "scss", "js", "phps", "api", "Back"])
     if not selected:
         return
     file_type = selected[0]
@@ -56,12 +57,14 @@ def _module_menu():
         module_name = Path(module_path).name
         scss_exists = (Path(module_path) / f"{module_name}.scss").exists()
         if not scss_exists:
-            print(f"[yellow]No SCSS file found for module '{module_name}'.[/yellow]")
+            print(
+                f"[yellow]No SCSS file found for module '{module_name}'.[/yellow]")
             print("[blue]Create new one?.")
             choice = Select.select_with_fzf([module_name, "other"])
             if choice and choice[0] == module_name:
                 preset_name = module_name
 
-    creator = ModuleFileCreator(module_path, file_type, preset_name=preset_name)
+    creator = ModuleFileCreator(
+        module_path, file_type, preset_name=preset_name)
     file_path = creator.create_file(use_dir=False)
     creator.template_to_file(file_path)

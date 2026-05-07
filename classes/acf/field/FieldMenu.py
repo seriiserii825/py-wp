@@ -249,10 +249,8 @@ class FieldMenu:
                 print(f"[red]Unexpected error during reorder: {e}[/red]")
                 return
 
-    def reorder_from_snapshot(self, script_dir: Path, project_name: str) -> None:
-        AcfSnapshotService.reorder_from_snapshot(
-            Path(self.repo.path), script_dir, project_name
-        )
+    def reorder_from_snapshot(self, base_dir: Path) -> None:
+        AcfSnapshotService.reorder_from_snapshot(Path(self.repo.path), base_dir)
         print("Fields reordered from snapshot.")
 
     def copy_group_to_clipboard(self):

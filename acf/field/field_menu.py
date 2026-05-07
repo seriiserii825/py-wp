@@ -105,9 +105,7 @@ def acf_menu(section_file_json_path):
             upload_changes(section_file_json_path=section_file_json_path)
         elif choice == 14:
             try:
-                project_name = WPPaths.get_theme_path().name
-                script_dir = WPPaths.get_script_dir_path()
-                f_menu.reorder_from_snapshot(script_dir, project_name)
+                f_menu.reorder_from_snapshot(WPPaths.get_theme_path())
                 render()
             except FileNotFoundError as e:
                 print(f"Snapshot not found: {e}")

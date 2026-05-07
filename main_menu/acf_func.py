@@ -16,7 +16,8 @@ def acf_func(to_import: bool = False):
 
 
 def _choose_section():
-    menu_options = ["Select section", "Edit Section", "Create new section", "Exit"]
+    menu_options = ["Select section",
+                    "Edit Section", "Create new section", "Exit"]
     choice = Menu.select_with_fzf(menu_options)
 
     if choice == 0:

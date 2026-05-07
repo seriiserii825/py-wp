@@ -30,8 +30,8 @@ class AcfSnapshotService:
         return result
 
     @staticmethod
-    def save(script_dir: Path, project_name: str) -> None:
-        snapshot_dir = script_dir / "projects" / project_name
+    def save(base_dir: Path) -> None:
+        snapshot_dir = base_dir / "acf-snapshots"
         snapshot_dir.mkdir(parents=True, exist_ok=True)
 
         for path in Path("acf").glob("*.json"):
@@ -69,15 +69,13 @@ class AcfSnapshotService:
         return ordered
 
     @staticmethod
-    def reorder_from_snapshot(
-        section_file_json_path: Path, script_dir: Path, project_name: str
-    ) -> None:
+    def reorder_from_snapshot(section_file_json_path: Path, base_dir: Path) -> None:
         data = json.loads(section_file_json_path.read_text(encoding="utf-8"))
         group = data[0]
         title = group.get("title", section_file_json_path.stem)
         slug = AcfSnapshotService._slugify(title)
 
-        snapshot_path = script_dir / "projects" / project_name / f"{slug}.json"
+        snapshot_path = base_dir / "acf-snapshots" / f"{slug}.json"
         if not snapshot_path.exists():
             raise FileNotFoundError(f"Snapshot not found: {snapshot_path}")
 

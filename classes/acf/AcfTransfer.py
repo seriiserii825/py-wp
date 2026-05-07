@@ -42,9 +42,7 @@ class AcfTransfer:
         try:
             Command.run_quiet("wp db check")  # check DB connection
             AcfTransfer._sort_acf_json_files()
-            project_name = WPPaths.get(PathKey.BASE).name
-            script_dir = WPPaths.get_script_dir_path()
-            AcfSnapshotService.save(script_dir, project_name)
+            AcfSnapshotService.save(WPPaths.get(PathKey.BASE))
             Command.run("wp acf clean")
             Command.run("wp acf import --all")
         except RuntimeError as e:
