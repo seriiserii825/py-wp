@@ -1,13 +1,34 @@
 from datetime import datetime
 import os
 from pathlib import Path
-
-from rich import print
-from simple_term_menu import TerminalMenu
-
 from classes.utils.InputValidator import InputValidator
 from classes.utils.Print import Print
 from classes.utils.Select import Select
+
+from rich import print
+from rich.console import Console
+from rich.table import Table
+from simple_term_menu import TerminalMenu
+
+console = Console()
+
+
+def _print_in_columns(items):
+    import math
+    term = os.get_terminal_size()
+    max_len = max(len(i) for i in items) + 2
+    num_cols = max(1, term.columns // max_len)
+    num_rows = math.ceil(len(items) / num_cols)
+    table = Table(show_header=False, show_edge=False, box=None, padding=(0, 1))
+    for _ in range(num_cols):
+        table.add_column()
+    for row_i in range(num_rows):
+        row = []
+        for col_i in range(num_cols):
+            idx = col_i * num_rows + row_i
+            row.append(items[idx] if idx < len(items) else "")
+        table.add_row(*row)
+    console.print(table)
 
 
 class FilesHandle:
@@ -33,8 +54,9 @@ class FilesHandle:
         file_name = file_path.name
         if mtime:
             # Convert timestamp → human readable
-            human_mtime = datetime.fromtimestamp(
-                timestamp).strftime("%Y-%m-%d %H:%M:%S")
+            human_mtime = datetime.fromtimestamp(timestamp).strftime(
+                "%Y-%m-%d %H:%M:%S"
+            )
             print(f"{file_name} - {human_mtime}")
         else:
             print(file_name)
@@ -47,9 +69,13 @@ class FilesHandle:
                 (entry for entry in entries if entry.is_dir()),
                 key=lambda e: e.name.lower(),
             )
-            for entry in sored_dirs:
-                if entry.is_dir():
-                    print(entry.name)
+            names = [entry.name for entry in sored_dirs]
+            terminal_lines = os.get_terminal_size().lines
+            if len(names) > terminal_lines - 4:
+                _print_in_columns(names)
+            else:
+                for name in names:
+                    print(name)
 
     def create_or_choose_directory(self, path_to_dir="") -> str:
         abs_path = str(Path(path_to_dir).resolve())  # ✅ Абсолютный путь
