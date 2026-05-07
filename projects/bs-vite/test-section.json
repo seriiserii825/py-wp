@@ -1,56 +1,57 @@
 [
-    {
-        "name": "Intro",
-        "type": "tab"
-    },
-    {
-        "name": "intro",
-        "type": "group",
-        "sub_fields": [
-            {
-                "name": "title",
-                "type": "text"
-            },
-            {
-                "name": "image",
-                "type": "image"
-            }
-        ]
-    },
-    {
-        "name": "Features",
-        "type": "tab"
-    },
-    {
-        "name": "features",
-        "type": "group",
-        "sub_fields": [
-            {
-                "name": "title",
-                "type": "text"
-            },
-            {
-                "name": "text",
-                "type": "textarea"
-            }
-        ]
-    },
-    {
-        "name": "About",
-        "type": "tab"
-    },
-    {
-        "name": "about",
-        "type": "group",
-        "sub_fields": [
-            {
-                "name": "title",
-                "type": "text"
-            },
-            {
-                "name": "text",
-                "type": "textarea"
-            }
-        ]
-    }
+  {
+    "name": "Intro",
+    "type": "tab"
+  },
+  {
+    "name": "intro",
+    "type": "group",
+    "sub_fields": [
+      {
+        "name": "title",
+        "type": "text"
+      },
+      {
+        "name": "image",
+        "type": "image"
+      }
+    ]
+  },
+  {
+    "name": "Features",
+    "type": "tab"
+  },
+  {
+    "name": "features",
+    "type": "group",
+    "sub_fields": [
+      {
+        "name": "title",
+        "type": "text"
+      },
+      {
+        "name": "text",
+        "type": "textarea"
+      }
+    ]
+  },
+  {
+    "name": "About",
+    "type": "tab"
+  },
+  {
+    "name": "about",
+    "type": "group",
+    "sub_fields": [
+      {
+        "name": "title",
+        "type": "text"
+      },
+      {
+        "name": "text",
+        "type": "textarea"
+      }
+    ]
+  }
 ]
+
