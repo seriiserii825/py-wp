@@ -1,8 +1,10 @@
 import json
 from pathlib import Path
 
+from classes.acf.AcfSnapshotService import AcfSnapshotService
 from classes.utils.Command import Command
 from classes.utils.Print import Print
+from classes.utils.WPPaths import WPPaths, PathKey
 
 
 class AcfTransfer:
@@ -40,6 +42,9 @@ class AcfTransfer:
         try:
             Command.run_quiet("wp db check")  # check DB connection
             AcfTransfer._sort_acf_json_files()
+            project_name = WPPaths.get(PathKey.BASE).name
+            script_dir = WPPaths.get_script_dir_path()
+            AcfSnapshotService.save(script_dir, project_name)
             Command.run("wp acf clean")
             Command.run("wp acf import --all")
         except RuntimeError as e:

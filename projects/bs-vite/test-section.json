@@ -1,0 +1,56 @@
+[
+    {
+        "name": "",
+        "type": "tab"
+    },
+    {
+        "name": "intro",
+        "type": "group",
+        "sub_fields": [
+            {
+                "name": "title",
+                "type": "text"
+            },
+            {
+                "name": "image",
+                "type": "image"
+            }
+        ]
+    },
+    {
+        "name": "",
+        "type": "tab"
+    },
+    {
+        "name": "features",
+        "type": "group",
+        "sub_fields": [
+            {
+                "name": "title",
+                "type": "text"
+            },
+            {
+                "name": "text",
+                "type": "textarea"
+            }
+        ]
+    },
+    {
+        "name": "",
+        "type": "tab"
+    },
+    {
+        "name": "about",
+        "type": "group",
+        "sub_fields": [
+            {
+                "name": "title",
+                "type": "text"
+            },
+            {
+                "name": "text",
+                "type": "textarea"
+            }
+        ]
+    }
+]
