@@ -26,6 +26,13 @@ class FieldMenu:
             if field:
                 field.print_field_with_subfields(index=index, indent=0)
 
+    def show_collapsed(self):
+        _, fields = self._load_fields()
+        for index, field_data in enumerate(fields):
+            field = create_field(field_data)
+            if field:
+                field.print_field(index=index, indent=0)
+
     def show_only_tab_group(self, active_index: int = 0):
         _, fields = self._load_fields()
         for index, field_data in enumerate(fields):
@@ -189,6 +196,55 @@ class FieldMenu:
             print("Done.")
         except Exception as e:
             print(f"Error toggling required: {e}")
+
+    def reorder_fields(self):
+        data, fields = self._load_fields()
+        self._check_field_is_empty(fields)
+        total = len(fields)
+        print(f"\nCurrent fields ({total} total):")
+        for index, field_data in enumerate(fields):
+            field = create_field(field_data)
+            if field:
+                field.print_field(index=index, indent=0)
+
+        while True:
+            try:
+                raw = InputValidator.get_string(
+                    f"Enter new order (e.g. 3,2,6,1,...) or 'q' to cancel: "
+                ).strip()
+                if raw.lower() == "q":
+                    print("Reorder cancelled.")
+                    return
+
+                parts = [p.strip() for p in raw.split(",")]
+                indices = [int(p) for p in parts]
+
+                if len(indices) != total:
+                    print(
+                        f"[red]Error: expected {total} indices, got {len(indices)}. "
+                        "Try again or enter 'q' to cancel.[/red]"
+                    )
+                    continue
+
+                if sorted(indices) != list(range(total)):
+                    print(
+                        f"[red]Error: indices must be a permutation of 0..{total - 1} "
+                        "with no duplicates or out-of-range values. "
+                        "Try again or enter 'q' to cancel.[/red]"
+                    )
+                    continue
+
+                data[0]["fields"] = [fields[i] for i in indices]
+                self.repo.save(data)
+                print("[green]Fields reordered successfully.[/green]")
+                return
+
+            except ValueError:
+                print("[red]Error: invalid input — use comma-separated integers. "
+                      "Try again or enter 'q' to cancel.[/red]")
+            except Exception as e:
+                print(f"[red]Unexpected error during reorder: {e}[/red]")
+                return
 
     def copy_group_to_clipboard(self):
         _, fields = self._load_fields()

@@ -17,6 +17,7 @@ def acf_menu(section_file_json_path):
 
     VIEW_ALL = "all"
     VIEW_TABS = "tabs"
+    VIEW_COLLAPSED = "collapsed"
     current_view = VIEW_ALL  # first open: show all
     selected_tab_index = 0
 
@@ -24,6 +25,9 @@ def acf_menu(section_file_json_path):
         if current_view == VIEW_ALL:
             print("=== ACF Field Menu: Showing All Fields ===")
             f_menu.show_all()
+        elif current_view == VIEW_COLLAPSED:
+            print("=== ACF Field Menu: Collapsed ===")
+            f_menu.show_collapsed()
         else:
             print("=== ACF Field Menu: Showing Only Tab/Group Fields ===")
             f_menu.show_only_tab_group(selected_tab_index)
@@ -35,17 +39,19 @@ def acf_menu(section_file_json_path):
         menu_options = [
             "0.Show All Fields",
             "1.Show Only Tab/Group Fields",
-            "2.Create new field",
-            "3.Move field",
-            "4.Move multiple fields",
-            "5.Edit field",
-            "6.Delete field",
-            "7.Delete multiple fields",
-            "8.Duplicate field",
-            "9.Toggle required by indexes",
-            "10.Copy group to clipboard",
-            "11.Upload changes to WordPress",
-            "12.Exit",
+            "2.Collapse All",
+            "3.Order Fields",
+            "4.Create new field",
+            "5.Move field",
+            "6.Move multiple fields",
+            "7.Edit field",
+            "8.Delete field",
+            "9.Delete multiple fields",
+            "10.Duplicate field",
+            "11.Toggle required by indexes",
+            "12.Copy group to clipboard",
+            "13.Upload changes to WordPress",
+            "14.Exit",
         ]
         choice = Menu.select_fzf(menu_options)
         if choice == 0:
@@ -58,39 +64,45 @@ def acf_menu(section_file_json_path):
                 current_view = VIEW_TABS
             render()
         elif choice == 2:
-            f_menu.create_field()
+            current_view = VIEW_COLLAPSED
             render()
         elif choice == 3:
+            f_menu.reorder_fields()
+            render()
+        elif choice == 4:
+            f_menu.create_field()
+            render()
+        elif choice == 5:
             try:
                 f_menu.move_field()
                 render()
             except Exception as e:
                 print(f"Error moving field: {e}")
                 render()
-        elif choice == 4:
+        elif choice == 6:
             f_menu.move_multiple_fields()
             render()
-        elif choice == 5:
+        elif choice == 7:
             f_menu.edit_field()
             render()
-        elif choice == 6:
+        elif choice == 8:
             f_menu.delete_field()
             render()
-        elif choice == 7:
+        elif choice == 9:
             f_menu.delete_fields()
             render()
-        elif choice == 8:
+        elif choice == 10:
             f_menu.duplicate_field()
             render()
-        elif choice == 9:
+        elif choice == 11:
             f_menu.toggle_required()
             render()
-        elif choice == 10:
+        elif choice == 12:
             f_menu.copy_group_to_clipboard()
             render()
-        elif choice == 11:
+        elif choice == 13:
             upload_changes(section_file_json_path=section_file_json_path)
-        elif choice == 12:
+        elif choice == 14:
             print("Exiting ACF Field Menu.")
             break
         else:
