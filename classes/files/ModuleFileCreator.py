@@ -2,20 +2,29 @@ from pathlib import Path
 
 from classes.files.AbstractFileCreator import AbstractFileCreator
 from classes.files.FileWriter import FileWriter
+from classes.files.PHPApiFileCreator import PHPApiFileCreator
 from classes.utils.Command import Command
 from classes.utils.InputValidator import InputValidator
 from classes.utils.Select import Select
 
 
 class ModuleFileCreator(AbstractFileCreator):
-    _EXTENSIONS = {"php": "php", "scss": "scss", "js": "ts", "phps": "php"}
+    _EXTENSIONS = {"php": "php", "scss": "scss", "js": "ts", "phps": "php", "api": "php"}
 
     def __init__(self, module_path: str, file_type: str, preset_name: str | None = None):
         self._module_path = module_path
         self._file_type = file_type
         self._preset_name = preset_name
+        self._api_func_name: str = ""
+        self._api_route: str = ""
 
     def _file_path(self, path_to_dir) -> str:
+        if self._file_type == "api":
+            self._api_func_name = InputValidator.get_string("Function name (e.g. adsFilterView): ")
+            self._api_route = InputValidator.get_string("Route (e.g. ads-filter-view): ")
+            file_name = PHPApiFileCreator._func_name_to_kebab(self._api_func_name) + "-api"
+            file_name = self._add_extension(file_name, self.get_extension())
+            return str(Path(path_to_dir) / file_name)
         if self._preset_name is not None:
             file_name = self._add_extension(self._preset_name, self.get_extension())
             return str(Path(path_to_dir) / file_name)
@@ -40,6 +49,9 @@ class ModuleFileCreator(AbstractFileCreator):
                 scss_path = Path(file_path).with_suffix(".scss")
                 scss_path.touch(exist_ok=True)
                 self._write_scss(str(scss_path))
+            case "api":
+                self._write_api(file_path)
+                return
 
         Command.run(f"bat '{Path(file_path).resolve()}'")
 
@@ -56,6 +68,12 @@ class ModuleFileCreator(AbstractFileCreator):
         content = f".{name} {{\n}}\n"
         FileWriter.write_file(Path(file_path), content)
         self._append_scss_import(file_path)
+
+    def _write_api(self, file_path: str) -> None:
+        content = PHPApiFileCreator._build_template(self._api_func_name, self._api_route)
+        FileWriter.write_file(Path(file_path), content)
+        Command.run(f"bat '{Path(file_path).resolve()}'")
+        PHPApiFileCreator.append_to_functions_php(file_path)
 
     def _write_js(self, file_path: str) -> None:
         name = Path(file_path).stem

@@ -1,6 +1,7 @@
 # classes/factory/FileCreatorFactory.py
 from classes.files.FileCreatorInterface import FileCreatorInterface
 from classes.files.JsFileCreator import JsFileCreator
+from classes.files.PHPApiFileCreator import PHPApiFileCreator
 from classes.files.PHPBSFileCreator import PHPBSFileCreator
 from classes.files.PHPBlockFileCreator import PHPBlockFileCreator
 from classes.files.PHPFileCreator import PHPFileCreator
@@ -31,6 +32,7 @@ class FileCreatorFactory:
                 return PHPIconCreator()
             case FileTypeEnum.JS:
                 return JsFileCreator()
-            # Add more cases
+            case FileTypeEnum.PHPAPI:
+                return PHPApiFileCreator()
             case _:
                 raise ValueError(f"No creator defined for {file_type_enum}")

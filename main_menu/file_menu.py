@@ -44,7 +44,7 @@ def _module_menu():
     module_path = FilesHandle().create_or_choose_directory("modules")
     print(f"[green]Module: {module_path}[/green]")
 
-    selected = Select.select_with_fzf(["php", "scss", "js", "phps", "Back"])
+    selected = Select.select_with_fzf(["php", "scss", "js", "phps", "api", "Back"])
     if not selected:
         return
     file_type = selected[0]

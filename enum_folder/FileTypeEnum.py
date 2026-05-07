@@ -10,6 +10,7 @@ class FileTypeEnum(Enum):
     PHPI = ("phpi", False)
     SCSS = ("scss", True)
     JS = ("js", True)
+    PHPAPI = ("phpapi", False)
     NONE = ("none", False)
 
     def __init__(self, label: str, use_dir: bool):

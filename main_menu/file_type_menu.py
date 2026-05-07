@@ -12,7 +12,8 @@ def file_type_menu() -> FileTypeEnum:
         f"5.{FileTypeEnum.PHPP.label} (php page)",
         f"6.{FileTypeEnum.PHPI.label} (php icon)",
         f"7.{FileTypeEnum.JS.label} (js)",
-        "8.Back",
+        f"8.{FileTypeEnum.PHPAPI.label} (php api)",
+        "9.Back",
     ]
 
     choice = Menu.select_fzf(rows)
@@ -33,6 +34,8 @@ def file_type_menu() -> FileTypeEnum:
     elif choice == 7:
         return FileTypeEnum.JS
     elif choice == 8:
+        return FileTypeEnum.PHPAPI
+    elif choice == 9:
         return FileTypeEnum.NONE
     else:
         print("Invalid option. Please try again.")
