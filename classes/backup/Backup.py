@@ -79,8 +79,8 @@ class Backup:
         os.system(f"wp ai1wm restore {selected_backup}")
 
     def download_last_backup_from_server(self):
-        ms = MySelenium()
-        ms.download_last_backup_from_server()
+        from classes.selenium.WPPlaywrightDownloadBackup import WPPlaywrightDownloadBackup
+        WPPlaywrightDownloadBackup().start()
 
     def delete_backup_in_chrome(self):
         ms = MySelenium()
