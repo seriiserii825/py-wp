@@ -52,8 +52,8 @@ class Backup:
             print("[green]Backups less than 3")
 
     def make_backup_in_chrome(self):
-        ms = MySelenium()
-        ms.make_backup_in_chrome()
+        from classes.selenium.WPPlaywrightCreateBackup import WPPlaywrightCreateBackup
+        WPPlaywrightCreateBackup().start()
 
     def list_backup(self):
         os.system("wp ai1wm list-backups")
@@ -83,8 +83,8 @@ class Backup:
         WPPlaywrightDownloadBackup().start()
 
     def delete_backup_in_chrome(self):
-        ms = MySelenium()
-        ms.delete_backup_in_chrome()
+        from classes.selenium.WPPlaywrightDeleteBackup import WPPlaywrightDeleteBackup
+        WPPlaywrightDeleteBackup().start()
 
     def get_last_backup_path(self):
         os.chdir(self.backup_dir_abs_path)
