@@ -14,3 +14,4 @@ class EFieldType(Enum):
     REPEATER = "repeater"
     MESSAGE = "message"
     POST_OBJECT = "post_object"
+    NUMBER = "number"

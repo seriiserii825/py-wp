@@ -1,4 +1,5 @@
 from classes.acf.field.fields_dir.FileField import FileField
+from classes.acf.field.fields_dir.NumberField import NumberField
 from classes.acf.field.fields_dir.GalleryField import GalleryField
 from classes.acf.field.fields_dir.GroupField import GroupField
 from classes.acf.field.fields_dir.ImageField import ImageField
@@ -40,6 +41,8 @@ def create_field(field_data):
             return MessageField(field_data)
         case "post_object":
             return PostObjectField(field_data)
+        case "number":
+            return NumberField(field_data)
         case _:
             print(f"Unsupported field type: {field_type}")
             return None

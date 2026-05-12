@@ -43,6 +43,7 @@ class FieldTemplateFactory:
                 base.update({"return_format": "id"})
             case EFieldType.TAB:
                 base.update({"placement": "top", "endpoint": 0})
-            # Add other types here
+            case EFieldType.NUMBER:
+                base.update({"min": "", "max": "", "step": ""})
 
         return base
