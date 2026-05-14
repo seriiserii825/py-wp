@@ -1,9 +1,9 @@
 from classes.utils.Menu import Menu
-from classes.wp_menus.WpMenus import WpMenus
+from classes.wp_menus.WpMenuLocations import WpMenuLocations
 
 
 def wp_menu_locations():
-    wp_menu = WpMenus()
+    wp_menu = WpMenuLocations()
     options = [
         "0).List Locations",
         "01).Create Location",

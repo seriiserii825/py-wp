@@ -9,7 +9,7 @@ from classes.utils.Select import Select
 from classes.utils.WPPaths import WPPaths
 
 
-class WpMenus:
+class WpMenuLocations:
     def __init__(self):
         self.setup_file_path = WPPaths.get_theme_path() / "inc" / "nav-menu.php"
 
@@ -136,7 +136,8 @@ class WpMenus:
             Print.error("No locations found in nav-menu.php.")
             return None
 
-        options = [f"{slug}  ({label})" for slug, label in locations] + ["Cancel"]
+        options = [f"{slug}  ({label})" for slug,
+                   label in locations] + ["Cancel"]
         choice = Select.select_one(options)
         if choice == "Cancel":
             return None
