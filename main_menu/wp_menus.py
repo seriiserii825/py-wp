@@ -5,17 +5,26 @@ from classes.wp_menus.WpMenus import WpMenus
 def wp_menus():
     wp_menu = WpMenus()
     options = [
-        "0).List Menus",
-        "01).Add Menu",
-        "02).Edit Menu",
-        "03).Delete Menu",
-        "04).Choose Menu Location",
+        "0).List Locations",
+        "01).Create Location",
+        "02).Edit Location",
+        "03).Delete Location",
+        "04).Choose Location Slug",
         "05).Exit",
     ]
-    choice = Menu.select_fzf(options)
-    if choice == 0:
-        print("Menu functionality is not implemented yet.")
+
+    while True:
         wp_menu.list_locations()
-        wp_menus()
-    elif choice == 1:
-        exit(0)
+        choice = Menu.select_fzf(options)
+        if choice == 0:
+            wp_menu.list_locations()
+        elif choice == 1:
+            wp_menu.create_location()
+        elif choice == 2:
+            wp_menu.edit_location()
+        elif choice == 3:
+            wp_menu.delete_location()
+        elif choice == 4:
+            wp_menu.choose_location_slug()
+        elif choice == 5:
+            break
