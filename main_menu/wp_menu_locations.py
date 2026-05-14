@@ -2,7 +2,7 @@ from classes.utils.Menu import Menu
 from classes.wp_menus.WpMenus import WpMenus
 
 
-def wp_menus():
+def wp_menu_locations():
     wp_menu = WpMenus()
     options = [
         "0).List Locations",

@@ -14,7 +14,7 @@ from main_menu.page_menu import page_menu
 from main_menu.plugins_menu import plugins_menu
 from main_menu.site_settings_menu import site_settings_menu
 from main_menu.theme_menu import theme_menu
-from main_menu.wp_menus import wp_menus
+from main_menu.wp_menu_locations import wp_menu_locations
 from modules.check_is_wp import check_is_wp
 
 
@@ -54,7 +54,7 @@ def menu(to_import: bool = False):
         theme_menu()
         menu()
     elif choice == 6:
-        wp_menus()
+        wp_menu_locations()
         menu()
     elif choice == 7:
         contact_form_menu()
