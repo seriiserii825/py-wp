@@ -14,6 +14,7 @@ from main_menu.page_menu import page_menu
 from main_menu.plugins_menu import plugins_menu
 from main_menu.site_settings_menu import site_settings_menu
 from main_menu.theme_menu import theme_menu
+from main_menu.wp_menus import wp_menus
 from modules.check_is_wp import check_is_wp
 
 
@@ -22,15 +23,16 @@ def menu(to_import: bool = False):
         "0).ACF",
         "01).Plugins",
         "02).Backups",
-        "03).Init",
-        "04).Reset Settings",
-        "05).Images",
-        "06).Pages",
-        "07).Themes",
-        "08).Contact Form",
-        "09).Files",
-        "10).Site Settings",
-        "11).Exit",
+        "03).Images",
+        "04).Pages",
+        "05).Themes",
+        "06).Menus",
+        "07).Contact Form",
+        "08).Files",
+        "09).Site Settings",
+        "10).Init",
+        "11).Reset Settings",
+        "12).Exit",
     ]
     choice = Menu.select_fzf(options)
     if choice == 0:
@@ -43,30 +45,33 @@ def menu(to_import: bool = False):
         backup_menu()  # noqa: F821
         menu()
     elif choice == 3:
-        init()
-        exit(0)
-    elif choice == 4:
-        reset_settings()
-        exit(0)
-    elif choice == 5:
         image_menu()
         menu()
-    elif choice == 6:
+    elif choice == 4:
         page_menu()
         exit(0)
-    elif choice == 7:
+    elif choice == 5:
         theme_menu()
         menu()
-    elif choice == 8:
+    elif choice == 6:
+        wp_menus()
+        menu()
+    elif choice == 7:
         contact_form_menu()
         menu()
-    elif choice == 9:
+    elif choice == 8:
         file_menu()
         menu()
-    elif choice == 10:
+    elif choice == 9:
         site_settings_menu()
         menu()
+    elif choice == 10:
+        init()
+        exit(0)
     elif choice == 11:
+        reset_settings()
+        exit(0)
+    elif choice == 12:
         print("Exiting the program. Goodbye!")
         exit(0)
     else:
