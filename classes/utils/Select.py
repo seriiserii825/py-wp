@@ -19,7 +19,8 @@ class Select:
 
     @staticmethod
     def select_questionary(options: List[str]) -> List[str]:
-        selected = questionary.checkbox("Select options:", choices=options).ask()
+        selected = questionary.checkbox(
+            "Select options:", choices=options).ask()
         return selected
 
     @staticmethod
@@ -40,6 +41,16 @@ class Select:
     @staticmethod
     def select_one(options):
         terminal_menu = TerminalMenu(options)
-        # menu_entry_index = terminal_menu.show()
         menu_entry_index = terminal_menu.show()
         return options[menu_entry_index]
+
+    @staticmethod
+    def select_fzf_one(options) -> str | None:
+        input_text = "\n".join(options)
+        result = subprocess.run(
+            ["fzf", "--height", "50%", "--reverse"],
+            input=input_text.encode(),
+            stdout=subprocess.PIPE,
+        )
+        selected = result.stdout.decode().strip()
+        return selected if selected else None

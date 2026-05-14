@@ -81,10 +81,9 @@ class WpMenuLocations:
             Print.error("No locations to delete.")
             return
 
-        options = [f"{slug}  ({label})" for slug,
-                   label in locations] + ["Cancel"]
-        choice = Select.select_one(options)
-        if choice == "Cancel":
+        options = [f"{slug}  ({label})" for slug, label in locations]
+        choice = Select.select_fzf_one(options)
+        if not choice:
             return
 
         slug = choice.split("  (")[0]
@@ -104,10 +103,9 @@ class WpMenuLocations:
             Print.error("No locations to edit.")
             return
 
-        options = [f"{slug}  ({label})" for slug,
-                   label in locations] + ["Cancel"]
-        choice = Select.select_one(options)
-        if choice == "Cancel":
+        options = [f"{slug}  ({label})" for slug, label in locations]
+        choice = Select.select_fzf_one(options)
+        if not choice:
             return
 
         old_slug, old_label = locations[options.index(choice)]
@@ -136,10 +134,9 @@ class WpMenuLocations:
             Print.error("No locations found in nav-menu.php.")
             return None
 
-        options = [f"{slug}  ({label})" for slug,
-                   label in locations] + ["Cancel"]
-        choice = Select.select_one(options)
-        if choice == "Cancel":
+        options = [f"{slug}  ({label})" for slug, label in locations]
+        choice = Select.select_fzf_one(options)
+        if not choice:
             return None
 
         return choice.split("  (")[0]
