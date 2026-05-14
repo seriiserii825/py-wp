@@ -1,5 +1,6 @@
 from classes.utils.Menu import Menu
 from classes.wp_menus.WpMenuLocations import WpMenuLocations
+from main_menu.wp_menu_handler import wp_menu_handler
 
 
 def wp_menu_locations():
@@ -26,5 +27,6 @@ def wp_menu_locations():
             wp_menu.delete_location()
         elif choice == 4:
             wp_menu.choose_location_slug()
+            wp_menu_handler()
         elif choice == 5:
             break
