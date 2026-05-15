@@ -13,7 +13,7 @@ SESSIONS_DIR.mkdir(exist_ok=True)
 
 
 class WPPlaywright:
-    def __init__(self):
+    def __init__(self) -> None:
         theme_name = os.path.basename(os.getcwd())
         self.pr = Project(theme_name)
         self.project = self.pr.getProject()
@@ -36,7 +36,7 @@ class WPPlaywright:
             )
         return self.browser.new_context(accept_downloads=True)
 
-    def ensure_logged_in(self):
+    def ensure_logged_in(self) -> None:
         self.page.goto(f"{self.project_url}/wp-admin")
         self.page.wait_for_load_state("networkidle")
         if "/wp-admin" in self.page.url and "wp-login" not in self.page.url:
@@ -44,7 +44,7 @@ class WPPlaywright:
         self._login()
         self._save_session()
 
-    def _login(self):
+    def _login(self) -> None:
         login_url = self._find_login_url()
         if login_url is None:
             raise RuntimeError("Login form not found on any candidate URL.")
@@ -86,11 +86,11 @@ class WPPlaywright:
         except PlaywrightTimeoutError:
             return
 
-    def _save_session(self):
+    def _save_session(self) -> None:
         self.context.storage_state(path=self.session_path)
         print(f"[green]Session saved → {self.session_path}")
 
-    def close(self):
+    def close(self) -> None:
         self._save_session()
         self.browser.close()
         self._playwright.stop()

@@ -46,6 +46,7 @@ class FieldMover:
 
         # Adjust destination index if necessary
         dest_index = dest[-1]
+        assert dest_index is not None  # trailing dot resolved above
         if self._should_adjust_indices(source, dest):
             dest_index -= 1
 

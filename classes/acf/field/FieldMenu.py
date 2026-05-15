@@ -22,21 +22,21 @@ class FieldMenu:
         self.duplicator = FieldDuplicator(self.repo, self.mover)
         self.copy_group = GroupCopy(file_path)
 
-    def show_all(self):
+    def show_all(self) -> None:
         _, fields = self._load_fields()
         for index, field_data in enumerate(fields):
             field = create_field(field_data)
             if field:
                 field.print_field_with_subfields(index=index, indent=0)
 
-    def show_collapsed(self):
+    def show_collapsed(self) -> None:
         _, fields = self._load_fields()
         for index, field_data in enumerate(fields):
             field = create_field(field_data)
             if field:
                 field.print_field(index=index, indent=0)
 
-    def show_only_tab_group(self, active_index: int = 0):
+    def show_only_tab_group(self, active_index: int = 0) -> None:
         _, fields = self._load_fields()
         for index, field_data in enumerate(fields):
             if field_data.get("type") not in ("tab", "group"):
@@ -72,7 +72,7 @@ class FieldMenu:
         pos = options.index(selected[0])
         return tab_groups[pos][0]
 
-    def create_field(self):
+    def create_field(self) -> None:
         data, fields = self._load_fields()
         new_field = self.creator.create()
         if isinstance(new_field, list):
@@ -83,7 +83,7 @@ class FieldMenu:
         self.repo.save(data)
         print("Field created and saved.")
 
-    def _move_after_create(self, fields: list, data):
+    def _move_after_create(self, fields: list, data) -> None:
         try:
             source_index = str(len(fields) - 1)
             dest = InputValidator.get_string("Enter destination index (e.g. 0.1): ")
@@ -113,22 +113,22 @@ class FieldMenu:
         except Exception as e:
             raise Exception(f"Error moving field: {e}")
 
-    def edit_field(self):
+    def edit_field(self) -> None:
         data, fields = self._load_fields()
         self._check_field_is_empty(fields)
         self.editor.edit_field(data, fields)
 
-    def delete_field(self):
+    def delete_field(self) -> None:
         data, fields = self._load_fields()
         self._check_field_is_empty(fields)
         self.deleter.delete_single(data, fields)
 
-    def delete_fields(self):
+    def delete_fields(self) -> None:
         data, fields = self._load_fields()
         self._check_field_is_empty(fields)
         self.deleter.delete_multiple(data, fields)
 
-    def duplicate_field(self):
+    def duplicate_field(self) -> None:
         data, fields = self._load_fields()
         self._check_field_is_empty(fields)
         try:
@@ -136,7 +136,7 @@ class FieldMenu:
         except Exception as e:
             print(f"Error duplicating field: {e}")
 
-    def move_multiple_fields(self):
+    def move_multiple_fields(self) -> None:
         data, fields = self._load_fields()
         self._check_field_is_empty(fields)
         try:
@@ -171,7 +171,7 @@ class FieldMenu:
             dest_parent_path = dest_path[:-1]
             removals_before = sum(
                 1 for sp in source_paths
-                if sp[:-1] == dest_parent_path and sp[-1] < dest_idx
+                if sp[:-1] == dest_parent_path and sp[-1] is not None and sp[-1] < dest_idx
             )
             adjusted = dest_idx - removals_before
 
@@ -184,7 +184,7 @@ class FieldMenu:
         except Exception as e:
             print(f"Error moving fields: {e}")
 
-    def toggle_required(self):
+    def toggle_required(self) -> None:
         data, fields = self._load_fields()
         self._check_field_is_empty(fields)
         try:
@@ -200,7 +200,7 @@ class FieldMenu:
         except Exception as e:
             print(f"Error toggling required: {e}")
 
-    def reorder_fields(self):
+    def reorder_fields(self) -> None:
         data, fields = self._load_fields()
         self._check_field_is_empty(fields)
         total = len(fields)
@@ -253,7 +253,7 @@ class FieldMenu:
         AcfSnapshotService.reorder_from_snapshot(Path(self.repo.path), base_dir)
         print("Fields reordered from snapshot.")
 
-    def copy_group_to_clipboard(self):
+    def copy_group_to_clipboard(self) -> None:
         _, fields = self._load_fields()
         self._check_field_is_empty(fields)
         try:

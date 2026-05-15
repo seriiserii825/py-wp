@@ -9,12 +9,12 @@ class Project:
         self.project = self.getProject()
 
     def getProject(self):
-        projects = ()
+        projects: list[dict[str, str]] = []
         csv_file_path = WPPaths.get_list_csv_path()
         with open(csv_file_path) as my_file:
             reader = csv.reader(my_file, delimiter=",")
             for row in reader:
-                project = {
+                project: dict[str, str] = {
                     "title": row[0],
                     "login": row[1],
                     "password": row[2],
@@ -22,7 +22,7 @@ class Project:
                 }
                 if len(row) > 4:
                     project["gestione"] = row[4]
-                projects = projects + (project,)
+                projects.append(project)
         theme_is_in_projects = [
             project for project in projects if project["title"] == self.theme_name
         ]
