@@ -22,14 +22,20 @@ class Backup:
         self._last_backup_to_downloads()
 
     def _delete_vendor(self):
-        if os.path.exists(f"{self.theme_dir_path}/vendor"):
-            os.system(f"rm -rf {self.theme_dir_path}/vendor")
-            print("[green]vendor deleted successfully.")
+        path = self.theme_dir_path / "vendor"
+        if path.exists():
+            os.system(f'rm -rf "{path}"')
+            print("[blue]vendor deleted successfully.")
+        else:
+            print(f"[red]vendor not found: {path}")
 
     def _delete_node_modules(self):
-        if os.path.exists(f"{self.theme_dir_path}/node_modules"):
-            os.system(f"rm -rf {self.theme_dir_path}/node_modules")
-            print("[green]node_modules deleted successfully.")
+        path = self.theme_dir_path / "node_modules"
+        if path.exists():
+            os.system(f'rm -rf "{path}"')
+            print("[blue]node_modules deleted successfully.")
+        else:
+            print(f"[red]node_modules not found: {path}")
 
     def _deleteMore3Backups(self):
         os.chdir(self.backup_dir_abs_path)
@@ -53,6 +59,7 @@ class Backup:
 
     def make_backup_in_chrome(self):
         from classes.selenium.WPPlaywrightCreateBackup import WPPlaywrightCreateBackup
+
         WPPlaywrightCreateBackup().start()
 
     def list_backup(self):
@@ -79,11 +86,15 @@ class Backup:
         os.system(f"wp ai1wm restore {selected_backup}")
 
     def download_last_backup_from_server(self):
-        from classes.selenium.WPPlaywrightDownloadBackup import WPPlaywrightDownloadBackup
+        from classes.selenium.WPPlaywrightDownloadBackup import (
+            WPPlaywrightDownloadBackup,
+        )
+
         WPPlaywrightDownloadBackup().start()
 
     def delete_backup_in_chrome(self):
         from classes.selenium.WPPlaywrightDeleteBackup import WPPlaywrightDeleteBackup
+
         WPPlaywrightDeleteBackup().start()
 
     def get_last_backup_path(self):
