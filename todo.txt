@@ -45,4 +45,3 @@ stemar
 gardalive
 blueline
 mtd
-double mtd
