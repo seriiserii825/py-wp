@@ -52,4 +52,4 @@ docs/_build/
 uv.lock
 list.csv
 google-data.csv
-session_*.json
+sessions/

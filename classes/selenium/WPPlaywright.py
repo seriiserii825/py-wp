@@ -8,7 +8,8 @@ from rich import print
 from classes.projects.Project import Project
 
 
-SESSIONS_DIR = Path(__file__).resolve().parent.parent.parent
+SESSIONS_DIR = Path(__file__).resolve().parent.parent.parent / "sessions"
+SESSIONS_DIR.mkdir(exist_ok=True)
 
 
 class WPPlaywright:
