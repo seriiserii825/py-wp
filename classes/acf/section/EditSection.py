@@ -121,6 +121,23 @@ class EditSection:
             Print.success("ACF data imported successfully.")
 
     @staticmethod
+    def delete_section() -> None:
+        file_name = EditSection.choose_file()
+        file_path = f"acf/{file_name}"
+        confirm = InputValidator.get_bool(
+            f"Delete '{file_name}'? (y/n): "
+        )
+        if confirm:
+            os.remove(file_path)
+            Print.success(f"Section '{file_name}' deleted.")
+            want_to_import = InputValidator.get_bool(
+                "Do you want to import the updated ACF data? (y/n): "
+            )
+            if want_to_import:
+                AcfTransfer.wp_import()
+                Print.success("ACF data imported successfully.")
+
+    @staticmethod
     def _prompt_location() -> Optional[dict[str, Any]]:
         choice = CreateSection.choose_type()
         print(f"choice: {choice}")

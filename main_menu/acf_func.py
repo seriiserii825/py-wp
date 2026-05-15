@@ -17,7 +17,7 @@ def acf_func(to_import: bool = False):
 
 def _choose_section():
     menu_options = ["Select section",
-                    "Edit Section", "Create new section", "Exit"]
+                    "Edit Section", "Create new section", "Delete Section", "Exit"]
     choice = Menu.select_with_fzf(menu_options)
 
     if choice == 0:
@@ -32,5 +32,10 @@ def _choose_section():
         Print.info("Create new section selected.")
         new_section()
     elif choice == 3:
+        from classes.acf.section.EditSection import EditSection
+
+        Print.info("Delete section selected.")
+        EditSection.delete_section()
+    elif choice == 4:
         Print.error("Exiting ACF CLI.")
         return
