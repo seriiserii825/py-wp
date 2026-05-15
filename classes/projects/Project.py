@@ -4,11 +4,11 @@ from classes.utils.WPPaths import WPPaths
 
 
 class Project:
-    def __init__(self, theme_name):
+    def __init__(self, theme_name: str) -> None:
         self.theme_name = theme_name
         self.project = self.getProject()
 
-    def getProject(self):
+    def getProject(self) -> dict[str, str]:
         projects: list[dict[str, str]] = []
         csv_file_path = WPPaths.get_list_csv_path()
         with open(csv_file_path) as my_file:
@@ -32,7 +32,7 @@ class Project:
         else:
             return theme_is_in_projects[0]
 
-    def getLoginUrl(self, second_param=True):
+    def getLoginUrl(self, second_param: bool = True) -> str:
         project_url = self.project["url"]
         if second_param:
             return f"{project_url}/wp-admin"
