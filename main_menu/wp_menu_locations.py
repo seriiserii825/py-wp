@@ -21,11 +21,11 @@ def wp_menu_locations():
             location_slug = wp_menu.choose_location_slug()
             if location_slug:
                 wp_menu_handler(location_slug)
-        if choice == 1:
+        elif choice == 1:
             wp_menu.list_locations()
         elif choice == 2:
             wp_menu.create_location()
-        elif choice == 4:
+        elif choice == 3:
             wp_menu.edit_location()
         elif choice == 4:
             wp_menu.delete_location()
