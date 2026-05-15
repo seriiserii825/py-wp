@@ -1,8 +1,6 @@
 import shlex
 
 from rich import print
-from rich.console import Console
-from rich.table import Table
 
 from classes.utils.Command import Command
 from classes.utils.Menu import Menu
@@ -22,6 +20,104 @@ class WpMenu:
             if self.location in locations:
                 return menu["slug"]
         return None
+
+    def _load_raw(self, slug: str) -> list:
+        result = Command.run_json(
+            f"wp menu item list {shlex.quote(slug)} --format=json"
+            f" --fields=db_id,title,type_label,url,position,menu_item_parent"
+        )
+        return result if isinstance(result, list) else []
+
+    def _build_flat(self, raw: list) -> list:
+        top = sorted(
+            [i for i in raw if int(i.get("menu_item_parent", 0)) == 0],
+            key=lambda x: int(x.get("position", 0)),
+        )
+        flat: list = []
+        for ti, item in enumerate(top):
+            flat.append({**item, "_idx": str(ti)})
+            children = sorted(
+                [i for i in raw if str(i.get("menu_item_parent")) == str(item["db_id"])],
+                key=lambda x: int(x.get("position", 0)),
+            )
+            for ci, child in enumerate(children):
+                flat.append({**child, "_idx": f"{ti}.{ci}"})
+        return flat
+
+    def _find(self, flat: list, idx_str: str) -> dict | None:
+        return next((i for i in flat if i.get("_idx") == idx_str), None)
+
+    def _ask_index(self, flat: list, prompt: str) -> dict:
+        valid = sorted(
+            {i["_idx"] for i in flat},
+            key=lambda x: [int(p) for p in x.split(".")],
+        )
+        while True:
+            raw = input(prompt).strip()
+            item = self._find(flat, raw)
+            if item is not None:
+                return item
+            Print.error(f"Invalid index '{raw}'. Valid: {', '.join(valid)}")
+
+    def _ask_insert(self, flat: list) -> tuple[int, int]:
+        """Ask where to insert; returns (parent_db_id, wp_position 1-based)."""
+        top_count = sum(1 for i in flat if "." not in i["_idx"])
+        while True:
+            raw = input("  Insert at index (e.g. 3 or 3.1): ").strip()
+            result = self._parse_insert(flat, raw, top_count)
+            if result is not None:
+                return result
+            Print.error(
+                f"Invalid position '{raw}'. "
+                f"Top level: 0-{top_count}, nested: N.M (parent must exist)."
+            )
+
+    def _parse_insert(self, flat: list, idx_str: str, top_count: int) -> tuple[int, int] | None:
+        parts = idx_str.split(".")
+        try:
+            if len(parts) == 1:
+                n = int(parts[0])
+                if 0 <= n <= top_count:
+                    return (0, n + 1)
+            elif len(parts) == 2:
+                p, c = int(parts[0]), int(parts[1])
+                parent = self._find(flat, str(p))
+                if parent is not None:
+                    child_count = sum(1 for i in flat if i["_idx"].startswith(f"{p}."))
+                    if 0 <= c <= child_count:
+                        return (int(parent["db_id"]), c + 1)
+        except (ValueError, TypeError):
+            pass
+        return None
+
+    # ------------------------------------------------------------------ display
+
+    def list_items(self) -> list:
+        slug = self._get_menu_slug()
+        if not slug:
+            Print.error(f"No menu assigned to location '{self.location}'.")
+            return []
+        flat = self._build_flat(self._load_raw(slug))
+        print(f"[bold]=== Menu: {slug}  (location: {self.location}) ===[/bold]")
+        if not flat:
+            print("  [dim](no items)[/dim]")
+            return []
+        for item in flat:
+            idx = item["_idx"]
+            if "." in idx:
+                display = idx.split(".")[1]
+                indent = "  "
+            else:
+                display = idx
+                indent = ""
+            print(
+                f"[green]{indent}{display} {item['title']}[/green]"
+                f" - [blue]{item.get('type_label', '')}[/blue]"
+                f" - [cyan]{item.get('url', '')}[/cyan]"
+            )
+        return flat
+
+    # ------------------------------------------------------------------ assign
 
     def create_and_assign(self):
         menus = Command.run_json("wp menu list --format=json")
@@ -54,39 +150,15 @@ class WpMenu:
         Print.success(f"Menu '{slug}' assigned to '{self.location}'.")
         return True
 
-    def list_items(self):
-        slug = self._get_menu_slug()
-        if not slug:
-            Print.error(f"No menu assigned to location '{self.location}'.")
-            return
-        items = Command.run_json(
-            f"wp menu item list {shlex.quote(slug)} --format=json"
-            f" --fields=db_id,title,type_label,url"
-        )
-        if not items:
-            Print.info(f"Menu '{slug}' has no items.")
-            return
-        table = Table(title=f"Menu: {slug}  (location: {self.location})", show_lines=True)
-        table.add_column("#", style="cyan", width=4)
-        table.add_column("ID", style="dim", width=6)
-        table.add_column("Title", style="yellow")
-        table.add_column("Type", style="blue")
-        table.add_column("URL", style="green")
-        for i, item in enumerate(items):
-            table.add_row(
-                str(i),
-                str(item["db_id"]),
-                item["title"],
-                item.get("type_label", ""),
-                item.get("url", ""),
-            )
-        Console().print(table)
+    # ------------------------------------------------------------------ create
 
-    def create_item(self):
+    def create_item(self, flat: list):
         slug = self._get_menu_slug()
         if not slug:
             Print.error(f"No menu assigned to location '{self.location}'.")
             return
+
+        parent_id, position = self._ask_insert(flat)
 
         choice = Menu.select_fzf([
             "0.Custom link",
@@ -100,19 +172,25 @@ class WpMenu:
             return
 
         if choice == 0:
-            self._add_custom(slug)
+            self._add_custom(slug, position, parent_id)
         elif choice == 1:
-            self._add_post(slug, "post")
+            self._add_post(slug, "post", position, parent_id)
         elif choice == 2:
-            self._add_post(slug, "page")
+            self._add_post(slug, "page", position, parent_id)
         elif choice == 3:
-            self._add_term(slug, "category")
+            self._add_term(slug, "category", position, parent_id)
         elif choice == 4:
-            self._add_post_type_archive(slug)
+            self._add_post_type_archive(slug, position, parent_id)
         elif choice == 5:
-            self._add_taxonomy_term(slug)
+            self._add_taxonomy_term(slug, position, parent_id)
 
-    def _add_custom(self, menu_slug: str):
+    def _pos_args(self, position: int, parent_id: int) -> str:
+        s = f" --position={position}"
+        if parent_id:
+            s += f" --parent-id={parent_id}"
+        return s
+
+    def _add_custom(self, menu_slug: str, position: int, parent_id: int):
         url = input("  URL/slug (e.g. /about): ").strip()
         label = input("  Label: ").strip()
         if not url or not label:
@@ -121,45 +199,47 @@ class WpMenu:
         Command.run(
             f"wp menu item add-custom {shlex.quote(menu_slug)} "
             f"{shlex.quote(label)} {shlex.quote(url)}"
+            + self._pos_args(position, parent_id)
         )
 
-    def _add_post(self, menu_slug: str, post_type: str):
+    def _add_post(self, menu_slug: str, post_type: str, position: int, parent_id: int):
         posts = Command.run_json(
             f"wp post list --post_type={post_type} --format=json --fields=ID,post_title"
         )
         if not posts:
             Print.error(f"No {post_type}s found.")
             return
-        options = [f"{i}.{p['post_title']}" for i, p in enumerate(posts)]
-        choice = Menu.select_fzf(options)
+        choice = Menu.select_fzf([f"{i}.{p['post_title']}" for i, p in enumerate(posts)])
         if choice == -1:
             return
-        Command.run(f"wp menu item add-post {shlex.quote(menu_slug)} {posts[choice]['ID']}")
+        Command.run(
+            f"wp menu item add-post {shlex.quote(menu_slug)} {posts[choice]['ID']}"
+            + self._pos_args(position, parent_id)
+        )
 
-    def _add_term(self, menu_slug: str, taxonomy: str):
+    def _add_term(self, menu_slug: str, taxonomy: str, position: int, parent_id: int):
         terms = Command.run_json(
             f"wp term list {taxonomy} --format=json --fields=term_id,name"
         )
         if not terms:
             Print.error(f"No terms in '{taxonomy}'.")
             return
-        options = [f"{i}.{t['name']}" for i, t in enumerate(terms)]
-        choice = Menu.select_fzf(options)
+        choice = Menu.select_fzf([f"{i}.{t['name']}" for i, t in enumerate(terms)])
         if choice == -1:
             return
         Command.run(
             f"wp menu item add-term {shlex.quote(menu_slug)} {taxonomy} {terms[choice]['term_id']}"
+            + self._pos_args(position, parent_id)
         )
 
-    def _add_post_type_archive(self, menu_slug: str):
-        post_types = Command.run_json(
-            "wp post-type list --format=json --fields=name,label"
-        )
+    def _add_post_type_archive(self, menu_slug: str, position: int, parent_id: int):
+        post_types = Command.run_json("wp post-type list --format=json --fields=name,label")
         if not post_types:
             Print.error("No post types found.")
             return
-        options = [f"{i}.{pt['name']}  ({pt['label']})" for i, pt in enumerate(post_types)]
-        choice = Menu.select_fzf(options)
+        choice = Menu.select_fzf(
+            [f"{i}.{pt['name']}  ({pt['label']})" for i, pt in enumerate(post_types)]
+        )
         if choice == -1:
             return
         post_type = post_types[choice]["name"]
@@ -168,42 +248,35 @@ class WpMenu:
         Command.run(
             f"wp menu item add-custom {shlex.quote(menu_slug)} "
             f"{shlex.quote(label)} {shlex.quote(url)}"
+            + self._pos_args(position, parent_id)
         )
 
-    def _add_taxonomy_term(self, menu_slug: str):
-        taxonomies = Command.run_json(
-            "wp taxonomy list --format=json --fields=name,label"
-        )
+    def _add_taxonomy_term(self, menu_slug: str, position: int, parent_id: int):
+        taxonomies = Command.run_json("wp taxonomy list --format=json --fields=name,label")
         if not taxonomies:
             Print.error("No taxonomies found.")
             return
-        options = [f"{i}.{t['name']}  ({t['label']})" for i, t in enumerate(taxonomies)]
-        choice = Menu.select_fzf(options)
+        choice = Menu.select_fzf(
+            [f"{i}.{t['name']}  ({t['label']})" for i, t in enumerate(taxonomies)]
+        )
         if choice == -1:
             return
-        self._add_term(menu_slug, taxonomies[choice]["name"])
+        self._add_term(menu_slug, taxonomies[choice]["name"], position, parent_id)
 
-    def edit_item(self):
-        slug = self._get_menu_slug()
-        if not slug:
-            Print.error(f"No menu assigned to location '{self.location}'.")
-            return
-        items = Command.run_json(
-            f"wp menu item list {shlex.quote(slug)} --format=json"
-            f" --fields=db_id,title,type_label,url"
-        )
-        if not items:
+    # ------------------------------------------------------------------ edit
+
+    def edit_item(self, flat: list):
+        if not flat:
             Print.error("No items in this menu.")
             return
-
-        item_options = [
-            f"{i}.{item['title']}  ({item.get('type_label', '')})"
-            for i, item in enumerate(items)
-        ]
-        item_choice = Menu.select_fzf(item_options)
-        if item_choice == -1:
+        item = self._ask_index(flat, "  Index to edit: ")
+        db_id = str(item["db_id"])
+        slug = self._get_menu_slug()
+        if slug is None:
+            Print.error("Menu slug not found.")
             return
-        db_id = str(items[item_choice]["db_id"])
+        position = int(item.get("position", 0))
+        parent_id = int(item.get("menu_item_parent", 0))
 
         edit_mode = Menu.select_fzf([
             "0.Edit label / URL",
@@ -221,13 +294,13 @@ class WpMenu:
         elif edit_mode == 1:
             self._update_custom(db_id)
         elif edit_mode == 2:
-            self._update_post(db_id, "post")
+            self._replace_with_post(slug, db_id, position, parent_id, "post")
         elif edit_mode == 3:
-            self._update_post(db_id, "page")
+            self._replace_with_post(slug, db_id, position, parent_id, "page")
         elif edit_mode == 4:
-            self._update_term(db_id, "category")
+            self._replace_with_term(slug, db_id, position, parent_id, "category")
         elif edit_mode == 5:
-            self._update_taxonomy_term(db_id)
+            self._replace_with_taxonomy_term(slug, db_id, position, parent_id)
 
     def _edit_label_url(self, db_id: str):
         print("[yellow]Leave blank to keep current value[/yellow]")
@@ -254,104 +327,94 @@ class WpMenu:
             f" --url={shlex.quote(url)} --title={shlex.quote(label)}"
         )
 
-    def _update_post(self, db_id: str, post_type: str):
+    def _replace_with_post(
+        self, slug: str, db_id: str, position: int, parent_id: int, post_type: str
+    ):
         posts = Command.run_json(
             f"wp post list --post_type={post_type} --format=json --fields=ID,post_title"
         )
         if not posts:
             Print.error(f"No {post_type}s found.")
             return
-        options = [f"{i}.{p['post_title']}" for i, p in enumerate(posts)]
-        choice = Menu.select_fzf(options)
+        choice = Menu.select_fzf([f"{i}.{p['post_title']}" for i, p in enumerate(posts)])
         if choice == -1:
             return
+        Command.run_quiet(f"wp menu item delete {db_id}")
         Command.run(
-            f"wp menu item update {db_id} --type=post_type --object-id={posts[choice]['ID']}"
+            f"wp menu item add-post {shlex.quote(slug)} {posts[choice]['ID']}"
+            + self._pos_args(position, parent_id)
         )
 
-    def _update_term(self, db_id: str, taxonomy: str):
+    def _replace_with_term(
+        self, slug: str, db_id: str, position: int, parent_id: int, taxonomy: str
+    ):
         terms = Command.run_json(
             f"wp term list {taxonomy} --format=json --fields=term_id,name"
         )
         if not terms:
             Print.error(f"No terms in '{taxonomy}'.")
             return
-        options = [f"{i}.{t['name']}" for i, t in enumerate(terms)]
-        choice = Menu.select_fzf(options)
+        choice = Menu.select_fzf([f"{i}.{t['name']}" for i, t in enumerate(terms)])
         if choice == -1:
             return
+        Command.run_quiet(f"wp menu item delete {db_id}")
         Command.run(
-            f"wp menu item update {db_id} --type=taxonomy --object-id={terms[choice]['term_id']}"
+            f"wp menu item add-term {shlex.quote(slug)} {taxonomy} {terms[choice]['term_id']}"
+            + self._pos_args(position, parent_id)
         )
 
-    def _update_taxonomy_term(self, db_id: str):
-        taxonomies = Command.run_json(
-            "wp taxonomy list --format=json --fields=name,label"
-        )
+    def _replace_with_taxonomy_term(
+        self, slug: str, db_id: str, position: int, parent_id: int
+    ):
+        taxonomies = Command.run_json("wp taxonomy list --format=json --fields=name,label")
         if not taxonomies:
             Print.error("No taxonomies found.")
             return
-        options = [f"{i}.{t['name']}  ({t['label']})" for i, t in enumerate(taxonomies)]
-        choice = Menu.select_fzf(options)
+        choice = Menu.select_fzf(
+            [f"{i}.{t['name']}  ({t['label']})" for i, t in enumerate(taxonomies)]
+        )
         if choice == -1:
             return
-        self._update_term(db_id, taxonomies[choice]["name"])
+        self._replace_with_term(slug, db_id, position, parent_id, taxonomies[choice]["name"])
 
-    def move_item(self):
-        slug = self._get_menu_slug()
-        if not slug:
-            Print.error(f"No menu assigned to location '{self.location}'.")
-            return
-        items = Command.run_json(
-            f"wp menu item list {shlex.quote(slug)} --format=json"
-            f" --fields=db_id,title,type_label,url"
-        )
-        if not items:
+    # ------------------------------------------------------------------ move
+
+    def move_item(self, flat: list):
+        if not flat:
             Print.error("No items in this menu.")
             return
-
-        self.list_items()
-        raw = input("  Move from,to (e.g. 2,4): ").strip()
-        try:
-            from_idx, to_idx = [int(x.strip()) for x in raw.split(",")]
-        except ValueError:
-            Print.error("Invalid format. Use: from,to (e.g. 2,4)")
-            return
-
-        if not (0 <= from_idx < len(items)) or not (0 <= to_idx < len(items)):
-            Print.error(f"Index out of range (0–{len(items) - 1}).")
-            return
-
-        if from_idx == to_idx:
-            Print.info("Same position, nothing to do.")
-            return
-
-        reordered = items[:]
-        item = reordered.pop(from_idx)
-        reordered.insert(to_idx, item)
-
-        for pos, entry in enumerate(reordered, start=1):
-            Command.run_quiet(f"wp menu item update {entry['db_id']} --position={pos}")
-
-        Print.success(f"Moved item [{from_idx}] '{item['title']}' to index [{to_idx}].")
-
-    def delete_item(self):
-        slug = self._get_menu_slug()
-        if not slug:
-            Print.error(f"No menu assigned to location '{self.location}'.")
-            return
-        items = Command.run_json(
-            f"wp menu item list {shlex.quote(slug)} --format=json"
-            f" --fields=db_id,title,type_label,url"
+        top_count = sum(1 for i in flat if "." not in i["_idx"])
+        valid = sorted(
+            {i["_idx"] for i in flat},
+            key=lambda x: [int(p) for p in x.split(".")],
         )
-        if not items:
+        while True:
+            raw = input("  Move from,to (e.g. 2,4.1): ").strip()
+            parts = [p.strip() for p in raw.split(",")]
+            if len(parts) != 2:
+                Print.error("Format: from,to  (e.g. 2 or 4.0),  to (e.g. 3 or 4.1)")
+                continue
+            from_str, to_str = parts
+            from_item = self._find(flat, from_str)
+            if from_item is None:
+                Print.error(f"Invalid from index '{from_str}'. Valid: {', '.join(valid)}")
+                continue
+            to_result = self._parse_insert(flat, to_str, top_count)
+            if to_result is None:
+                Print.error(f"Invalid to position '{to_str}'. E.g. 3 or 4.1")
+                continue
+            parent_id, position = to_result
+            db_id = str(from_item["db_id"])
+            cmd = f"wp menu item update {db_id} --position={position}"
+            cmd += f" --parent-id={parent_id}" if parent_id else " --parent-id=0"
+            Command.run(cmd)
+            break
+
+    # ------------------------------------------------------------------ delete
+
+    def delete_item(self, flat: list):
+        if not flat:
             Print.error("No items in this menu.")
             return
-        options = [
-            f"{i}.{item['title']}  ({item.get('type_label', '')})"
-            for i, item in enumerate(items)
-        ]
-        choice = Menu.select_fzf(options)
-        if choice == -1:
-            return
-        Command.run(f"wp menu item delete {items[choice]['db_id']}")
+        item = self._ask_index(flat, "  Index to delete: ")
+        Command.run(f"wp menu item delete {item['db_id']}")

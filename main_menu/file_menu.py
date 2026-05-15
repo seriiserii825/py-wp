@@ -45,7 +45,8 @@ def _module_menu():
     print(f"[green]Module: {module_path}[/green]")
 
     selected = Select.select_with_fzf(
-        ["php", "scss", "js", "phps", "api", "icon", "Back"])
+        ["php", "scss", "js", "phps", "api", "icon", "Back"]
+    )
     if not selected:
         return
     file_type = selected[0]
@@ -53,18 +54,34 @@ def _module_menu():
         return
 
     preset_name = None
-    if file_type == "scss":
-        module_name = Path(module_path).name
-        scss_exists = (Path(module_path) / f"{module_name}.scss").exists()
-        if not scss_exists:
-            print(
-                f"[yellow]No SCSS file found for module '{module_name}'.[/yellow]")
-            print("[blue]Create new one?.")
-            choice = Select.select_with_fzf([module_name, "other"])
-            if choice and choice[0] == module_name:
-                preset_name = module_name
+    module_name = Path(module_path).name
 
-    creator = ModuleFileCreator(
-        module_path, file_type, preset_name=preset_name)
+    if file_type == "php":
+        if not (Path(module_path) / f"{module_name}.php").exists():
+            print(f"[yellow]No PHP file found for module '{module_name}'.[/yellow]")
+            print(f"[dim]Enter file name (Enter = '{module_name}'):[/dim]")
+            name = input("  ").strip()
+            preset_name = name if name else module_name
+
+    elif file_type == "scss":
+        if not (Path(module_path) / f"{module_name}.scss").exists():
+            print(f"[yellow]No SCSS file found for module '{module_name}'.[/yellow]")
+            print(f"[dim]Enter file name (Enter = '{module_name}'):[/dim]")
+            name = input("  ").strip()
+            preset_name = name if name else module_name
+
+    elif file_type == "phps":
+        php_missing = not (Path(module_path) / f"{module_name}.php").exists()
+        scss_missing = not (Path(module_path) / f"{module_name}.scss").exists()
+        if php_missing or scss_missing:
+            missing = " + ".join(
+                ext for ext, m in [("PHP", php_missing), ("SCSS", scss_missing)] if m
+            )
+            print(f"[yellow]Missing: {missing} for module '{module_name}'.[/yellow]")
+            print(f"[dim]Enter file name for both (Enter = '{module_name}'):[/dim]")
+            name = input("  ").strip()
+            preset_name = name if name else module_name
+
+    creator = ModuleFileCreator(module_path, file_type, preset_name=preset_name)
     file_path = creator.create_file(use_dir=False)
     creator.template_to_file(file_path)

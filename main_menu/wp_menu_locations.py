@@ -9,12 +9,12 @@ def wp_menu_locations():
         wp_menu.show_missing_hint()
         return
     options = [
-        "0).Choose Location Slug",
-        "01).List Locations",
-        "02).Create Location",
-        "03).Edit Location",
-        "04).Delete Location",
-        "05).Exit",
+        "0.Choose Location Slug",
+        "1.List Locations",
+        "2.Create Location",
+        "3.Edit Location",
+        "4.Delete Location",
+        "5.Exit",
     ]
 
     while True:
