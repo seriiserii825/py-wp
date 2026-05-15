@@ -13,12 +13,12 @@ class ImageDto:
     id: int
     post_title: str
     post_date: str
+    file_path: str = ""
 
 
 class ImagesClass:
     def __init__(self):
         self.downloads_dir = os.path.expanduser("~") + "/Downloads"
-        self.have_images_in_downloads()
         self.replace_space_with_uderscore()
 
     def show_images(self):
@@ -61,19 +61,23 @@ class ImagesClass:
 
     def _get_installed_images(self) -> list[ImageDto]:
         images_from_command = Command.run_json(
-            "wp post list --post_type=attachment --format=json"
+            'wp eval \' $atts = get_posts(["post_type"=>"attachment","numberposts"=>-1]);'
+            ' $result = array_map(function($p) { $file = get_attached_file($p->ID);'
+            ' return ["ID" => (int)$p->ID, "post_title" => $p->post_title,'
+            ' "post_date" => $p->post_date, "file" => $file ? $file : ""]; }, $atts);'
+            " echo json_encode($result); '"
         )
         images: list[ImageDto] = []
 
         if not isinstance(images_from_command, list):
             print("Invalid image data:", images_from_command)
         else:
-            # Преобразуем каждый dict в ImageDto
             images = [
                 ImageDto(
                     id=img["ID"],
                     post_title=img["post_title"],
                     post_date=img["post_date"],
+                    file_path=img.get("file", ""),
                 )
                 for img in images_from_command
                 if all(k in img for k in ("ID", "post_title", "post_date"))
@@ -85,7 +89,7 @@ class ImagesClass:
     def delete_image(self):
         images = self._get_installed_images()
         images.sort(key=lambda x: x.post_date, reverse=True)
-        all_images = [f"{img.id}-{img.post_title}" for img in images]
+        all_images = [f"{img.id}-{img.post_title} ({os.path.basename(img.file_path)})" for img in images]
         selected_images = Select.select_with_fzf(all_images)
         image_ids = [img.split("-")[0] for img in selected_images]
         if not image_ids:
