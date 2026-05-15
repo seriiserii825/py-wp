@@ -1,3 +1,4 @@
+import pyperclip
 from pathlib import Path
 
 from classes.files.AbstractFileCreator import AbstractFileCreator
@@ -5,11 +6,13 @@ from classes.files.FileWriter import FileWriter
 from classes.files.PHPApiFileCreator import PHPApiFileCreator
 from classes.utils.Command import Command
 from classes.utils.InputValidator import InputValidator
+from classes.utils.Notification import Notification
+from classes.utils.Print import Print
 from classes.utils.Select import Select
 
 
 class ModuleFileCreator(AbstractFileCreator):
-    _EXTENSIONS = {"php": "php", "scss": "scss", "js": "ts", "phps": "php", "api": "php"}
+    _EXTENSIONS = {"php": "php", "scss": "scss", "js": "ts", "phps": "php", "api": "php", "icon": "php"}
 
     def __init__(self, module_path: str, file_type: str, preset_name: str | None = None):
         self._module_path = module_path
@@ -52,6 +55,9 @@ class ModuleFileCreator(AbstractFileCreator):
             case "api":
                 self._write_api(file_path)
                 return
+            case "icon":
+                self._write_icon(file_path)
+                return
 
         Command.run(f"bat '{Path(file_path).resolve()}'")
 
@@ -79,6 +85,19 @@ class ModuleFileCreator(AbstractFileCreator):
         name = Path(file_path).stem
         content = f"export default function {name}() {{\n}}\n"
         FileWriter.write_file(Path(file_path), content)
+
+    def _write_icon(self, file_path: str) -> None:
+        svg = pyperclip.paste()
+        if not svg.startswith("<svg"):
+            Print.error("Clipboard does not contain valid SVG data.")
+            return
+        FileWriter.write_file(Path(file_path), svg)
+        Command.run(f"bat '{Path(file_path).resolve()}'")
+        template_part = file_path.replace(".php", "")
+        text = f"<?php get_template_part('{template_part}'); ?>"
+        pyperclip.copy(text)
+        nt = Notification(title=text, message="Template part copied to clipboard")
+        nt.notify()
 
     # --- side effects ---
 
