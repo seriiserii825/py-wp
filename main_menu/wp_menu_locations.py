@@ -5,6 +5,9 @@ from main_menu.wp_menu_handler import wp_menu_handler
 
 def wp_menu_locations():
     wp_menu = WpMenuLocations()
+    if not wp_menu.file_exists:
+        wp_menu.show_missing_hint()
+        return
     options = [
         "0).Choose Location Slug",
         "01).List Locations",

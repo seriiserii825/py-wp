@@ -8,10 +8,19 @@ from classes.utils.Print import Print
 from classes.utils.Select import Select
 from classes.utils.WPPaths import WPPaths
 
-
 class WpMenuLocations:
     def __init__(self):
         self.setup_file_path = WPPaths.get_theme_path() / "inc" / "nav-menu.php"
+        self.file_exists = self.setup_file_path.exists()
+
+    def show_missing_hint(self):
+        print(
+            "[yellow]nav-menu.php not found.[/yellow]\n"
+            "1. Copy the menu registration code from [cyan]inc/ar-setup.php[/cyan]\n"
+            "2. Create [cyan]inc/nav-menu.php[/cyan] and paste it there\n"
+            "3. Add to ar-setup.php:\n"
+            "   [green]require get_template_directory() . '/inc/nav-menu.php';[/green]"
+        )
 
     def _read(self) -> str:
         return self.setup_file_path.read_text(encoding="utf-8")

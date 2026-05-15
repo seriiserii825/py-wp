@@ -157,7 +157,7 @@ def update_fields_order(section_file_json_path: str | Path):
             [script, str(section_file_json_path)],
             check=True,
             capture_output=True,
-            text=True
+            text=True,
         )
         print("stdout:", result.stdout)
         print("stderr:", result.stderr)

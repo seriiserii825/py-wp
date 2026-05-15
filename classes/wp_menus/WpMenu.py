@@ -5,8 +5,8 @@ from rich.console import Console
 from rich.table import Table
 
 from classes.utils.Command import Command
+from classes.utils.Menu import Menu
 from classes.utils.Print import Print
-from classes.utils.Select import Select
 
 
 class WpMenu:
@@ -25,12 +25,14 @@ class WpMenu:
 
     def create_and_assign(self):
         menus = Command.run_json("wp menu list --format=json")
-        options = ["+ Create new menu"] + [f"{m['slug']}  ({m['name']})" for m in menus]
-        choice = Select.select_fzf_one(options)
-        if not choice:
+        options = ["0.+ Create new menu"] + [
+            f"{i + 1}.{m['slug']}  ({m['name']})" for i, m in enumerate(menus)
+        ]
+        choice = Menu.select_fzf(options)
+        if choice == -1:
             return False
 
-        if choice == "+ Create new menu":
+        if choice == 0:
             name = input("  Menu name: ").strip()
             if not name:
                 Print.error("Name cannot be empty.")
@@ -46,7 +48,7 @@ class WpMenu:
                 name.lower().replace(" ", "-"),
             )
         else:
-            slug = choice.split("  (")[0]
+            slug = menus[choice - 1]["slug"]
 
         Command.run(f"wp menu location assign {shlex.quote(slug)} {shlex.quote(self.location)}")
         Print.success(f"Menu '{slug}' assigned to '{self.location}'.")
@@ -86,28 +88,28 @@ class WpMenu:
             Print.error(f"No menu assigned to location '{self.location}'.")
             return
 
-        choice = Select.select_fzf_one([
-            "Custom link",
-            "Post",
-            "Page",
-            "Category",
-            "Post type archive",
-            "Taxonomy term",
+        choice = Menu.select_fzf([
+            "0.Custom link",
+            "1.Post",
+            "2.Page",
+            "3.Category",
+            "4.Post type archive",
+            "5.Taxonomy term",
         ])
-        if not choice:
+        if choice == -1:
             return
 
-        if choice == "Custom link":
+        if choice == 0:
             self._add_custom(slug)
-        elif choice == "Post":
+        elif choice == 1:
             self._add_post(slug, "post")
-        elif choice == "Page":
+        elif choice == 2:
             self._add_post(slug, "page")
-        elif choice == "Category":
+        elif choice == 3:
             self._add_term(slug, "category")
-        elif choice == "Post type archive":
+        elif choice == 4:
             self._add_post_type_archive(slug)
-        elif choice == "Taxonomy term":
+        elif choice == 5:
             self._add_taxonomy_term(slug)
 
     def _add_custom(self, menu_slug: str):
@@ -128,11 +130,11 @@ class WpMenu:
         if not posts:
             Print.error(f"No {post_type}s found.")
             return
-        choice = Select.select_fzf_one([f"{p['ID']}  {p['post_title']}" for p in posts])
-        if not choice:
+        options = [f"{i}.{p['post_title']}" for i, p in enumerate(posts)]
+        choice = Menu.select_fzf(options)
+        if choice == -1:
             return
-        post_id = choice.split("  ")[0]
-        Command.run(f"wp menu item add-post {shlex.quote(menu_slug)} {post_id}")
+        Command.run(f"wp menu item add-post {shlex.quote(menu_slug)} {posts[choice]['ID']}")
 
     def _add_term(self, menu_slug: str, taxonomy: str):
         terms = Command.run_json(
@@ -141,11 +143,13 @@ class WpMenu:
         if not terms:
             Print.error(f"No terms in '{taxonomy}'.")
             return
-        choice = Select.select_fzf_one([f"{t['term_id']}  {t['name']}" for t in terms])
-        if not choice:
+        options = [f"{i}.{t['name']}" for i, t in enumerate(terms)]
+        choice = Menu.select_fzf(options)
+        if choice == -1:
             return
-        term_id = choice.split("  ")[0]
-        Command.run(f"wp menu item add-term {shlex.quote(menu_slug)} {taxonomy} {term_id}")
+        Command.run(
+            f"wp menu item add-term {shlex.quote(menu_slug)} {taxonomy} {terms[choice]['term_id']}"
+        )
 
     def _add_post_type_archive(self, menu_slug: str):
         post_types = Command.run_json(
@@ -154,10 +158,11 @@ class WpMenu:
         if not post_types:
             Print.error("No post types found.")
             return
-        choice = Select.select_fzf_one([f"{pt['name']}  ({pt['label']})" for pt in post_types])
-        if not choice:
+        options = [f"{i}.{pt['name']}  ({pt['label']})" for i, pt in enumerate(post_types)]
+        choice = Menu.select_fzf(options)
+        if choice == -1:
             return
-        post_type = choice.split("  (")[0]
+        post_type = post_types[choice]["name"]
         label = input(f"  Label [{post_type}]: ").strip() or post_type
         url = input(f"  URL [/{post_type}/]: ").strip() or f"/{post_type}/"
         Command.run(
@@ -172,10 +177,11 @@ class WpMenu:
         if not taxonomies:
             Print.error("No taxonomies found.")
             return
-        choice = Select.select_fzf_one([f"{t['name']}  ({t['label']})" for t in taxonomies])
-        if not choice:
+        options = [f"{i}.{t['name']}  ({t['label']})" for i, t in enumerate(taxonomies)]
+        choice = Menu.select_fzf(options)
+        if choice == -1:
             return
-        self._add_term(menu_slug, choice.split("  (")[0])
+        self._add_term(menu_slug, taxonomies[choice]["name"])
 
     def edit_item(self):
         slug = self._get_menu_slug()
@@ -190,36 +196,37 @@ class WpMenu:
             Print.error("No items in this menu.")
             return
 
-        item_choice = Select.select_fzf_one([
-            f"{item['db_id']}  {item['title']}  ({item.get('type_label', '')})"
-            for item in items
-        ])
-        if not item_choice:
+        item_options = [
+            f"{i}.{item['title']}  ({item.get('type_label', '')})"
+            for i, item in enumerate(items)
+        ]
+        item_choice = Menu.select_fzf(item_options)
+        if item_choice == -1:
             return
-        db_id = item_choice.split("  ")[0]
+        db_id = str(items[item_choice]["db_id"])
 
-        edit_mode = Select.select_fzf_one([
-            "Edit label / URL",
-            "Change to Custom link",
-            "Change to Post",
-            "Change to Page",
-            "Change to Category",
-            "Change to Taxonomy term",
+        edit_mode = Menu.select_fzf([
+            "0.Edit label / URL",
+            "1.Change to Custom link",
+            "2.Change to Post",
+            "3.Change to Page",
+            "4.Change to Category",
+            "5.Change to Taxonomy term",
         ])
-        if not edit_mode:
+        if edit_mode == -1:
             return
 
-        if edit_mode == "Edit label / URL":
+        if edit_mode == 0:
             self._edit_label_url(db_id)
-        elif edit_mode == "Change to Custom link":
+        elif edit_mode == 1:
             self._update_custom(db_id)
-        elif edit_mode == "Change to Post":
+        elif edit_mode == 2:
             self._update_post(db_id, "post")
-        elif edit_mode == "Change to Page":
+        elif edit_mode == 3:
             self._update_post(db_id, "page")
-        elif edit_mode == "Change to Category":
+        elif edit_mode == 4:
             self._update_term(db_id, "category")
-        elif edit_mode == "Change to Taxonomy term":
+        elif edit_mode == 5:
             self._update_taxonomy_term(db_id)
 
     def _edit_label_url(self, db_id: str):
@@ -254,11 +261,13 @@ class WpMenu:
         if not posts:
             Print.error(f"No {post_type}s found.")
             return
-        choice = Select.select_fzf_one([f"{p['ID']}  {p['post_title']}" for p in posts])
-        if not choice:
+        options = [f"{i}.{p['post_title']}" for i, p in enumerate(posts)]
+        choice = Menu.select_fzf(options)
+        if choice == -1:
             return
-        post_id = choice.split("  ")[0]
-        Command.run(f"wp menu item update {db_id} --type=post_type --object-id={post_id}")
+        Command.run(
+            f"wp menu item update {db_id} --type=post_type --object-id={posts[choice]['ID']}"
+        )
 
     def _update_term(self, db_id: str, taxonomy: str):
         terms = Command.run_json(
@@ -267,11 +276,13 @@ class WpMenu:
         if not terms:
             Print.error(f"No terms in '{taxonomy}'.")
             return
-        choice = Select.select_fzf_one([f"{t['term_id']}  {t['name']}" for t in terms])
-        if not choice:
+        options = [f"{i}.{t['name']}" for i, t in enumerate(terms)]
+        choice = Menu.select_fzf(options)
+        if choice == -1:
             return
-        term_id = choice.split("  ")[0]
-        Command.run(f"wp menu item update {db_id} --type=taxonomy --object-id={term_id}")
+        Command.run(
+            f"wp menu item update {db_id} --type=taxonomy --object-id={terms[choice]['term_id']}"
+        )
 
     def _update_taxonomy_term(self, db_id: str):
         taxonomies = Command.run_json(
@@ -280,10 +291,11 @@ class WpMenu:
         if not taxonomies:
             Print.error("No taxonomies found.")
             return
-        choice = Select.select_fzf_one([f"{t['name']}  ({t['label']})" for t in taxonomies])
-        if not choice:
+        options = [f"{i}.{t['name']}  ({t['label']})" for i, t in enumerate(taxonomies)]
+        choice = Menu.select_fzf(options)
+        if choice == -1:
             return
-        self._update_term(db_id, choice.split("  (")[0])
+        self._update_term(db_id, taxonomies[choice]["name"])
 
     def move_item(self):
         slug = self._get_menu_slug()
@@ -335,11 +347,11 @@ class WpMenu:
         if not items:
             Print.error("No items in this menu.")
             return
-        choice = Select.select_fzf_one([
-            f"{item['db_id']}  {item['title']}  ({item.get('type_label', '')})"
-            for item in items
-        ])
-        if not choice:
+        options = [
+            f"{i}.{item['title']}  ({item.get('type_label', '')})"
+            for i, item in enumerate(items)
+        ]
+        choice = Menu.select_fzf(options)
+        if choice == -1:
             return
-        db_id = choice.split("  ")[0]
-        Command.run(f"wp menu item delete {db_id}")
+        Command.run(f"wp menu item delete {items[choice]['db_id']}")
