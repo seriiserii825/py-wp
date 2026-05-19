@@ -18,7 +18,15 @@ from main_menu.wp_menu_locations import wp_menu_locations
 from modules.check_is_wp import check_is_wp
 
 
-def menu(to_import: bool = False):
+def menu(
+    to_import: bool = False,
+    menu_acf: bool = False,
+    menu_plugins: bool = False,
+    menu_backups: bool = False,
+    menu_images: bool = False,
+    menu_menus: bool = False,
+    menu_files: bool = False,
+):
     options = [
         "0).ACF",
         "01).Plugins",
@@ -34,6 +42,25 @@ def menu(to_import: bool = False):
         "11).Reset Settings",
         "12).Exit",
     ]
+    if menu_acf:
+        acf_func(to_import)
+        return menu()
+    elif menu_plugins:
+        plugins_menu()
+        return menu()
+    elif menu_backups:
+        backup_menu()
+        return menu()
+    elif menu_images:
+        image_menu()
+        return menu()
+    elif menu_menus:
+        wp_menu_locations()
+        return menu()
+    elif menu_files:
+        file_menu()
+        return menu()
+
     choice = Menu.select_fzf(options)
     if choice == 0:
         acf_func(to_import)
@@ -84,7 +111,33 @@ if __name__ == "__main__":
     parser.add_argument(
         "--to-import", action="store_true", help="Import ACF data instead of exporting"
     )
+    parser.add_argument(
+        "--menu-acf", action="store_true", help="Directly open the ACF menu"
+    )
+    parser.add_argument(
+        "--menu-plugins", action="store_true", help="Directly open the Plugins menu"
+    )
+    parser.add_argument(
+        "--menu-backups", action="store_true", help="Directly open the Backups menu"
+    )
+    parser.add_argument(
+        "--menu-images", action="store_true", help="Directly open the Images menu"
+    )
+    parser.add_argument(
+        "--menu-wp-menus", action="store_true", help="Directly open the Menus menu"
+    )
+    parser.add_argument(
+        "--menu-files", action="store_true", help="Directly open the Files menu"
+    )
     args = parser.parse_args()
     check_is_wp()
     WPPaths.initialize()
-    menu(to_import=args.to_import)
+    menu(
+        to_import=args.to_import,
+        menu_acf=args.menu_acf,
+        menu_plugins=args.menu_plugins,
+        menu_backups=args.menu_backups,
+        menu_images=args.menu_images,
+        menu_menus=args.menu_wp_menus,
+        menu_files=args.menu_files,
+    )
