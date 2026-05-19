@@ -3,7 +3,14 @@ import os
 import time
 from pathlib import Path
 
-from playwright.sync_api import sync_playwright, Playwright, Browser, BrowserContext, Page, TimeoutError as PlaywrightTimeoutError
+from playwright.sync_api import (
+    sync_playwright,
+    Playwright,
+    Browser,
+    BrowserContext,
+    Page,
+    TimeoutError as PlaywrightTimeoutError,
+)
 from rich.logging import RichHandler
 
 from classes.projects.Project import Project
@@ -13,7 +20,11 @@ logging.basicConfig(
     format="%(message)s",
     handlers=[
         RichHandler(rich_tracebacks=True, markup=True, show_path=False),
-        logging.FileHandler(Path(__file__).resolve().parent.parent.parent / "sessions" / "wp_playwright.log"),
+        logging.FileHandler(
+            Path(__file__).resolve().parent.parent.parent
+            / "sessions"
+            / "wp_playwright.log"
+        ),
     ],
 )
 log = logging.getLogger("WPPlaywright")
@@ -44,16 +55,14 @@ class WPPlaywright:
     def _make_context(self) -> BrowserContext:
         if Path(self.session_path).exists():
             log.debug("Loading saved session from file")
-            return self.browser.new_context(
-                storage_state=self.session_path, accept_downloads=True
-            )
-        log.debug("No saved session found, creating fresh context")
+            return self.browser.new_context(storage_state=self.session_path, accept_downloads=True)
+        log.debug("No saved session, creating fresh context")
         return self.browser.new_context(accept_downloads=True)
 
     def ensure_logged_in(self) -> None:
         log.info("Navigating to wp-admin")
         self.page.goto(f"{self.project_url}/wp-admin")
-        self.page.wait_for_load_state("networkidle")
+        self.page.wait_for_load_state("load")
         if "/wp-admin" in self.page.url and "wp-login" not in self.page.url:
             log.info("Already logged in")
             return
@@ -93,20 +102,29 @@ class WPPlaywright:
                 except Exception:
                     if attempt == 9:
                         raise
-                    log.warning(f"Server not ready, retrying in 5s... ({attempt + 1}/10)")
+                    log.warning(
+                        f"Server not ready, retrying in 5s... ({attempt + 1}/10)"
+                    )
                     time.sleep(5)
             self._wait_for_captcha()
+            log.debug(f"  actual URL after navigation: {self.page.url}")
             if self.page.locator("#user_login").count() > 0:
                 log.info(f"Login form found at: {url}")
                 return url
-            log.debug(f"No login form at: {url}")
+            log.debug(f"No login form at: {url} (ended up at {self.page.url})")
         return None
 
     def _wait_for_captcha(self, timeout: int = 60):
         try:
-            self.page.wait_for_selector(".aiowps-captcha-answer", state="visible", timeout=1_000)
-            log.warning(f"Captcha detected, waiting up to {timeout}s for it to be solved")
-            self.page.wait_for_selector(".aiowps-captcha-answer", state="hidden", timeout=timeout * 1_000)
+            self.page.wait_for_selector(
+                ".aiowps-captcha-answer", state="visible", timeout=1_000
+            )
+            log.warning(
+                f"Captcha detected, waiting up to {timeout}s for it to be solved"
+            )
+            self.page.wait_for_selector(
+                ".aiowps-captcha-answer", state="hidden", timeout=timeout * 1_000
+            )
             log.info("Captcha resolved")
         except PlaywrightTimeoutError:
             return
@@ -124,7 +142,9 @@ class WPPlaywright:
 
     # ── shared helpers ────────────────────────────────────────────────────────
 
-    def _find_and_click(self, css: str, *, index: int = 0, timeout: int = 10, js: bool = False) -> None:
+    def _find_and_click(
+        self, css: str, *, index: int = 0, timeout: int = 10, js: bool = False
+    ) -> None:
         idx_label = "last" if index == -1 else f"#{index}"
         log.debug(f"Searching {idx_label} [{css}]")
 
@@ -136,7 +156,11 @@ class WPPlaywright:
 
         element = locator.last if index == -1 else locator.nth(index)
         tag = element.evaluate("el => el.tagName.toLowerCase()")
-        text = (element.inner_text() or "").strip()[:40] or element.get_attribute("class") or ""
+        text = (
+            (element.inner_text() or "").strip()[:40]
+            or element.get_attribute("class")
+            or ""
+        )
         log.debug(f"Clicking <{tag}> '{text}' (js={js})")
 
         if js:
@@ -145,8 +169,11 @@ class WPPlaywright:
             element.click(timeout=30_000)
         log.debug(f"Clicked [{css}]")
 
-    def _get_visible_link_target(self, css: str, *, index: int = 0, timeout: int = 10) -> tuple[str, str]:
+    def _get_visible_link_target(
+        self, css: str, *, index: int = 0, timeout: int = 10
+    ) -> tuple[str, str]:
         from urllib.parse import urlparse
+
         idx_label = "last" if index == -1 else f"#{index}"
         log.debug(f"Resolving link {idx_label} [{css}]")
 
@@ -166,8 +193,12 @@ class WPPlaywright:
         log.debug(f"Link href: {href} | filename: {filename}")
         return href, filename
 
-    def _download_from_link(self, css: str, *, index: int = 0, timeout: int = 10) -> Path:
-        href, fallback_filename = self._get_visible_link_target(css, index=index, timeout=timeout)
+    def _download_from_link(
+        self, css: str, *, index: int = 0, timeout: int = 10
+    ) -> Path:
+        href, fallback_filename = self._get_visible_link_target(
+            css, index=index, timeout=timeout
+        )
         log.info(f"Starting download from: {href}")
 
         with self.page.expect_download(timeout=3_600_000) as download_info:

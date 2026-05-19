@@ -18,7 +18,7 @@ class WPPlaywrightCreateBackup(WPPlaywright):
     def make_backup_in_chrome(self) -> Path:
         backups_url = f"{self.project_url}/wp-admin/admin.php?page=ai1wm_export"
         self.page.goto(backups_url)
-        self.page.wait_for_load_state("networkidle")
+        self.page.wait_for_load_state("load")
 
         self._find_and_click(".ai1wm-button-export")
         time.sleep(1)

@@ -17,7 +17,7 @@ class WPPlaywrightDeleteBackup(WPPlaywright):
     def delete_backup_in_chrome(self):
         backups_url = f"{self.project_url}/wp-admin/admin.php?page=ai1wm_backups"
         self.page.goto(backups_url)
-        self.page.wait_for_load_state("networkidle")
+        self.page.wait_for_load_state("load")
         self._choose_backups_to_delete()
 
     def _choose_backups_to_delete(self):
@@ -42,7 +42,8 @@ class WPPlaywrightDeleteBackup(WPPlaywright):
                 self.page.once("dialog", lambda dialog: dialog.accept())
                 self._find_and_click(
                     '.ai1wm-backup-dots-menu[style*="block"] .ai1wm-backup-delete',
-                    index=0, js=True
+                    index=0,
+                    js=True,
                 )
                 time.sleep(2)
                 print(f"[green]Deleted backup {i + 1} of {num_backups}")
