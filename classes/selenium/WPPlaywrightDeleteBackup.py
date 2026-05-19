@@ -1,9 +1,8 @@
 import time
 
 from playwright.sync_api import TimeoutError as PlaywrightTimeoutError
-from rich import print
 
-from classes.selenium.WPPlaywright import WPPlaywright
+from classes.selenium.WPPlaywright import WPPlaywright, log
 
 
 class WPPlaywrightDeleteBackup(WPPlaywright):
@@ -16,21 +15,23 @@ class WPPlaywrightDeleteBackup(WPPlaywright):
 
     def delete_backup_in_chrome(self):
         backups_url = f"{self.project_url}/wp-admin/admin.php?page=ai1wm_backups"
+        log.info(f"Navigating to backups page: {backups_url}")
         self.page.goto(backups_url)
         self.page.wait_for_load_state("load")
+        log.debug(f"Current URL after goto: {self.page.url}")
         self._choose_backups_to_delete()
 
     def _choose_backups_to_delete(self):
-        number_of_backups = input("[green]Enter number of backups to delete: ").strip()
+        number_of_backups = input("Enter number of backups to delete: ").strip()
         if not number_of_backups:
-            exit("[red]Number of backups is empty!")
+            exit("Number of backups is empty!")
 
         try:
             num_backups = int(number_of_backups)
         except ValueError:
-            exit("[red]Please enter a valid number!")
+            exit("Please enter a valid number!")
 
-        print(f"Deleting {num_backups} backup(s)...")
+        log.info(f"Deleting {num_backups} backup(s)...")
 
         for i in range(num_backups):
             try:
@@ -46,8 +47,8 @@ class WPPlaywrightDeleteBackup(WPPlaywright):
                     js=True,
                 )
                 time.sleep(2)
-                print(f"[green]Deleted backup {i + 1} of {num_backups}")
+                log.info(f"Deleted backup {i + 1} of {num_backups}")
 
             except (PlaywrightTimeoutError, RuntimeError) as e:
-                print(f"[red]Error deleting backup {i + 1}: {e}")
+                log.error(f"Error deleting backup {i + 1}: {e}")
                 raise
