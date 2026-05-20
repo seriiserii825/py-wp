@@ -50,8 +50,5 @@ boccucia
 mtd fix
 iteco
 caire
-<<<<<<< HEAD
 web-academy to formazione
-=======
-dp arredamenti
->>>>>>> 9fdda8437c694f4ac2f7a9dd88e35342d97c122f
+arredamenti
