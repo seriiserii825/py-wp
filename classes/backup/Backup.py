@@ -15,19 +15,10 @@ class Backup:
     def make_backup(self):
         self.list_backup()
         self._delete_node_modules()
-        self._delete_vendor()
         Command.run("wp ai1wm backup")
         self._deleteMore3Backups()
         self.list_backup()
         self._last_backup_to_downloads()
-
-    def _delete_vendor(self):
-        path = self.theme_dir_path / "vendor"
-        if path.exists():
-            os.system(f'rm -rf "{path}"')
-            print("[blue]vendor deleted successfully.")
-        else:
-            print(f"[red]vendor not found: {path}")
 
     def _delete_node_modules(self):
         path = self.theme_dir_path / "node_modules"
