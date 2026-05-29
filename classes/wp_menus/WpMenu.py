@@ -59,6 +59,27 @@ class WpMenu:
                 return item
             Print.error(f"Invalid index '{raw}'. Valid: {', '.join(valid)}")
 
+    def _format_item(self, item: dict) -> str:
+        idx = item["_idx"]
+        indent = "  " if "." in idx else ""
+        return (
+            f"{indent}{idx:<6} {item['title']:<28}"
+            f"  {item.get('type_label', ''):<14}  {item.get('url', '')}"
+        )
+
+    def _ask_index_fzf(self, flat: list) -> dict | None:
+        opts = [self._format_item(i) for i in flat]
+        mapping = dict(zip(opts, flat))
+        from classes.utils.Select import Select
+        selected = Select.select_fzf_one(opts)
+        return mapping.get(selected) if selected else None
+
+    def _ask_indexes_fzf(self, flat: list) -> list:
+        opts = [self._format_item(i) for i in flat]
+        from classes.utils.Menu import Menu
+        indices = Menu.select_fzf_multi(opts)
+        return [flat[i] for i in indices]
+
     def _ask_insert(self, flat: list) -> tuple[int, int]:
         """Ask where to insert; returns (parent_db_id, wp_position 1-based)."""
         top_count = sum(1 for i in flat if "." not in i["_idx"])
@@ -209,13 +230,14 @@ class WpMenu:
         if not posts:
             Print.error(f"No {post_type}s found.")
             return
-        choice = Menu.select_fzf([f"{i}.{p['post_title']}" for i, p in enumerate(posts)])
-        if choice == -1:
+        indices = Menu.select_fzf_multi([f"{i}.{p['post_title']}" for i, p in enumerate(posts)])
+        if not indices:
             return
-        Command.run(
-            f"wp menu item add-post {shlex.quote(menu_slug)} {posts[choice]['ID']}"
-            + self._pos_args(position, parent_id)
-        )
+        for offset, idx in enumerate(indices):
+            Command.run(
+                f"wp menu item add-post {shlex.quote(menu_slug)} {posts[idx]['ID']}"
+                + self._pos_args(position + offset, parent_id)
+            )
 
     def _add_term(self, menu_slug: str, taxonomy: str, position: int, parent_id: int):
         terms = Command.run_json(
@@ -224,13 +246,14 @@ class WpMenu:
         if not terms:
             Print.error(f"No terms in '{taxonomy}'.")
             return
-        choice = Menu.select_fzf([f"{i}.{t['name']}" for i, t in enumerate(terms)])
-        if choice == -1:
+        indices = Menu.select_fzf_multi([f"{i}.{t['name']}" for i, t in enumerate(terms)])
+        if not indices:
             return
-        Command.run(
-            f"wp menu item add-term {shlex.quote(menu_slug)} {taxonomy} {terms[choice]['term_id']}"
-            + self._pos_args(position, parent_id)
-        )
+        for offset, idx in enumerate(indices):
+            Command.run(
+                f"wp menu item add-term {shlex.quote(menu_slug)} {taxonomy} {terms[idx]['term_id']}"
+                + self._pos_args(position + offset, parent_id)
+            )
 
     def _add_post_type_archive(self, menu_slug: str, position: int, parent_id: int):
         post_types = Command.run_json("wp post-type list --format=json --fields=name,label")
@@ -269,7 +292,9 @@ class WpMenu:
         if not flat:
             Print.error("No items in this menu.")
             return
-        item = self._ask_index(flat, "  Index to edit: ")
+        item = self._ask_index_fzf(flat)
+        if item is None:
+            return
         db_id = str(item["db_id"])
         slug = self._get_menu_slug()
         if slug is None:
@@ -383,32 +408,21 @@ class WpMenu:
         if not flat:
             Print.error("No items in this menu.")
             return
+        from_item = self._ask_index_fzf(flat)
+        if from_item is None:
+            return
         top_count = sum(1 for i in flat if "." not in i["_idx"])
-        valid = sorted(
-            {i["_idx"] for i in flat},
-            key=lambda x: [int(p) for p in x.split(".")],
-        )
         while True:
-            raw = input("  Move from,to (e.g. 2,4.1): ").strip()
-            parts = [p.strip() for p in raw.split(",")]
-            if len(parts) != 2:
-                Print.error("Format: from,to  (e.g. 2 or 4.0),  to (e.g. 3 or 4.1)")
-                continue
-            from_str, to_str = parts
-            from_item = self._find(flat, from_str)
-            if from_item is None:
-                Print.error(f"Invalid from index '{from_str}'. Valid: {', '.join(valid)}")
-                continue
+            to_str = input("  Move to position (e.g. 3 or 4.1): ").strip()
             to_result = self._parse_insert(flat, to_str, top_count)
-            if to_result is None:
-                Print.error(f"Invalid to position '{to_str}'. E.g. 3 or 4.1")
-                continue
-            parent_id, position = to_result
-            db_id = str(from_item["db_id"])
-            cmd = f"wp menu item update {db_id} --position={position}"
-            cmd += f" --parent-id={parent_id}" if parent_id else " --parent-id=0"
-            Command.run(cmd)
-            break
+            if to_result is not None:
+                break
+            Print.error(f"Invalid position '{to_str}'. E.g. 3 or 4.1")
+        parent_id, position = to_result
+        db_id = str(from_item["db_id"])
+        cmd = f"wp menu item update {db_id} --position={position}"
+        cmd += f" --parent-id={parent_id}" if parent_id else " --parent-id=0"
+        Command.run(cmd)
 
     # ------------------------------------------------------------------ delete
 
@@ -416,5 +430,8 @@ class WpMenu:
         if not flat:
             Print.error("No items in this menu.")
             return
-        item = self._ask_index(flat, "  Index to delete: ")
-        Command.run(f"wp menu item delete {item['db_id']}")
+        items = self._ask_indexes_fzf(flat)
+        if not items:
+            return
+        for item in items:
+            Command.run(f"wp menu item delete {item['db_id']}")

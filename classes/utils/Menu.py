@@ -55,3 +55,8 @@ class Menu:
     def select_fzf(cls, options: List[str]) -> int:
         option = Select.select_with_fzf(options)
         return options.index(option[0]) if option else -1
+
+    @classmethod
+    def select_fzf_multi(cls, options: List[str]) -> List[int]:
+        selected = Select.select_with_fzf(options)
+        return [options.index(o) for o in selected if o in options]
