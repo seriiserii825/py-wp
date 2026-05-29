@@ -15,16 +15,15 @@ from rich.logging import RichHandler
 
 from classes.projects.Project import Project
 
+_log_path = Path(__file__).resolve().parent.parent.parent / "sessions" / "wp_playwright.log"
+_log_path.parent.mkdir(parents=True, exist_ok=True)
+
 logging.basicConfig(
     level=logging.DEBUG,
     format="%(message)s",
     handlers=[
         RichHandler(rich_tracebacks=True, markup=True, show_path=False),
-        logging.FileHandler(
-            Path(__file__).resolve().parent.parent.parent
-            / "sessions"
-            / "wp_playwright.log"
-        ),
+        logging.FileHandler(_log_path),
     ],
 )
 log = logging.getLogger("WPPlaywright")
