@@ -107,9 +107,54 @@ def menu(
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser()
+    parser = argparse.ArgumentParser(
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        epilog="""\
+ACF import/export notes:
+  Plain `python main.py` (no --to-import) exports: it overwrites acf/*.json
+  with whatever is currently live in the WordPress DB, including its field
+  ORDER. If fields were ever reordered directly in wp-admin (drag & drop)
+  without going through this tool, that live order can be wrong/scrambled,
+  and a plain export will copy that broken order into acf/*.json, clobbering
+  any good order you had locally.
+
+  acf-snapshots/*.json (next to acf/) is NOT touched by export. It is the
+  separate, trusted record of the correct field order, taken the last time
+  someone confirmed it was right.
+
+  To fix a scrambled field order in WordPress (the symptom: fields/tabs show
+  in the wrong order, or split apart, in wp-admin "Edit field group"):
+
+    python main.py --menu-acf --to-import
+
+  `--menu-acf` is required together with `--to-import` to skip the
+  interactive fzf menu and run the import immediately. Running --to-import
+  by itself still asks you to pick "ACF" from the menu first.
+
+  What --to-import actually does (AcfTransfer.wp_import):
+    1. Re-applies the order recorded in acf-snapshots/*.json onto each
+       acf/*.json group (does NOT change the snapshot itself).
+    2. Runs `wp acf clean` + `wp acf import --all` to push field
+       definitions into the WordPress DB.
+    3. Writes the snapshot order directly into wp_posts.menu_order for
+       every field, because `wp acf import` does not reorder fields that
+       already exist in the DB on its own.
+
+  If acf-snapshots/*.json itself is missing or wrong for a group, fix the
+  order once in wp-admin (or in acf/*.json) and run the interactive ACF
+  Field Menu's "Reorder from snapshot" / upload flow to regenerate it,
+  before relying on --to-import again.
+""",
+    )
     parser.add_argument(
-        "--to-import", action="store_true", help="Import ACF data instead of exporting"
+        "--to-import",
+        action="store_true",
+        help=(
+            "Import ACF data instead of exporting: pushes acf/*.json into "
+            "WordPress and re-applies the field order from "
+            "acf-snapshots/*.json (use together with --menu-acf to skip the "
+            "menu prompt; see notes below)"
+        ),
     )
     parser.add_argument(
         "--menu-acf", action="store_true", help="Directly open the ACF menu"

@@ -54,7 +54,9 @@ The most complex subsystem, split into two concerns:
 - **`CreateSection`** — builds ACF field group JSON: asks for name and type (Page, CPT, Taxonomy, Options Page, Block), builds location rules, writes to `acf/*.json` using `Generate.get_group_id()`
 - **`EditSection`**, **`SelectSection`**, **`SectionMenu`** — CRUD UI for field groups
 
-**`AcfTransfer`** — wp-cli wrapper: `wp_export()` runs `wp acf export --all`, `wp_import()` runs `wp acf clean` then `wp acf import --all`.
+**`AcfTransfer`** — wp-cli wrapper. `wp_export()` runs `wp acf export --all` then re-sorts the exported `acf/*.json` files by `menu_order`. `wp_import()` does more than a plain `wp acf clean` + `wp acf import --all`: ACF's own export/import does NOT preserve field order (`menu_order` is always `None`/absent in exported JSON, and `wp acf import` won't reorder fields that already exist in the DB). So `wp_import()` also (1) applies the stored field order from `acf-snapshots/*.json` onto each `acf/*.json` via `AcfSnapshotService.reorder_from_snapshot()` before importing, and (2) after import, pushes that order into `wp_posts.menu_order` directly via `AcfTransfer.push_menu_order_to_db()` (runs `bash-scripts/json-acf-menu-order.sh`, one direct SQL `UPDATE` per field group) — this is the only thing that actually changes what the WP admin displays.
+
+**`AcfSnapshotService`** (`classes/acf/AcfSnapshotService.py`) — tracks the *intended* field order separately from `acf/*.json`, in `<theme>/acf-snapshots/<group-slug>.json` (slug derived from the group title). `save()` writes the snapshot FROM the current `acf/*.json` order (one-way, used to bootstrap/refresh a snapshot — never call this expecting it to apply order, it does the opposite of `reorder_from_snapshot`). `reorder_from_snapshot()` reads the snapshot and reorders a single `acf/*.json` group's fields to match it (recursing into `sub_fields`), matching fields by `name`/`label`, not `key` — so two fields sharing the same `name` will collide and one will silently drop out of the result.
 
 ### Command Execution
 `classes/utils/Command.py` wraps all subprocess/wp-cli calls:
