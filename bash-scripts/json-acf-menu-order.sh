@@ -19,7 +19,7 @@ readarray -t KEYS < <(jq -r '
   | .key
 ' "$JSON")
 
-[ "${#KEYS[@]}" -gt 0 ] || { echo "No .fields[].key in JSON"; exit 1; }
+[ "${#KEYS[@]}" -gt 0 ] || { echo "No .fields[].key in JSON, skipping menu_order update"; exit 0; }
 
 # 3) Генерим один SQL-пакет и применяем
 tmp="$(mktemp)"
