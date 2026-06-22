@@ -61,6 +61,13 @@ class AcfTransfer:
             Command.run("rm -rf acf")
             Command.run("wp acf export --all")
             AcfTransfer._sort_acf_json_files()
+            base_dir = WPPaths.get(PathKey.BASE)
+            for path in Path("acf").glob("*.json"):
+                try:
+                    AcfSnapshotService.reorder_from_snapshot(path, base_dir)
+                except FileNotFoundError:
+                    pass  # no snapshot yet for this group, keep current order
+            AcfSnapshotService.save(base_dir)
         except RuntimeError as e:
             Print.error(f"Error during ACF export: {e}")
             exit(1)
