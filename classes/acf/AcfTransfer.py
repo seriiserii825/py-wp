@@ -46,8 +46,10 @@ class AcfTransfer:
         return sorted_fields
 
     @staticmethod
-    def _sort_acf_json_files():
+    def _sort_acf_json_files(skip_path: Path | None = None):
         for path in Path("acf").glob("*.json"):
+            if skip_path and path.resolve() == skip_path.resolve():
+                continue
             data = json.loads(path.read_text(encoding="utf-8"))
             for group in data:
                 if group.get("fields"):
@@ -73,18 +75,34 @@ class AcfTransfer:
             exit(1)
 
     @staticmethod
-    def wp_import():
+    def wp_import(current_section_path: Path | str | None = None):
+        """Imports all acf/*.json into WordPress.
+
+        If `current_section_path` is given, it identifies the group the user
+        was just editing locally: its order must NOT be touched by the stale
+        acf-snapshots/*.json (that would silently revert the edit), and only
+        its own snapshot gets refreshed from the new order. Every other group
+        keeps the old behavior — reordered from its existing snapshot.
+        """
         try:
             Command.run_quiet("wp db check")  # check DB connection
-            AcfTransfer._sort_acf_json_files()
+            current_resolved = (
+                Path(current_section_path).resolve() if current_section_path else None
+            )
+            AcfTransfer._sort_acf_json_files(skip_path=current_resolved)
             base_dir = WPPaths.get(PathKey.BASE)
             acf_paths = list(Path("acf").glob("*.json"))
             for path in acf_paths:
+                if current_resolved and path.resolve() == current_resolved:
+                    continue
                 try:
                     AcfSnapshotService.reorder_from_snapshot(path, base_dir)
                 except FileNotFoundError:
                     pass  # no snapshot yet for this group, keep current order
-            AcfSnapshotService.save(base_dir)
+            if current_resolved:
+                AcfSnapshotService.save(base_dir, only_path=current_resolved)
+            else:
+                AcfSnapshotService.save(base_dir)
             Command.run("wp acf clean")
             Command.run("wp acf import --all")
             for path in acf_paths:

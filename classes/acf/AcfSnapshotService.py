@@ -30,11 +30,12 @@ class AcfSnapshotService:
         return result
 
     @staticmethod
-    def save(base_dir: Path) -> None:
+    def save(base_dir: Path, only_path: Path | None = None) -> None:
         snapshot_dir = base_dir / "acf-snapshots"
         snapshot_dir.mkdir(parents=True, exist_ok=True)
 
-        for path in Path("acf").glob("*.json"):
+        paths = [Path(only_path)] if only_path else Path("acf").glob("*.json")
+        for path in paths:
             data = json.loads(path.read_text(encoding="utf-8"))
             for group in data:
                 title = group.get("title", path.stem)
