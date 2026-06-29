@@ -217,6 +217,44 @@ class MySelenium:
             else:
                 exit(1)
 
+    def _handle_post_permalink_redirect(self) -> None:
+        """Handle redirects that can occur after saving permalinks.
+
+        After a restore, WordPress may redirect through:
+          1. upgrade.php?step=1  → click the DB-upgrade button
+          2. upgrade.php (done)  → click "Continua"
+          3. wp-login.php        → log in again
+        """
+        self.page.wait_for_load_state("load")
+        current = self.page.url
+
+        if "upgrade.php" in current:
+            print("[dim]>>> DB upgrade page detected, clicking upgrade button[/dim]")
+            upgrade_btn = self.page.locator("a.button-primary")
+            if upgrade_btn.count() > 0:
+                upgrade_btn.first.click()
+                self.page.wait_for_load_state("load")
+                current = self.page.url
+
+            if "upgrade.php" in current:
+                print("[dim]>>> Upgrade done page, clicking Continua[/dim]")
+                continua = self.page.locator("a.button:not(.button-primary)")
+                if continua.count() > 0:
+                    continua.first.click()
+                    self.page.wait_for_load_state("load")
+                    current = self.page.url
+
+        if "wp-login.php" in current:
+            print("[dim]>>> Login page after permalink save, re-authenticating[/dim]")
+            self.page.fill("#user_login", self.project_login)
+            self.page.fill("#user_pass", self.project_password)
+            self.page.click("#wp-submit")
+            self.page.wait_for_url(
+                lambda url: "/wp-admin" in url and "wp-login" not in url,
+                timeout=30_000,
+            )
+            print("[dim]>>> Re-login after permalink save successful[/dim]")
+
     def restore_backup_in_chrome(self):
         self._login(check_login_element=True)
         backups_url = f"{self.project_url}/wp-admin/admin.php?page=ai1wm_backups"
@@ -252,6 +290,7 @@ class MySelenium:
         save_permalink_url = f"{self.project_url}/wp-admin/options-permalink.php"
         self.page.goto(save_permalink_url)
         self.page.locator("#submit").click()
+        self._handle_post_permalink_redirect()
 
         plugins_url = f"{self.project_url}/wp-admin/plugins.php"
         self.page.goto(plugins_url)
