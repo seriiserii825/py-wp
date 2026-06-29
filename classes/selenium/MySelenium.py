@@ -4,19 +4,30 @@ from pathlib import Path
 from urllib.parse import urlparse
 from rich import print
 
-from playwright.sync_api import sync_playwright, Page, BrowserContext, TimeoutError as PlaywrightTimeoutError
+from playwright.sync_api import (
+    sync_playwright,
+    Page,
+    Browser,
+    BrowserContext,
+    TimeoutError as PlaywrightTimeoutError,
+)
 
 from classes.projects.Project import Project
+
+
+SESSIONS_DIR = Path(__file__).resolve().parent.parent.parent / "sessions"
+SESSIONS_DIR.mkdir(exist_ok=True)
 
 
 class MySelenium:
     def __init__(self):
         self.download_dir = str(Path.home() / "Downloads")
         self._playwright = sync_playwright().start()
-        self._launch_browser()
 
         current_dir_path = os.getcwd()
         self.theme_name = os.path.basename(current_dir_path)
+        self.session_path = str(SESSIONS_DIR / f"session_{self.theme_name}.json")
+
         self.pr = Project(self.theme_name)
         self.project = self.pr.getProject()
         self.project_login = self.project["login"]
@@ -24,30 +35,36 @@ class MySelenium:
         self.project_url = self.project["url"]
         self.sitem_login = self.pr.getLoginUrl(False)
 
-    def _launch_browser(self) -> None:
-        self.context: BrowserContext = self._playwright.chromium.launch_persistent_context(
-            user_data_dir=str(Path.home() / ".config/google-chrome/My-profile"),
-            channel="chrome",
-            headless=False,
-            downloads_path=self.download_dir,
-            accept_downloads=True,
-        )
-        # Reuse existing tab from restored session; close extras
-        pages = self.context.pages
-        if pages:
-            self.page: Page = pages[0]
-            for extra in pages[1:]:
-                extra.close()
+        self._launch_browser()
+
+    def _launch_browser(self, *, fresh: bool = False) -> None:
+        self._browser: Browser = self._playwright.chromium.launch(headless=False)
+        session_file = Path(self.session_path)
+        if not fresh and session_file.exists():
+            print(f"[dim]Loading saved session: {self.session_path}[/dim]")
+            self.context: BrowserContext = self._browser.new_context(
+                storage_state=self.session_path,
+                accept_downloads=True,
+            )
         else:
-            self.page = self.context.new_page()
+            self.context = self._browser.new_context(accept_downloads=True)
+        self.page: Page = self.context.new_page()
 
     def _restart_browser(self) -> None:
-        """Close current context and relaunch — needed after WordPress restore."""
+        """Close current browser and relaunch with a fresh context — needed after WordPress restore."""
         try:
             self.context.close()
         except Exception:
             pass
-        self._launch_browser()
+        try:
+            self._browser.close()
+        except Exception:
+            pass
+        self._launch_browser(fresh=True)
+
+    def _save_session(self) -> None:
+        self.context.storage_state(path=self.session_path)
+        print(f"[dim]Session saved → {self.session_path}[/dim]")
 
     def _find_login_url(self) -> str | None:
         """Try login URLs in order, return the first one that shows the login form."""
@@ -97,18 +114,9 @@ class MySelenium:
             lambda url: "/wp-admin" in url and "wp-login" not in url,
             timeout=30_000,
         )
+        self._save_session()
 
     def _find_and_click(self, css: str, *, index: int = 0, timeout: int = 10, js: bool = False) -> None:
-        """Find element by CSS, log result, and click.
-
-        Filters to visible+enabled elements only, then picks by index.
-
-        Args:
-            css: CSS selector string
-            index: which visible match to use (0=first, -1=last)
-            timeout: seconds to wait for at least one visible+enabled element
-            js: use JavaScript click (avoids scroll/overlay interference)
-        """
         idx_label = "last" if index == -1 else f"#{index}"
         print(f"[dim]>>> searching {idx_label} [{css}][/dim]")
 
@@ -118,7 +126,6 @@ class MySelenium:
         count = locator.count()
         print(f"[dim]    found {count} element(s)[/dim]")
 
-        # Use locator (not element handle) to avoid stale-element errors during animations
         element = locator.last if index == -1 else locator.nth(index)
 
         tag = element.evaluate("el => el.tagName.toLowerCase()")
@@ -128,7 +135,6 @@ class MySelenium:
         if js:
             element.dispatch_event("click")
         else:
-            # click() handles scroll + actionability internally
             element.click(timeout=30_000)
 
         print(f"[dim]    clicked[/dim]")
@@ -172,35 +178,22 @@ class MySelenium:
         print(f"Бэкап успешно загружен: {save_path}")
         return save_path
 
-    def make_backup_in_chrome(self):
-        self._login()
-        backups_url = f"{self.project_url}/wp-admin/admin.php?page=ai1wm_export"
-        self.page.goto(backups_url)
-
-        self._find_and_click(".ai1wm-button-export")
-        time.sleep(1)
-        self._find_and_click("#ai1wm-export-file")
-
-        print("Начинается загрузка бэкапа...")
-
+    def _close(self) -> None:
         try:
-            return self._download_from_link(
-                ".ai1wm-modal-container a[download]",
-                timeout=1800,
-            )
-        except PlaywrightTimeoutError as e:
-            print(f"Ошибка: {e}")
-            raise
-        finally:
             self.context.close()
-            self._playwright.stop()
+        except Exception:
+            pass
+        try:
+            self._browser.close()
+        except Exception:
+            pass
+        self._playwright.stop()
 
     def _wait_for_captcha(self, timeout: int = 60):
         try:
             self.page.wait_for_selector(
                 ".aiowps-captcha-answer", state="visible", timeout=1_000
             )
-            # Captcha present — wait until user solves it
             self.page.wait_for_selector(
                 ".aiowps-captcha-answer", state="hidden", timeout=timeout * 1_000
             )
@@ -253,7 +246,30 @@ class MySelenium:
                 lambda url: "/wp-admin" in url and "wp-login" not in url,
                 timeout=30_000,
             )
+            self._save_session()
             print("[dim]>>> Re-login after permalink save successful[/dim]")
+
+    def make_backup_in_chrome(self):
+        self._login()
+        backups_url = f"{self.project_url}/wp-admin/admin.php?page=ai1wm_export"
+        self.page.goto(backups_url)
+
+        self._find_and_click(".ai1wm-button-export")
+        time.sleep(1)
+        self._find_and_click("#ai1wm-export-file")
+
+        print("Начинается загрузка бэкапа...")
+
+        try:
+            return self._download_from_link(
+                ".ai1wm-modal-container a[download]",
+                timeout=1800,
+            )
+        except PlaywrightTimeoutError as e:
+            print(f"Ошибка: {e}")
+            raise
+        finally:
+            self._close()
 
     def restore_backup_in_chrome(self):
         self._login(check_login_element=True)
@@ -281,7 +297,7 @@ class MySelenium:
         )
         time.sleep(1)
 
-        # WordPress restarts after restore — context is killed; relaunch browser
+        # WordPress restarts after restore — relaunch with fresh context (old cookies invalid)
         time.sleep(3)
         self._restart_browser()
 
@@ -296,21 +312,18 @@ class MySelenium:
         self.page.goto(plugins_url)
         self._find_and_click("#activate-wps-hide-login")
 
-        self.context.close()
-        self._playwright.stop()
+        self._close()
 
     def download_last_backup_from_server(self):
         self._login()
         backups_url = f"{self.project_url}/wp-admin/admin.php?page=ai1wm_backups"
         self.page.goto(backups_url)
 
-        # Click dots on the first (latest) backup row in tbody
         self._find_and_click("table.ai1wm-backups tbody tr .ai1wm-backup-dots", index=0, js=True)
         time.sleep(1)
 
         print("Начинается загрузка последнего бэкапа с сервера...")
 
-        # The download link has no class — select by [download] attr inside the open dropdown
         try:
             return self._download_from_link(
                 '.ai1wm-backup-dots-menu[style*="block"] a[download]',
@@ -320,8 +333,7 @@ class MySelenium:
             print(f"Ошибка: {e}")
             raise
         finally:
-            self.context.close()
-            self._playwright.stop()
+            self._close()
 
     def delete_backup_in_chrome(self):
         self._login()
@@ -348,7 +360,6 @@ class MySelenium:
                 )
                 time.sleep(2)
 
-                # Accept the confirmation dialog before clicking delete
                 self.page.once("dialog", lambda dialog: dialog.accept())
                 self._find_and_click(
                     '.ai1wm-backup-dots-menu[style*="block"] .ai1wm-backup-delete',
