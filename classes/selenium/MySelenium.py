@@ -89,9 +89,26 @@ class MySelenium:
                 return url
         return None
 
+    def _click_through_db_upgrade(self) -> None:
+        """Click through the WordPress DB upgrade page if currently on it (no-op otherwise)."""
+        if "upgrade.php" not in self.page.url:
+            return
+        print("[dim]>>> DB upgrade page, clicking upgrade button[/dim]")
+        self.page.locator("a.button-primary").first.wait_for(state="visible", timeout=10_000)
+        self.page.locator("a.button-primary").first.click()
+        self.page.wait_for_load_state("load")
+
+        if "upgrade.php" in self.page.url:
+            print("[dim]>>> Upgrade done page, clicking Continua[/dim]")
+            continua = self.page.locator("a.button:not(.button-primary)")
+            if continua.count() > 0:
+                continua.first.click()
+                self.page.wait_for_load_state("load")
+
     def _login(self, check_login_element: bool = False):
         """Navigate to login page, handle captcha, and submit credentials."""
         self.page.goto(f"{self.project_url}/wp-admin")
+        self._click_through_db_upgrade()
         if "/wp-admin" in self.page.url and "wp-login" not in self.page.url:
             return
 
@@ -210,6 +227,14 @@ class MySelenium:
             else:
                 exit(1)
 
+    def _handle_db_upgrade_if_needed(self) -> None:
+        """Click through upgrade.php then navigate back to options-permalink.php if needed."""
+        self._click_through_db_upgrade()
+        if "options-permalink.php" not in self.page.url:
+            print("[dim]>>> Navigating back to options-permalink.php[/dim]")
+            self.page.goto(f"{self.project_url}/wp-admin/options-permalink.php")
+            self.page.wait_for_load_state("load")
+
     def _handle_post_permalink_redirect(self) -> None:
         """Handle redirects that can occur after saving permalinks.
 
@@ -219,23 +244,8 @@ class MySelenium:
           3. wp-login.php        → log in again
         """
         self.page.wait_for_load_state("load")
+        self._click_through_db_upgrade()
         current = self.page.url
-
-        if "upgrade.php" in current:
-            print("[dim]>>> DB upgrade page detected, clicking upgrade button[/dim]")
-            upgrade_btn = self.page.locator("a.button-primary")
-            if upgrade_btn.count() > 0:
-                upgrade_btn.first.click()
-                self.page.wait_for_load_state("load")
-                current = self.page.url
-
-            if "upgrade.php" in current:
-                print("[dim]>>> Upgrade done page, clicking Continua[/dim]")
-                continua = self.page.locator("a.button:not(.button-primary)")
-                if continua.count() > 0:
-                    continua.first.click()
-                    self.page.wait_for_load_state("load")
-                    current = self.page.url
 
         if "wp-login.php" in current:
             print("[dim]>>> Login page after permalink save, re-authenticating[/dim]")
@@ -305,6 +315,8 @@ class MySelenium:
 
         save_permalink_url = f"{self.project_url}/wp-admin/options-permalink.php"
         self.page.goto(save_permalink_url)
+        self.page.wait_for_load_state("load")
+        self._handle_db_upgrade_if_needed()
         self.page.locator("#submit").click()
         self._handle_post_permalink_redirect()
 
