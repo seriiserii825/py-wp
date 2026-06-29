@@ -323,6 +323,10 @@ class MySelenium:
         plugins_url = f"{self.project_url}/wp-admin/plugins.php"
         self.page.goto(plugins_url)
         self._find_and_click("#activate-wps-hide-login")
+        try:
+            self._find_and_click("#activate-altuofianco-theme-login")
+        except PlaywrightTimeoutError:
+            print("[dim]    altuofianco-theme-login not found, skipping[/dim]")
 
         self._close()
 
