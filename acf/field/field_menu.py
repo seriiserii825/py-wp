@@ -1,6 +1,7 @@
 import shutil
 
 from pathlib import Path
+from rich import print
 from classes.acf.AcfTransfer import AcfTransfer
 from classes.acf.field.FieldMenu import FieldMenu
 from classes.utils.Menu import Menu
@@ -73,6 +74,11 @@ def acf_menu(section_file_json_path):
             f_menu.create_field()
             render()
         elif choice == 5:
+            print(
+                "[yellow]Note: if the field is moved into another group/tab, "
+                "that group must be opened ('Show Only Tab/Group Fields' or "
+                "'Show All Fields') to see the result.[/yellow]"
+            )
             try:
                 f_menu.move_field()
                 render()
@@ -80,6 +86,11 @@ def acf_menu(section_file_json_path):
                 print(f"Error moving field: {e}")
                 render()
         elif choice == 6:
+            print(
+                "[yellow]Note: if the fields are moved into another group/tab, "
+                "that group must be opened ('Show Only Tab/Group Fields' or "
+                "'Show All Fields') to see the result.[/yellow]"
+            )
             f_menu.move_multiple_fields()
             render()
         elif choice == 7:
