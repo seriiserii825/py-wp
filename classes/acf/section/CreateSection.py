@@ -22,7 +22,7 @@ class CreateSection:
 
     @classmethod
     def add_name_and_file_path(cls):
-        name = InputValidator.get_string("Enter section name: ")
+        name = InputValidator.get_string("Enter section name (e.g. Page About): ")
         cls.section_name = name
         cls._set_file_name(name)
         cls._set_file_path(cls.file_name)
