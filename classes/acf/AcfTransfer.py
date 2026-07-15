@@ -1,4 +1,5 @@
 import json
+import shlex
 import subprocess
 from pathlib import Path
 
@@ -61,7 +62,7 @@ class AcfTransfer:
         try:
             Command.run_quiet("wp db check")  # check DB connection
             Command.run("rm -rf acf")
-            Command.run("wp acf export --all")
+            Command.run("wp acf export --all --export_path=acf/")
             AcfTransfer._sort_acf_json_files()
             base_dir = WPPaths.get(PathKey.BASE)
             for path in Path("acf").glob("*.json"):
@@ -104,7 +105,8 @@ class AcfTransfer:
             else:
                 AcfSnapshotService.save(base_dir)
             Command.run("wp acf clean")
-            Command.run("wp acf import --all")
+            for path in acf_paths:
+                Command.run(f"wp acf import --json_file={shlex.quote(str(path.resolve()))}")
             for path in acf_paths:
                 AcfTransfer.push_menu_order_to_db(path)
         except RuntimeError as e:
