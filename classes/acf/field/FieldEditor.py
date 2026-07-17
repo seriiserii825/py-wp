@@ -12,7 +12,12 @@ class FieldEditor:
 
     def edit_field(self, data, fields):
         index_path = InputValidator.get_string("Enter field index (e.g. 1.2): ")
-        target = self.mover.get_field_by_index(fields, index_path)
+        try:
+            target = self.mover.get_field_by_index(fields, index_path)
+        except (IndexError, ValueError, KeyError) as e:
+            Print.error(f"Invalid index '{index_path}': {e}")
+            return
+
         if not isinstance(target, dict):
             Print.error("Invalid field at that index.")
             return

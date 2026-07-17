@@ -12,7 +12,10 @@ class FieldMover:
         for idx in index_path[:-1]:
             if idx is None:
                 raise ValueError("Only the last index can be auto-appended")
-            field = fields[idx]
+            try:
+                field = fields[idx]
+            except IndexError:
+                raise IndexError(f"Field at index '{idx}' does not exist.")
             if "sub_fields" not in field:
                 if create:
                     field["sub_fields"] = []
