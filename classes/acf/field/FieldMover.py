@@ -1,3 +1,6 @@
+from typing import cast
+
+
 class FieldMover:
     @staticmethod
     def parse_index_path(index_str: str) -> list[int | None]:
@@ -33,7 +36,7 @@ class FieldMover:
     def insert_field_into(cls, parent, index, field):
         parent.insert(index, field)
 
-    def move_field(self, fields, source_str, dest_str):
+    def move_field(self, fields, source_str, dest_str) -> list[int]:
         source = self.parse_index_path(source_str)
         dest = self.parse_index_path(dest_str)
 
@@ -45,7 +48,7 @@ class FieldMover:
             dest[-1] = len(dest_parent)
 
         if source == dest:
-            return  # nothing to do
+            return cast(list[int], dest)  # nothing to do
 
         # Adjust destination index if necessary
         dest_index = dest[-1]
@@ -56,6 +59,7 @@ class FieldMover:
         # Pop and insert
         field = self.pop_field(fields, source)
         self.insert_field_into(dest_parent, dest_index, field)
+        return cast(list[int], dest[:-1] + [dest_index])
 
     def _should_adjust_indices(self, source, dest):
         return source[:-1] == dest[:-1] and source[-1] < dest[-1]

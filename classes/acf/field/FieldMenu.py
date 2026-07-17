@@ -1,4 +1,5 @@
 from pathlib import Path
+from typing import cast
 
 from classes.acf.AcfSnapshotService import AcfSnapshotService
 from classes.acf.field.factories.FieldFactory import create_field
@@ -21,6 +22,7 @@ class FieldMenu:
         self.deleter = FieldDeleter(self.repo, self.mover)
         self.duplicator = FieldDuplicator(self.repo, self.mover)
         self.copy_group = GroupCopy(file_path)
+        self.last_created_index: list[int] | None = None
 
     def show_all(self) -> None:
         _, fields = self._load_fields()
@@ -75,23 +77,69 @@ class FieldMenu:
     def create_field(self) -> None:
         data, fields = self._load_fields()
         new_field = self.creator.create()
+        count = len(new_field) if isinstance(new_field, list) else 1
         if isinstance(new_field, list):
             fields.extend(new_field)
         else:
             fields.append(new_field)
-        self._move_after_create(fields, data)
+        self._move_after_create(fields, data, count)
         self.repo.save(data)
         print("Field created and saved.")
 
-    def _move_after_create(self, fields: list, data) -> None:
+    def _move_after_create(self, fields: list, data, count: int = 1) -> None:
         try:
-            source_index = str(len(fields) - 1)
-            dest = InputValidator.get_string("Enter destination index (e.g. 0.1): ")
-            self.mover.move_field(fields, source_index, dest)
+            dest = self._ask_destination_for_new_field(fields)
+            if count > 1:
+                final_path = self._move_block(fields, count, dest)
+            else:
+                source_index = str(len(fields) - 1)
+                final_path = self.mover.move_field(fields, source_index, dest)
             self.repo.save(data)
+            self.last_created_index = final_path
             print("Field moved successfully.")
         except Exception as e:
             print(f"Error moving newly created field: {e}")
+
+    def _move_block(self, fields: list, count: int, dest: str) -> list[int]:
+        source_start = len(fields) - count
+        block = [fields.pop(source_start) for _ in range(count)]
+
+        dest_path = self.mover.parse_index_path(dest)
+        dest_parent = self.mover.get_field_container(fields, dest_path, create=True)
+        insert_at = dest_path[-1]
+        if insert_at is None:
+            insert_at = len(dest_parent)
+
+        for offset, field in enumerate(block):
+            self.mover.insert_field_into(dest_parent, insert_at + offset, field)
+
+        return cast(list[int], dest_path[:-1] + [insert_at + len(block) - 1])
+
+    def _ask_destination_for_new_field(self, fields: list) -> str:
+        suggested = self._suggest_next_index(fields)
+        if suggested is not None:
+            use_suggested = InputValidator.get_bool_true_default(
+                f"Insert right after the last created field, at index {suggested}? (Y/n): "
+            )
+            if use_suggested:
+                return suggested
+        return InputValidator.get_string("Enter destination index (e.g. 0.1): ")
+
+    def _suggest_next_index(self, fields: list) -> str | None:
+        if self.last_created_index is None:
+            return None
+        try:
+            parent = self.mover.get_field_container(fields, self.last_created_index)
+            last_field = parent[self.last_created_index[-1]]
+        except (IndexError, KeyError):
+            return None
+
+        path = list(self.last_created_index)
+        if last_field.get("type") in ("group", "repeater"):
+            path.append(0)
+        else:
+            path[-1] += 1
+        return ".".join(str(p) for p in path)
 
     def move_field(self) -> str:
         data, fields = self._load_fields()

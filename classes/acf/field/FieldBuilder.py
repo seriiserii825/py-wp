@@ -63,7 +63,7 @@ class FieldBuilder:
         ):
             print("Creating group under the tab...")
             group_field = self.create_group(label)
-            return [group_field, tab_field]
+            return [tab_field, group_field]
         return [tab_field]
 
     def create_group(self, label: str) -> dict:
