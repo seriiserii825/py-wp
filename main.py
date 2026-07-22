@@ -22,6 +22,7 @@ def menu(
     to_import: bool = False,
     menu_acf: bool = False,
     menu_plugins: bool = False,
+    menu_pages: bool = False,
     menu_backups: bool = False,
     menu_images: bool = False,
     menu_menus: bool = False,
@@ -60,6 +61,9 @@ def menu(
     elif menu_files:
         file_menu()
         return menu()
+    elif menu_pages:
+        page_menu()
+        exit(0)
 
     choice = Menu.select_fzf(options)
     if choice == 0:
@@ -163,6 +167,9 @@ ACF import/export notes:
         "--menu-plugins", action="store_true", help="Directly open the Plugins menu"
     )
     parser.add_argument(
+        "--menu-pages", action="store_true", help="Directly open the Pages menu"
+    )
+    parser.add_argument(
         "--menu-backups", action="store_true", help="Directly open the Backups menu"
     )
     parser.add_argument(
@@ -181,6 +188,7 @@ ACF import/export notes:
         to_import=args.to_import,
         menu_acf=args.menu_acf,
         menu_plugins=args.menu_plugins,
+        menu_pages=args.menu_pages,
         menu_backups=args.menu_backups,
         menu_images=args.menu_images,
         menu_menus=args.menu_wp_menus,
