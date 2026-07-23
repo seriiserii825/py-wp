@@ -13,6 +13,7 @@ from main_menu.init import init, reset_settings
 from main_menu.page_menu import page_menu
 from main_menu.plugins_menu import plugins_menu
 from main_menu.site_settings_menu import site_settings_menu
+from main_menu.taxonomy_menu import taxonomy_menu
 from main_menu.theme_menu import theme_menu
 from main_menu.wp_menu_locations import wp_menu_locations
 from modules.check_is_wp import check_is_wp
@@ -27,6 +28,7 @@ def menu(
     menu_images: bool = False,
     menu_menus: bool = False,
     menu_files: bool = False,
+    menu_taxonomy: bool = False,
 ):
     options = [
         "0).ACF",
@@ -34,14 +36,15 @@ def menu(
         "02).Backups",
         "03).Images",
         "04).Pages",
-        "05).Themes",
-        "06).Menus",
-        "07).Contact Form",
-        "08).Files",
-        "09).Site Settings",
-        "10).Init",
-        "11).Reset Settings",
-        "12).Exit",
+        "05).Taxonomy",
+        "06).Themes",
+        "07).Menus",
+        "08).Contact Form",
+        "09).Files",
+        "10).Site Settings",
+        "11).Init",
+        "12).Reset Settings",
+        "13).Exit",
     ]
     if menu_acf:
         acf_func(to_import)
@@ -64,6 +67,9 @@ def menu(
     elif menu_pages:
         page_menu()
         exit(0)
+    elif menu_taxonomy:
+        taxonomy_menu()
+        return menu()
 
     choice = Menu.select_fzf(options)
     if choice == 0:
@@ -82,27 +88,30 @@ def menu(
         page_menu()
         exit(0)
     elif choice == 5:
-        theme_menu()
+        taxonomy_menu()
         menu()
     elif choice == 6:
-        wp_menu_locations()
+        theme_menu()
         menu()
     elif choice == 7:
-        contact_form_menu()
+        wp_menu_locations()
         menu()
     elif choice == 8:
-        file_menu()
+        contact_form_menu()
         menu()
     elif choice == 9:
-        site_settings_menu()
+        file_menu()
         menu()
     elif choice == 10:
+        site_settings_menu()
+        menu()
+    elif choice == 11:
         init()
         exit(0)
-    elif choice == 11:
+    elif choice == 12:
         reset_settings()
         exit(0)
-    elif choice == 12:
+    elif choice == 13:
         print("Exiting the program. Goodbye!")
         exit(0)
     else:
@@ -181,6 +190,11 @@ ACF import/export notes:
     parser.add_argument(
         "--menu-files", action="store_true", help="Directly open the Files menu"
     )
+    parser.add_argument(
+        "--menu-taxonomy",
+        action="store_true",
+        help="Directly open the Taxonomy menu",
+    )
     args = parser.parse_args()
     check_is_wp()
     WPPaths.initialize()
@@ -193,4 +207,5 @@ ACF import/export notes:
         menu_images=args.menu_images,
         menu_menus=args.menu_wp_menus,
         menu_files=args.menu_files,
+        menu_taxonomy=args.menu_taxonomy,
     )
