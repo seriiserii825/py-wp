@@ -32,6 +32,7 @@ class Taxonomy:
     @classmethod
     def init_terms(cls, taxonomy: str):
         raw_terms = Command.run_json(
-            f"wp term list {taxonomy} --fields=term_id,name,slug --format=json"
+            f"wp term list {taxonomy} "
+            "--fields=term_id,name,slug,parent --format=json"
         )
         cls.terms = [TermDto(**t) for t in raw_terms]

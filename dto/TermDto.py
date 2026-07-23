@@ -6,3 +6,4 @@ class TermDto:
     term_id: int
     name: str
     slug: str
+    parent: int
