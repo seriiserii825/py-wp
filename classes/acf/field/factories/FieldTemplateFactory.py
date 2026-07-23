@@ -41,6 +41,15 @@ class FieldTemplateFactory:
                 base.update({"return_format": "array"})
             case EFieldType.POST_OBJECT:
                 base.update({"return_format": "id"})
+            case EFieldType.PAGE_LINK:
+                base.update({
+                    "post_type": [dto.post_type] if dto.post_type else [],
+                    "post_status": "",
+                    "taxonomy": "",
+                    "allow_archives": 0,
+                    "multiple": 0,
+                    "allow_null": 0,
+                })
             case EFieldType.TAB:
                 base.update({"placement": "top", "endpoint": 0})
             case EFieldType.NUMBER:

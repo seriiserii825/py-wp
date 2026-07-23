@@ -18,7 +18,7 @@ class FieldCreator:
             name = self.builder.label_to_name(label)
         key = Generate.get_field_id()
 
-        if selected_type == EFieldType.POST_OBJECT:
+        if selected_type in {EFieldType.POST_OBJECT, EFieldType.PAGE_LINK}:
             post_type = self.builder.ask_post_type()
         else:
             post_type = ""

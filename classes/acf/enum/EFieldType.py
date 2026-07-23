@@ -15,3 +15,4 @@ class EFieldType(Enum):
     MESSAGE = "message"
     POST_OBJECT = "post_object"
     NUMBER = "number"
+    PAGE_LINK = "page_link"

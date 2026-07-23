@@ -4,6 +4,7 @@ from classes.acf.field.fields_dir.GalleryField import GalleryField
 from classes.acf.field.fields_dir.GroupField import GroupField
 from classes.acf.field.fields_dir.ImageField import ImageField
 from classes.acf.field.fields_dir.MessageField import MessageField
+from classes.acf.field.fields_dir.PageLinkField import PageLinkField
 from classes.acf.field.fields_dir.PostObjectField import PostObjectField
 from classes.acf.field.fields_dir.RepeaterField import RepeaterField
 from classes.acf.field.fields_dir.TabField import TabField
@@ -41,6 +42,8 @@ def create_field(field_data):
             return MessageField(field_data)
         case "post_object":
             return PostObjectField(field_data)
+        case "page_link":
+            return PageLinkField(field_data)
         case "number":
             return NumberField(field_data)
         case _:
