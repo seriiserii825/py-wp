@@ -27,9 +27,6 @@ class AcfTransfer:
                 capture_output=True,
                 text=True,
             )
-            print("stdout:", result.stdout)
-            if result.stderr.strip():
-                print("stderr:", result.stderr)
             return result.returncode
         except subprocess.CalledProcessError as e:
             Print.error(f"Error running {script}: {e}")
