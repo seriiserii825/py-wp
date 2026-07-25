@@ -30,8 +30,8 @@ class Page:
             return
         selected = PageSelector.select_pages(unignored)
         if selected:
-            PageFileHandler.add_ignored_id(selected[0])
-            Print.success(f"Ignored page ID {selected[0]}")
+            PageFileHandler.add_ignored_ids(selected)
+            Print.success(f"Ignored page IDs: {', '.join(str(i) for i in selected)}")
         ignored_ids = PageFileHandler.get_ignored_ids()
         PageDisplayer.display(
             "Ignored Pages",

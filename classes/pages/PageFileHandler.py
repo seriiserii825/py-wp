@@ -26,14 +26,21 @@ class PageFileHandler:
 
     @staticmethod
     def add_ignored_id(new_id: int):
+        PageFileHandler.add_ignored_ids([new_id])
+
+    @staticmethod
+    def add_ignored_ids(new_ids: list[int]):
+        if not new_ids:
+            return
         path = PageFileHandler.get_func_file_path()
         with open(path, "r") as f:
             lines = f.readlines()
 
+        suffix = "".join(f",{new_id}" for new_id in new_ids)
         updated = []
         for line in lines:
             if "$ids" in line:
-                line = line.replace("];", f",{new_id}];")
+                line = line.replace("];", f"{suffix}];")
             updated.append(line)
 
         with open(path, "w") as f:
