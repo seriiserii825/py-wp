@@ -63,8 +63,9 @@ class FieldMenu:
             print("No tab/group fields found.")
             return None
 
+        width = len(str(len(fields) - 1))
         options = [
-            f"{idx}) {fd.get('label', fd.get('name', '?'))} ({fd.get('type')})"
+            f"{idx:0{width}d}) {fd.get('label', fd.get('name', '?'))} ({fd.get('type')})"
             for idx, fd in tab_groups
         ]
         selected = Select.select_with_fzf(options)
