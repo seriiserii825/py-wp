@@ -21,17 +21,16 @@ class AcfTransfer:
         section_file_json_path = Path(section_file_json_path).resolve()
 
         try:
+            # No capture_output: let the script's own progress echoes stream
+            # straight to the terminal instead of appearing only once done.
             result = subprocess.run(
                 [script, str(section_file_json_path)],
                 check=True,
-                capture_output=True,
                 text=True,
             )
             return result.returncode
         except subprocess.CalledProcessError as e:
             Print.error(f"Error running {script}: {e}")
-            print("stdout:", e.stdout)
-            print("stderr:", e.stderr)
             return e.returncode
 
     @staticmethod
@@ -45,17 +44,16 @@ class AcfTransfer:
         script = f"{script_dir}/bash-scripts/json-acf-delete-single-group.sh"
 
         try:
+            # No capture_output: let the script's own progress echoes stream
+            # straight to the terminal instead of appearing only once done.
             result = subprocess.run(
                 [script, str(section_file_json_path)],
                 check=True,
-                capture_output=True,
                 text=True,
             )
             return result.returncode
         except subprocess.CalledProcessError as e:
             Print.error(f"Error running {script}: {e}")
-            print("stdout:", e.stdout)
-            print("stderr:", e.stderr)
             return e.returncode
 
     @staticmethod
@@ -148,11 +146,14 @@ class AcfTransfer:
             path = Path(section_file_json_path).resolve()
             base_dir = WPPaths.get(PathKey.BASE)
             AcfSnapshotService.save(base_dir, only_path=path)
+            Print.info(f"Deleting existing group from WordPress: {path.name}")
             if AcfTransfer._delete_single_group(path) != 0:
                 raise RuntimeError(
                     f"Failed to delete existing group before reimport: {path}"
                 )
+            Print.info(f"Importing group: {path.name}")
             Command.run(f"wp acf import --json_file={shlex.quote(str(path))}")
+            Print.info("Updating field order in WordPress...")
             AcfTransfer.push_menu_order_to_db(path)
         except RuntimeError as e:
             Print.error(f"Error during ACF single import: {e}")
