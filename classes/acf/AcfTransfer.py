@@ -34,12 +34,14 @@ class AcfTransfer:
             return e.returncode
 
     @staticmethod
-    def _delete_single_group(section_file_json_path: Path) -> int:
+    def delete_single_group(section_file_json_path: Path) -> int:
         """Runs json-acf-delete-single-group.sh to remove one field group
         (and its whole field tree) from WordPress. `wp acf clean` only wipes
-        every group at once, so this is what lets a single group be
-        reimported without clean-then-reimport-all and without duplicating
-        the group in the DB."""
+        every group at once, so this is what lets a single group be removed
+        or reimported without clean-then-reimport-all and without
+        duplicating the group in the DB. Public: also used directly by
+        EditSection.delete_section() when a section is deleted locally and
+        the user wants that reflected in WordPress too."""
         script_dir = WPPaths.get_script_dir_path()
         script = f"{script_dir}/bash-scripts/json-acf-delete-single-group.sh"
 
@@ -137,7 +139,7 @@ class AcfTransfer:
         """Imports a single acf/*.json file into WordPress without touching
         any other field group. `wp acf clean` has no per-group flag, so
         instead of clean-then-reimport-everything, this deletes only this
-        group's existing posts (see `_delete_single_group`) before
+        group's existing posts (see `delete_single_group`) before
         reimporting it — this is what makes uploading one group fast when
         there are many acf/*.json files, and avoids duplicating the group.
         """
@@ -147,7 +149,7 @@ class AcfTransfer:
             base_dir = WPPaths.get(PathKey.BASE)
             AcfSnapshotService.save(base_dir, only_path=path)
             Print.info(f"Deleting existing group from WordPress: {path.name}")
-            if AcfTransfer._delete_single_group(path) != 0:
+            if AcfTransfer.delete_single_group(path) != 0:
                 raise RuntimeError(
                     f"Failed to delete existing group before reimport: {path}"
                 )

@@ -1,5 +1,6 @@
 import json
 import os
+from pathlib import Path
 from typing import Any, Optional
 
 from classes.acf.AcfTransfer import AcfTransfer
@@ -117,7 +118,7 @@ class EditSection:
             "Do you want to import the updated ACF data? (y/n): "
         )
         if want_to_import:
-            AcfTransfer.wp_import()
+            AcfTransfer.wp_import_single(file_path)
             Print.success("ACF data imported successfully.")
 
     @staticmethod
@@ -128,14 +129,14 @@ class EditSection:
             f"Delete '{file_name}'? (y/n): "
         )
         if confirm:
+            want_to_delete_remote = InputValidator.get_bool(
+                "Do you want to delete this group from WordPress too? (y/n): "
+            )
+            if want_to_delete_remote:
+                AcfTransfer.delete_single_group(Path(file_path).resolve())
+                Print.success("Group deleted from WordPress.")
             os.remove(file_path)
             Print.success(f"Section '{file_name}' deleted.")
-            want_to_import = InputValidator.get_bool(
-                "Do you want to import the updated ACF data? (y/n): "
-            )
-            if want_to_import:
-                AcfTransfer.wp_import()
-                Print.success("ACF data imported successfully.")
 
     @staticmethod
     def _prompt_location() -> Optional[dict[str, Any]]:

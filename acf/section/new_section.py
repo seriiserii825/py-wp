@@ -15,19 +15,19 @@ def new_section():
 
     if choice == 0:
         CreateSection.new_acf_page()
-        AcfTransfer.wp_import()
+        AcfTransfer.wp_import_single(CreateSection.file_path)
     elif choice == 1:
         CreateSection.new_acf_custom_post_type()
-        AcfTransfer.wp_import()
+        AcfTransfer.wp_import_single(CreateSection.file_path)
     elif choice == 2:
         CreateSection.new_acf_taxonomy()
-        AcfTransfer.wp_import()
+        AcfTransfer.wp_import_single(CreateSection.file_path)
     elif choice == 3:
         CreateSection.new_acf_options_page()
-        AcfTransfer.wp_import()
+        AcfTransfer.wp_import_single(CreateSection.file_path)
     elif choice == 4:
         CreateSection.new_block()
-        AcfTransfer.wp_import()
+        AcfTransfer.wp_import_single(CreateSection.file_path)
     else:
         Print.error("Invalid choice. Please try again.")
         return
