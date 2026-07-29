@@ -35,6 +35,30 @@ class AcfTransfer:
             return e.returncode
 
     @staticmethod
+    def _delete_single_group(section_file_json_path: Path) -> int:
+        """Runs json-acf-delete-single-group.sh to remove one field group
+        (and its whole field tree) from WordPress. `wp acf clean` only wipes
+        every group at once, so this is what lets a single group be
+        reimported without clean-then-reimport-all and without duplicating
+        the group in the DB."""
+        script_dir = WPPaths.get_script_dir_path()
+        script = f"{script_dir}/bash-scripts/json-acf-delete-single-group.sh"
+
+        try:
+            result = subprocess.run(
+                [script, str(section_file_json_path)],
+                check=True,
+                capture_output=True,
+                text=True,
+            )
+            return result.returncode
+        except subprocess.CalledProcessError as e:
+            Print.error(f"Error running {script}: {e}")
+            print("stdout:", e.stdout)
+            print("stderr:", e.stderr)
+            return e.returncode
+
+    @staticmethod
     def _sort_fields(fields: list) -> list:
         sorted_fields = sorted(fields, key=lambda f: f.get("menu_order", 0))
         for field in sorted_fields:
@@ -108,4 +132,28 @@ class AcfTransfer:
                 AcfTransfer.push_menu_order_to_db(path)
         except RuntimeError as e:
             Print.error(f"Error during ACF import: {e}")
+            exit(1)
+
+    @staticmethod
+    def wp_import_single(section_file_json_path: Path | str):
+        """Imports a single acf/*.json file into WordPress without touching
+        any other field group. `wp acf clean` has no per-group flag, so
+        instead of clean-then-reimport-everything, this deletes only this
+        group's existing posts (see `_delete_single_group`) before
+        reimporting it — this is what makes uploading one group fast when
+        there are many acf/*.json files, and avoids duplicating the group.
+        """
+        try:
+            Command.run_quiet("wp db check")  # check DB connection
+            path = Path(section_file_json_path).resolve()
+            base_dir = WPPaths.get(PathKey.BASE)
+            AcfSnapshotService.save(base_dir, only_path=path)
+            if AcfTransfer._delete_single_group(path) != 0:
+                raise RuntimeError(
+                    f"Failed to delete existing group before reimport: {path}"
+                )
+            Command.run(f"wp acf import --json_file={shlex.quote(str(path))}")
+            AcfTransfer.push_menu_order_to_db(path)
+        except RuntimeError as e:
+            Print.error(f"Error during ACF single import: {e}")
             exit(1)

@@ -131,7 +131,7 @@ def acf_menu(section_file_json_path):
 def upload_changes(section_file_json_path: str | Path):
     print("Uploading changes to WordPress...")
     copy_acf_folder_to_downloads()
-    AcfTransfer.wp_import(current_section_path=section_file_json_path)
+    AcfTransfer.wp_import_single(section_file_json_path)
     print("Upload completed.")
 
 
