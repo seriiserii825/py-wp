@@ -93,7 +93,7 @@ class FieldBuilder:
             )
         return 0
 
-    def default_value_for_true_false(self, field_type: EFieldType) -> int:
+    def ask_default_value(self, field_type: EFieldType) -> int | str:
         if field_type == EFieldType.TRUE_FALSE:
             return (
                 1
@@ -102,9 +102,26 @@ class FieldBuilder:
                 )
                 else 0
             )
+        if field_type in {
+            EFieldType.TEXT,
+            EFieldType.TEXTAREA,
+            EFieldType.WYSIWYG,
+            EFieldType.NUMBER,
+        }:
+            if InputValidator.get_bool(
+                "Do you want to set a default value for this field? (y/n): "
+            ):
+                return InputValidator.get_string("Enter default value: ")
+            return ""
         return 0
 
-    def ask_post_type(self) -> str:
+    def ask_post_type(self, field_type: EFieldType | None = None) -> str:
+        if field_type == EFieldType.PAGE_LINK:
+            use_default = InputValidator.get_bool_true_default(
+                "Use default post type 'page'? 'n' for no, 'y' by default: "
+            )
+            if use_default:
+                return "page"
         entity_type = self._choose_type()
         if entity_type == 0:
             return "page"

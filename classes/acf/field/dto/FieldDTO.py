@@ -14,6 +14,6 @@ class FieldDTO:
     width: int = 100
     message: str = ""
     ui: int = 0
-    default: int = 0
+    default: int | str = 0
     aria_label: str = field(default="", metadata={"alias": "aria-label"})
     post_type: str = ""

@@ -1,3 +1,4 @@
+from classes.acf.enum.EFieldType import EFieldType
 from classes.acf.field.FieldBuilder import FieldBuilder
 from classes.utils.InputValidator import InputValidator
 from classes.utils.Print import Print
@@ -49,6 +50,9 @@ class FieldEditor:
         attrs["exit"] = "Exit edit mode"
         return attrs
 
+    def _type_enum(self, target) -> EFieldType:
+        return EFieldType(target["type"])
+
     def _edit_attribute(self, attr, target):
         if attr == "required":
             self._edit_required(target, attr)
@@ -61,9 +65,11 @@ class FieldEditor:
         elif attr == "layout":
             self._edit_layout(target)
         elif attr == "ui":
-            target[attr] = self.builder.ui_for_true_false(target["type"])
+            field_type = self._type_enum(target)
+            target[attr] = self.builder.ui_for_true_false(field_type)
         elif attr == "default_value":
-            target[attr] = self.builder.default_value_for_true_false(target["type"])
+            field_type = self._type_enum(target)
+            target[attr] = self.builder.ask_default_value(field_type)
         else:
             self._edit_generic(target, attr)
 
@@ -83,6 +89,8 @@ class FieldEditor:
         if field.get("type") == "true_false":
             attributes["ui"] = field.get("ui", 0)
             attributes["default_value"] = field.get("default_value", 0)
+        elif field.get("type") in {"text", "textarea", "wysiwyg", "number"}:
+            attributes["default_value"] = field.get("default_value", "")
 
         return attributes
 
@@ -105,7 +113,7 @@ class FieldEditor:
         return InputValidator.get_bool(message)
 
     def _edit_required(self, target, attr):
-        new_value = self.builder.ask_required(target["type"])
+        new_value = self.builder.ask_required(self._type_enum(target))
         target[attr] = 0 if not new_value else "true"
 
     def _edit_type(self, target):
@@ -119,12 +127,12 @@ class FieldEditor:
         target["name"] = new_name
 
     def _edit_width(self, target):
-        width = self.builder.ask_width(target["type"])
+        width = self.builder.ask_width(self._type_enum(target))
         target.setdefault("wrapper", {})["width"] = width
 
     def _edit_generic(self, target, attr):
         target[attr] = self.set_attribute_value(attr)
 
     def _edit_layout(self, target):
-        layout = self.builder.ask_layout(target["type"])
+        layout = self.builder.ask_layout(self._type_enum(target))
         target["layout"] = layout

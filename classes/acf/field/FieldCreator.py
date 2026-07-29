@@ -19,7 +19,7 @@ class FieldCreator:
         key = Generate.get_field_id()
 
         if selected_type in {EFieldType.POST_OBJECT, EFieldType.PAGE_LINK}:
-            post_type = self.builder.ask_post_type()
+            post_type = self.builder.ask_post_type(selected_type)
         else:
             post_type = ""
 
@@ -27,7 +27,7 @@ class FieldCreator:
         layout = self.builder.ask_layout(selected_type)
         message = self.builder.ask_message(selected_type)
         ui = self.builder.ui_for_true_false(selected_type)
-        true_false_default = self.builder.default_value_for_true_false(selected_type)
+        default_value = self.builder.ask_default_value(selected_type)
 
         field = FieldDTO(
             key=key,
@@ -41,7 +41,7 @@ class FieldCreator:
             post_type=post_type,
             width=width,
             ui=ui,
-            default=true_false_default,
+            default=default_value,
         )
 
         if selected_type == EFieldType.TAB:
