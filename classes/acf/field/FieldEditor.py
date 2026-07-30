@@ -23,8 +23,11 @@ class FieldEditor:
             Print.error("Invalid field at that index.")
             return
 
+        parsed_path = self.mover.parse_index_path(index_path)
+        inside_repeater = self.mover.is_path_inside_repeater(fields, parsed_path)
+
         while True:
-            attributes = self.get_all_attributes(target)
+            attributes = self.get_all_attributes(target, inside_repeater)
             editable = self._get_editable(attributes)
             editable["back"] = "Back"
             self._print_attributes(editable)
@@ -73,7 +76,7 @@ class FieldEditor:
         else:
             self._edit_generic(target, attr)
 
-    def get_all_attributes(self, field):
+    def get_all_attributes(self, field, inside_repeater: bool = False):
         attributes = {
             "key": field.get("key", ""),
             "label": field.get("label", ""),
@@ -88,8 +91,9 @@ class FieldEditor:
 
         if field.get("type") == "true_false":
             attributes["ui"] = field.get("ui", 0)
-            attributes["default_value"] = field.get("default_value", 0)
-        elif field.get("type") in {"text", "textarea", "number"}:
+            if not inside_repeater:
+                attributes["default_value"] = field.get("default_value", 0)
+        elif field.get("type") in {"text", "textarea", "number"} and not inside_repeater:
             attributes["default_value"] = field.get("default_value", "")
 
         return attributes

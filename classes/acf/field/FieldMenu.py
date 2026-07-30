@@ -77,19 +77,21 @@ class FieldMenu:
 
     def create_field(self) -> None:
         data, fields = self._load_fields()
-        new_field = self.creator.create()
+        dest = self._ask_destination_for_new_field(fields)
+        dest_path = self.mover.parse_index_path(dest)
+        inside_repeater = self.mover.is_path_inside_repeater(fields, dest_path)
+        new_field = self.creator.create(inside_repeater=inside_repeater)
         count = len(new_field) if isinstance(new_field, list) else 1
         if isinstance(new_field, list):
             fields.extend(new_field)
         else:
             fields.append(new_field)
-        self._move_after_create(fields, data, count)
+        self._move_to_destination(fields, data, count, dest)
         self.repo.save(data)
         print("Field created and saved.")
 
-    def _move_after_create(self, fields: list, data, count: int = 1) -> None:
+    def _move_to_destination(self, fields: list, data, count: int, dest: str) -> None:
         try:
-            dest = self._ask_destination_for_new_field(fields)
             if count > 1:
                 final_path = self._move_block(fields, count, dest)
             else:

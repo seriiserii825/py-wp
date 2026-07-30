@@ -9,7 +9,7 @@ class FieldCreator:
     def __init__(self):
         self.builder = FieldBuilder()  # noqa: F821
 
-    def create(self) -> dict | list[dict]:
+    def create(self, inside_repeater: bool = False) -> dict | list[dict]:
         label = self.builder.ask_label()
         selected_type = self.builder.ask_field_type()
         if selected_type == EFieldType.TAB:
@@ -27,7 +27,9 @@ class FieldCreator:
         layout = self.builder.ask_layout(selected_type)
         message = self.builder.ask_message(selected_type)
         ui = self.builder.ui_for_true_false(selected_type)
-        default_value = self.builder.ask_default_value(selected_type)
+        default_value = (
+            0 if inside_repeater else self.builder.ask_default_value(selected_type)
+        )
 
         field = FieldDTO(
             key=key,

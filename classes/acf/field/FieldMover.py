@@ -11,6 +11,18 @@ class FieldMover:
         return result
 
     @staticmethod
+    def is_path_inside_repeater(fields, index_path) -> bool:
+        current = fields
+        for idx in index_path[:-1]:
+            if idx is None:
+                raise ValueError("Only the last index can be auto-appended")
+            field = current[idx]
+            if field.get("type") == "repeater":
+                return True
+            current = field.get("sub_fields", [])
+        return False
+
+    @staticmethod
     def get_field_container(fields, index_path, create=False):
         for idx in index_path[:-1]:
             if idx is None:
