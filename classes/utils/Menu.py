@@ -58,5 +58,6 @@ class Menu:
 
     @classmethod
     def select_fzf_multi(cls, options: List[str]) -> List[int]:
+        Print.info("Use <Tab> to select multiple items, <Enter> to confirm.")
         selected = Select.select_with_fzf(options)
         return [options.index(o) for o in selected if o in options]
