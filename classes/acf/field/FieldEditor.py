@@ -89,7 +89,7 @@ class FieldEditor:
         if field.get("type") == "true_false":
             attributes["ui"] = field.get("ui", 0)
             attributes["default_value"] = field.get("default_value", 0)
-        elif field.get("type") in {"text", "textarea", "wysiwyg", "number"}:
+        elif field.get("type") in {"text", "textarea", "number"}:
             attributes["default_value"] = field.get("default_value", "")
 
         return attributes

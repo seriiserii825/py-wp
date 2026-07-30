@@ -105,7 +105,6 @@ class FieldBuilder:
         if field_type in {
             EFieldType.TEXT,
             EFieldType.TEXTAREA,
-            EFieldType.WYSIWYG,
             EFieldType.NUMBER,
         }:
             if InputValidator.get_bool(
