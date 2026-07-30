@@ -65,7 +65,7 @@ class ModuleFileCreator(AbstractFileCreator):
 
     def _write_php(self, file_path: str) -> None:
         name = Path(file_path).stem
-        content = f"<?php\nif (!defined('ABSPATH')) exit;\n?>\n\n<div class=\"{name}\">\n</div>\n"
+        content = f"<?php\nif (!defined('ABSPATH')) exit;\n?>\n\n<section class=\"{name}\">\n</section>\n"
         FileWriter.write_file(Path(file_path), content)
         self._offer_get_template_part(file_path)
 

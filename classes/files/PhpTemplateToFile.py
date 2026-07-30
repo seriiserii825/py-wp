@@ -11,7 +11,7 @@ class PhpTemplateToFile:
     @staticmethod
     def php_to_file(file_path: str) -> str:
         file_name = Path(file_path).stem
-        html = f'<?php \n\n ?>\n<div class="{file_name}">\n</div>\n'
+        html = f'<?php \n\n ?>\n<section class="{file_name}">\n</section>\n'
         FileWriter.write_file(Path(file_path), html)
 
         choice = InputValidator.get_bool(
