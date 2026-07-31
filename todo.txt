@@ -34,3 +34,4 @@ ristoteatro
 tsp
 sicuro
 gimsec
+foresteria
