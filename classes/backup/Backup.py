@@ -128,7 +128,8 @@ class Backup:
             last_backup = self.get_last_backup_path()
             print(f"[green]Backup created and copied to /mnt/Projects/{last_backup}")
         else:
-            exit("[red]Directory /mnt/Projects not exists!")
+            print("[red]Directory /mnt/Projects not exists!")
+            exit(1)
 
     def remove_backups_on_mnt_by_count(self, mnt_path, count=10):
         if os.path.isdir(mnt_path):

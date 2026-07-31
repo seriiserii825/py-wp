@@ -3,6 +3,7 @@ import time
 from pathlib import Path
 from urllib.parse import urlparse
 from rich import print
+from rich.console import Console
 
 from playwright.sync_api import (
     sync_playwright,
@@ -286,7 +287,7 @@ class MySelenium:
         backups_url = f"{self.project_url}/wp-admin/admin.php?page=ai1wm_backups"
         self.page.goto(backups_url)
 
-        agree_to_delete = input("[red]Do you want to delete existing backups? [y/n]: ")
+        agree_to_delete = Console().input("[red]Do you want to delete existing backups? [y/n]: ")
         if agree_to_delete == "y":
             self.choose_backups_to_delete()
         else:
@@ -358,14 +359,16 @@ class MySelenium:
         self.choose_backups_to_delete()
 
     def choose_backups_to_delete(self):
-        number_of_backups = input("[green]Enter number of backups to delete: ").strip()
+        number_of_backups = Console().input("[green]Enter number of backups to delete: ").strip()
         if not number_of_backups:
-            exit("[red]Number of backups is empty!")
+            print("[red]Number of backups is empty!")
+            exit(1)
 
         try:
             num_backups = int(number_of_backups)
         except ValueError:
-            exit("[red]Please enter a valid number!")
+            print("[red]Please enter a valid number!")
+            exit(1)
 
         print(f"Number of backups: {num_backups}")
 

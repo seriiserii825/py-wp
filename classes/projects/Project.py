@@ -1,5 +1,7 @@
 import csv
 
+from rich import print
+
 from classes.utils.WPPaths import WPPaths
 
 

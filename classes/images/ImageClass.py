@@ -2,6 +2,7 @@ import os
 
 from dataclasses import dataclass
 from rich import print
+from rich.console import Console
 
 from classes.utils.Command import Command
 from classes.utils.Menu import Menu
@@ -96,7 +97,7 @@ class ImagesClass:
             print("[red]No images selected for deletion.")
             return
         print(f"[yellow]Deleting images with IDs: {', '.join(image_ids)}")
-        agree = input("[yellow]Are you sure you want to delete these images? (y/n): ")
+        agree = Console().input("[yellow]Are you sure you want to delete these images? (y/n): ")
         if agree.lower() != "y":
             print("[red]Deletion cancelled.")
             return

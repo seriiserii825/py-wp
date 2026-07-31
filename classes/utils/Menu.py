@@ -1,5 +1,7 @@
 from typing import List
 
+from rich import print
+
 from classes.utils.MyTable import MyTable
 from classes.utils.Print import Print
 from classes.utils.Select import Select

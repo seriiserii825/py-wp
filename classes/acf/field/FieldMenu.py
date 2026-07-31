@@ -1,6 +1,8 @@
 from pathlib import Path
 from typing import cast
 
+from rich import print
+
 from classes.acf.AcfSnapshotService import AcfSnapshotService
 from classes.acf.field.factories.FieldFactory import create_field
 from classes.acf.field.FieldCreator import FieldCreator
