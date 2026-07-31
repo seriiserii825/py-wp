@@ -114,6 +114,15 @@ class FieldBuilder:
             return ""
         return 0
 
+    def empty_default_value(self, field_type: EFieldType) -> int | str:
+        if field_type in {
+            EFieldType.TEXT,
+            EFieldType.TEXTAREA,
+            EFieldType.NUMBER,
+        }:
+            return ""
+        return 0
+
     def ask_post_type(self, field_type: EFieldType | None = None) -> str:
         if field_type == EFieldType.PAGE_LINK:
             use_default = InputValidator.get_bool_true_default(

@@ -4,6 +4,7 @@ from typing import cast
 from rich import print
 
 from classes.acf.AcfSnapshotService import AcfSnapshotService
+from classes.acf.enum.EFieldType import EFieldType
 from classes.acf.field.factories.FieldFactory import create_field
 from classes.acf.field.FieldCreator import FieldCreator
 from classes.acf.field.FieldDeleter import FieldDeleter
@@ -79,10 +80,13 @@ class FieldMenu:
 
     def create_field(self) -> None:
         data, fields = self._load_fields()
+        label, selected_type = self.creator.ask_label_and_type()
+        new_field = self.creator.create(label, selected_type)
         dest = self._ask_destination_for_new_field(fields)
         dest_path = self.mover.parse_index_path(dest)
         inside_repeater = self.mover.is_path_inside_repeater(fields, dest_path)
-        new_field = self.creator.create(inside_repeater=inside_repeater)
+        if inside_repeater:
+            self._strip_default_value(new_field, selected_type)
         count = len(new_field) if isinstance(new_field, list) else 1
         if isinstance(new_field, list):
             fields.extend(new_field)
@@ -91,6 +95,15 @@ class FieldMenu:
         self._move_to_destination(fields, data, count, dest)
         self.repo.save(data)
         print("Field created and saved.")
+
+    def _strip_default_value(
+        self, new_field: dict | list[dict], selected_type: EFieldType
+    ) -> None:
+        entries = new_field if isinstance(new_field, list) else [new_field]
+        empty_value = self.creator.builder.empty_default_value(selected_type)
+        for entry in entries:
+            if "default_value" in entry:
+                entry["default_value"] = empty_value
 
     def _move_to_destination(self, fields: list, data, count: int, dest: str) -> None:
         try:
