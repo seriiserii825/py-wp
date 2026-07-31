@@ -141,29 +141,47 @@ class ImagesClass:
 
     def upload_all(self):
         images = self.get_images()
-        self.import_images(images)
+        self.import_images(images, ask_bulk_png=True)
 
     def select_images(self):
         images = self.get_images()
         selected_images = Select.select_with_fzf(images)
         self.import_images(selected_images)
 
-    def import_images(self, images: list[str]):
+    def import_images(self, images: list[str], ask_bulk_png: bool = False):
+        convert_all_png = False
+        ask_png_individually = True
+
+        if ask_bulk_png and any(image.endswith(".png") for image in images):
+            convert_png = input(
+                "PNG images found. Do you want to convert all of them to jpg, (y/n)? "
+            )
+            convert_all_png = convert_png.lower() == "y"
+            ask_png_individually = not convert_all_png
+
         for image in images:
             if image.endswith(".jpg"):
                 self.optimize_image(image)
                 self.upload_image(image)
             elif image.endswith(".png"):
-                convert_png = input(
-                    'Do you want to convert "{image}" png to jpg, (y/n)? '
-                )
-                if convert_png == "y":
-                    os.system("mogrify -format jpg ~/Downloads/" + image)
-                    new_image = image.replace(".png", ".jpg")
-                    os.system("rm ~/Downloads/" + image)
-                    self.optimize_image(new_image)
-                    self.upload_image(new_image)
+                if convert_all_png:
+                    self.convert_png_and_upload(image)
+                elif ask_png_individually:
+                    convert_png = input(
+                        f'Do you want to convert "{image}" png to jpg, (y/n)? '
+                    )
+                    if convert_png.lower() == "y":
+                        self.convert_png_and_upload(image)
+                    else:
+                        self.upload_image(image)
                 else:
                     self.upload_image(image)
             else:
                 self.upload_image(image)
+
+    def convert_png_and_upload(self, image: str):
+        os.system("mogrify -format jpg ~/Downloads/" + image)
+        new_image = image.replace(".png", ".jpg")
+        os.system("rm ~/Downloads/" + image)
+        self.optimize_image(new_image)
+        self.upload_image(new_image)
