@@ -10,6 +10,31 @@ from classes.utils.WPPaths import WPPaths, PathKey
 
 
 class AcfTransfer:
+    ACF_WPCLI_PLUGIN = "advanced-custom-fields-wpcli"
+
+    @staticmethod
+    def _ensure_acf_wpcli_active():
+        """`wp acf ...` commands (export/import/clean) are registered by the
+        advanced-custom-fields-wpcli companion plugin, not by ACF Pro itself.
+        It can be installed but left deactivated, which makes wp-cli report
+        `'acf' is not a registered wp command` even though ACF Pro is active.
+        Activate it here instead of failing, and notice the user it happened.
+        """
+        check = subprocess.run(
+            f"wp plugin is-active {AcfTransfer.ACF_WPCLI_PLUGIN}",
+            shell=True,
+            text=True,
+            capture_output=True,
+        )
+        if check.returncode == 0:
+            return
+
+        Print.warning(
+            f"Plugin '{AcfTransfer.ACF_WPCLI_PLUGIN}' is not active — "
+            "activating it now."
+        )
+        Command.run(f"wp plugin activate {AcfTransfer.ACF_WPCLI_PLUGIN}")
+
     @staticmethod
     def push_menu_order_to_db(section_file_json_path: Path) -> int:
         """Runs json-acf-menu-order.sh to write the field order from
@@ -82,6 +107,7 @@ class AcfTransfer:
     def wp_export():
         try:
             Command.run_quiet("wp db check")  # check DB connection
+            AcfTransfer._ensure_acf_wpcli_active()
             Command.run("rm -rf acf")
             Command.run("wp acf export --all --export_path=acf/")
             AcfTransfer._sort_acf_json_files()
@@ -108,6 +134,7 @@ class AcfTransfer:
         """
         try:
             Command.run_quiet("wp db check")  # check DB connection
+            AcfTransfer._ensure_acf_wpcli_active()
             current_resolved = (
                 Path(current_section_path).resolve() if current_section_path else None
             )
@@ -145,6 +172,7 @@ class AcfTransfer:
         """
         try:
             Command.run_quiet("wp db check")  # check DB connection
+            AcfTransfer._ensure_acf_wpcli_active()
             path = Path(section_file_json_path).resolve()
             base_dir = WPPaths.get(PathKey.BASE)
             AcfSnapshotService.save(base_dir, only_path=path)

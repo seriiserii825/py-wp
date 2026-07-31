@@ -19,3 +19,9 @@ class Print:
         print("=" * 20)
         print(f"[red]{message}")
         print("=" * 20)
+
+    @staticmethod
+    def warning(message):
+        print("=" * 20)
+        print(f"[yellow]{message}")
+        print("=" * 20)
