@@ -42,8 +42,8 @@ class AbstractFileCreator(FileCreatorInterface, ABC):
     def _create_file(self, file_path: str) -> None:
         file_abs_path = Path(file_path).resolve()
         if file_abs_path.exists():
-            overwrite = input("File already exists. Overwrite? (y/n): ")
-            if overwrite.strip().lower() != "y":
+            overwrite = InputValidator.get_bool("File already exists. Overwrite? (y/n): ")
+            if not overwrite:
                 print("Aborted.")
                 exit(0)
         file_abs_path.parent.mkdir(parents=True, exist_ok=True)

@@ -24,6 +24,20 @@ class InputValidator:
                 print("Invalid input. Please enter a valid number.")
 
     @staticmethod
+    def get_positive_int(prompt="Enter a number: "):
+        while True:
+            value = input(prompt).strip()
+            try:
+                num = int(value)
+            except ValueError:
+                print("Invalid input. Please enter a valid number!")
+                continue
+            if num <= 0:
+                print("Invalid input. Please enter a number greater than 0!")
+                continue
+            return num
+
+    @staticmethod
     def get_string(prompt="Enter text: ", allow_empty=False):
         while True:
             value = input(prompt)

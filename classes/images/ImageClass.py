@@ -2,9 +2,9 @@ import os
 
 from dataclasses import dataclass
 from rich import print
-from rich.console import Console
 
 from classes.utils.Command import Command
+from classes.utils.InputValidator import InputValidator
 from classes.utils.Menu import Menu
 from classes.utils.Select import Select
 
@@ -97,8 +97,8 @@ class ImagesClass:
             print("[red]No images selected for deletion.")
             return
         print(f"[yellow]Deleting images with IDs: {', '.join(image_ids)}")
-        agree = Console().input("[yellow]Are you sure you want to delete these images? (y/n): ")
-        if agree.lower() != "y":
+        agree = InputValidator.get_bool("[yellow]Are you sure you want to delete these images? (y/n): ")
+        if not agree:
             print("[red]Deletion cancelled.")
             return
         for image_id in image_ids:
@@ -154,10 +154,9 @@ class ImagesClass:
         ask_png_individually = True
 
         if ask_bulk_png and any(image.endswith(".png") for image in images):
-            convert_png = input(
+            convert_all_png = InputValidator.get_bool(
                 "PNG images found. Do you want to convert all of them to jpg, (y/n)? "
             )
-            convert_all_png = convert_png.lower() == "y"
             ask_png_individually = not convert_all_png
 
         for image in images:
@@ -168,10 +167,10 @@ class ImagesClass:
                 if convert_all_png:
                     self.convert_png_and_upload(image)
                 elif ask_png_individually:
-                    convert_png = input(
+                    convert_png = InputValidator.get_bool(
                         f'Do you want to convert "{image}" png to jpg, (y/n)? '
                     )
-                    if convert_png.lower() == "y":
+                    if convert_png:
                         self.convert_png_and_upload(image)
                     else:
                         self.upload_image(image)

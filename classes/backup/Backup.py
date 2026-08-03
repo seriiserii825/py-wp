@@ -2,6 +2,7 @@ import os
 from classes.files.FilesHandle import FilesHandle
 from classes.selenium.MySelenium import MySelenium
 from classes.utils.Command import Command
+from classes.utils.InputValidator import InputValidator
 from classes.utils.WPPaths import WPPaths
 from rich import print
 
@@ -142,10 +143,10 @@ class Backup:
                 backup_to_delete = backups_array[count:]
                 print(f"[red]Backups to delete on {mnt_path}: ")
                 self._list_files(backup_to_delete)
-                agree_to_delete = input(
+                agree_to_delete = InputValidator.get_bool(
                     f"[yellow]Do you want to delete these backups on {mnt_path}? (y/n): "
                 )
-                if agree_to_delete.lower() == "y":
+                if agree_to_delete:
                     for file in backup_to_delete:
                         os.system(f"rm {file}")
                     new_files_on_mnt = self._files_to_array()

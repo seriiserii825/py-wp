@@ -3,7 +3,6 @@ import time
 from pathlib import Path
 from urllib.parse import urlparse
 from rich import print
-from rich.console import Console
 
 from playwright.sync_api import (
     sync_playwright,
@@ -14,6 +13,7 @@ from playwright.sync_api import (
 )
 
 from classes.projects.Project import Project
+from classes.utils.InputValidator import InputValidator
 
 
 SESSIONS_DIR = Path(__file__).resolve().parent.parent.parent / "sessions"
@@ -222,8 +222,8 @@ class MySelenium:
         if self.page.locator("#user_login").count() > 0:
             print("Login element exists")
         else:
-            go_next = input("Go next? [y/n]: ")
-            if go_next == "y":
+            go_next = InputValidator.get_bool("Go next? [y/n]: ")
+            if go_next:
                 print("Go next")
             else:
                 exit(1)
@@ -287,8 +287,8 @@ class MySelenium:
         backups_url = f"{self.project_url}/wp-admin/admin.php?page=ai1wm_backups"
         self.page.goto(backups_url)
 
-        agree_to_delete = Console().input("[red]Do you want to delete existing backups? [y/n]: ")
-        if agree_to_delete == "y":
+        agree_to_delete = InputValidator.get_bool("[red]Do you want to delete existing backups? [y/n]: ")
+        if agree_to_delete:
             self.choose_backups_to_delete()
         else:
             print("Not deleting existing backups")
@@ -359,17 +359,7 @@ class MySelenium:
         self.choose_backups_to_delete()
 
     def choose_backups_to_delete(self):
-        number_of_backups = Console().input("[green]Enter number of backups to delete: ").strip()
-        if not number_of_backups:
-            print("[red]Number of backups is empty!")
-            exit(1)
-
-        try:
-            num_backups = int(number_of_backups)
-        except ValueError:
-            print("[red]Please enter a valid number!")
-            exit(1)
-
+        num_backups = InputValidator.get_positive_int("Enter number of backups to delete: ")
         print(f"Number of backups: {num_backups}")
 
         for i in range(num_backups):

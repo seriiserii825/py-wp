@@ -3,6 +3,7 @@ import time
 from playwright.sync_api import TimeoutError as PlaywrightTimeoutError
 
 from classes.selenium.WPPlaywright import WPPlaywright, log
+from classes.utils.InputValidator import InputValidator
 
 
 class WPPlaywrightDeleteBackup(WPPlaywright):
@@ -22,14 +23,7 @@ class WPPlaywrightDeleteBackup(WPPlaywright):
         self._choose_backups_to_delete()
 
     def _choose_backups_to_delete(self):
-        number_of_backups = input("Enter number of backups to delete: ").strip()
-        if not number_of_backups:
-            exit("Number of backups is empty!")
-
-        try:
-            num_backups = int(number_of_backups)
-        except ValueError:
-            exit("Please enter a valid number!")
+        num_backups = InputValidator.get_positive_int("Enter number of backups to delete: ")
 
         log.info(f"Deleting {num_backups} backup(s)...")
 
