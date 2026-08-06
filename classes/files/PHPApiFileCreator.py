@@ -59,6 +59,7 @@ class PHPApiFileCreator(AbstractFileCreator):
             "<?php\n"
             "if (!defined('ABSPATH')) exit;\n"
             "\n"
+            "\n"
             f"function {func_name}Api()\n"
             "{\n"
             f"  register_rest_route('site/v1', '/{route}', [\n"
