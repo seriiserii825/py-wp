@@ -28,6 +28,13 @@ class ModuleFileCreator(AbstractFileCreator):
             file_name = PHPApiFileCreator._func_name_to_kebab(self._api_func_name) + "-api"
             file_name = self._add_extension(file_name, self.get_extension())
             return str(Path(path_to_dir) / file_name)
+        if self._file_type == "icon":
+            file_name = InputValidator.get_string("Enter icon name, icon- will be added: ")
+            file_name = f"icon-{file_name}"
+            file_name = self._remove_extension(file_name)
+            file_name = self._clear_whitespaces(file_name)
+            file_name = self._add_extension(file_name, self.get_extension())
+            return str(Path(path_to_dir) / file_name)
         if self._preset_name is not None:
             file_name = self._add_extension(self._preset_name, self.get_extension())
             return str(Path(path_to_dir) / file_name)

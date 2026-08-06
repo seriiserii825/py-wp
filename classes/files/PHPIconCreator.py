@@ -5,6 +5,8 @@ from classes.files.AbstractFileCreator import AbstractFileCreator
 from classes.utils.Command import Command
 from classes.utils.Notification import Notification
 from classes.utils.Print import Print
+from classes.utils.InputValidator import InputValidator
+from classes.files.FilesHandle import FilesHandle
 
 
 class PHPIconCreator(AbstractFileCreator):
@@ -18,6 +20,15 @@ class PHPIconCreator(AbstractFileCreator):
 
     def get_extension(self) -> str:
         return "php"
+
+    def _file_path(self, path_to_dir) -> str:
+        file_name = InputValidator.get_string(
+            "Enter icon name, icon- will be added: ")
+        file_name = f"icon-{file_name}"
+        file_name = self._remove_extension(file_name)
+        file_name = self._clear_whitespaces(file_name)
+        file_name = self._add_extension(file_name, self.get_extension())
+        return str(Path(path_to_dir) / file_name)
 
     def template_to_file(self, file_path: str) -> None:
         try:
