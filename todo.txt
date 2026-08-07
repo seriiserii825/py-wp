@@ -37,3 +37,4 @@ gimsec
 foresteria
 hydra
 elmarx
+algor
