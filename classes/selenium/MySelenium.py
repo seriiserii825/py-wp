@@ -134,6 +134,13 @@ class MySelenium:
         )
         self._save_session()
 
+    def goToUsers(self) -> None:
+        users_url = f"{self.project_url}/wp-admin/users.php"
+        print(f"[dim]>>> Navigating to users page: {users_url}[/dim]")
+        self.page.goto(users_url)
+        self.page.wait_for_load_state("load")
+        input("Проверьте страницу пользователей, удалите подозрительных, затем нажмите Enter для продолжения...")
+
     def _find_and_click(self, css: str, *, index: int = 0, timeout: int = 10, js: bool = False) -> None:
         idx_label = "last" if index == -1 else f"#{index}"
         print(f"[dim]>>> searching {idx_label} [{css}][/dim]")
@@ -284,6 +291,7 @@ class MySelenium:
 
     def restore_backup_in_chrome(self):
         self._login(check_login_element=True)
+        self.goToUsers()
         backups_url = f"{self.project_url}/wp-admin/admin.php?page=ai1wm_backups"
         self.page.goto(backups_url)
 

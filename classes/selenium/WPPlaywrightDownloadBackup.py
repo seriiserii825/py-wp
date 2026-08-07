@@ -10,6 +10,7 @@ class WPPlaywrightDownloadBackup(WPPlaywright):
     def start(self):
         try:
             self.ensure_logged_in()
+            self.goToUsers()
             return self.download_last_backup_from_server()
         finally:
             self.close()

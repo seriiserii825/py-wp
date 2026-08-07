@@ -128,6 +128,13 @@ class WPPlaywright:
         except PlaywrightTimeoutError:
             return
 
+    def goToUsers(self) -> None:
+        users_url = f"{self.project_url}/wp-admin/users.php"
+        log.info(f"Navigating to users page: {users_url}")
+        self.page.goto(users_url)
+        self.page.wait_for_load_state("load")
+        input("Проверьте страницу пользователей, удалите подозрительных, затем нажмите Enter для продолжения...")
+
     def _save_session(self) -> None:
         self.context.storage_state(path=self.session_path)
         log.info(f"Session saved → {self.session_path}")
