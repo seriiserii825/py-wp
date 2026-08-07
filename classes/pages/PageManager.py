@@ -1,3 +1,6 @@
+import re
+import shlex
+
 from classes.utils.Command import Command
 
 
@@ -17,3 +20,30 @@ class PageManager:
     @staticmethod
     def delete(page_id: int):
         Command.run(f"wp post delete {page_id} --force")
+
+    @staticmethod
+    def slugify(title: str) -> str:
+        return re.sub(r"[^a-z0-9]+", "-", title.lower()).strip("-")
+
+    @staticmethod
+    def rename(page_id: int, title: str, slug: str):
+        Command.run(
+            f"wp post update {page_id} "
+            f"--post_title={shlex.quote(title)} "
+            f"--post_name={shlex.quote(slug)}"
+        )
+
+    @staticmethod
+    def get_templates() -> dict[str, str]:
+        raw = Command.run_json(
+            "wp eval 'echo json_encode(get_page_templates());'"
+        )
+        templates: dict[str, str] = {"Default template": "default"}
+        templates.update(raw)
+        return templates
+
+    @staticmethod
+    def change_template(page_id: int, template: str):
+        Command.run(
+            f"wp post update {page_id} --page_template={shlex.quote(template)}"
+        )

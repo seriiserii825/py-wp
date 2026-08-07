@@ -14,7 +14,9 @@ def page_menu():
         3: "red",
         4: "red",
         5: "yellow",
-        6: "red",
+        6: "blue",
+        7: "blue",
+        8: "red",
     }
     menu_items = [
         ["0", "List Pages"],
@@ -23,7 +25,9 @@ def page_menu():
         ["3", "Delete One Page"],
         ["4", "Delete Multiple Pages"],
         ["5", "Ignore page"],
-        ["6", "Exit"],
+        ["6", "Rename Page"],
+        ["7", "Change Template"],
+        ["8", "Exit"],
     ]
 
     Menu.display(
@@ -61,6 +65,14 @@ def page_menu():
         Page.ignore_page()
         page_menu()
     elif choice == 6:
+        print("Renaming page...")
+        Page.rename()
+        page_menu()
+    elif choice == 7:
+        print("Changing page template...")
+        Page.change_template()
+        page_menu()
+    elif choice == 8:
         print("[red]Exiting the program. Goodbye!")
         return
     else:

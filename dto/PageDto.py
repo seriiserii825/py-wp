@@ -8,3 +8,4 @@ class PageDto:
     post_name: str
     post_date: str
     post_status: str
+    page_template: str
