@@ -47,3 +47,8 @@ class PageManager:
         Command.run(
             f"wp post update {page_id} --page_template={shlex.quote(template)}"
         )
+
+    @staticmethod
+    def set_front_page(page_id: int):
+        Command.run("wp option update show_on_front page")
+        Command.run(f"wp option update page_on_front {page_id}")

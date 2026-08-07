@@ -134,6 +134,21 @@ class Page:
             f"Changed template for page ID {page_id} to '{template}'")
 
     @classmethod
+    def set_front_page(cls):
+        cls.list_all()
+        if not cls.pages:
+            Print.error("No pages available.")
+            return
+        page_id = PageSelector.select_one_with_fzf(cls.pages)
+        if page_id is None:
+            Print.error("No page selected.")
+            return
+
+        page = cls.get_page_by_id(page_id)
+        PageManager.set_front_page(page_id)
+        Print.success(f"Set '{page.post_title}' as the front page.")
+
+    @classmethod
     def get_page_by_id(cls, page_id: int) -> PageDto:
         cls.init_pages()
         for page in cls.pages:
