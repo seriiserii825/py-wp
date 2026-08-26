@@ -82,7 +82,10 @@ class FieldMenu:
         data, fields = self._load_fields()
         label, selected_type = self.creator.ask_label_and_type()
         new_field = self.creator.create(label, selected_type)
-        dest = self._ask_destination_for_new_field(fields)
+        if selected_type == EFieldType.TAB:
+            dest = str(len(fields))
+        else:
+            dest = self._ask_destination_for_new_field(fields)
         dest_path = self.mover.parse_index_path(dest)
         inside_repeater = self.mover.is_path_inside_repeater(fields, dest_path)
         if inside_repeater:
