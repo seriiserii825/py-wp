@@ -10,6 +10,13 @@ from main_menu.file_type_menu import file_type_menu
 from rich import print
 
 
+def _to_camel_case(name: str) -> str:
+    parts = name.split("-")
+    return parts[0] + "".join(
+        word[0].upper() + word[1:] if word else "" for word in parts[1:]
+    )
+
+
 def file_menu():
     is_modules = ModuleSystemDetector.detect()
 
@@ -84,7 +91,7 @@ def _module_menu():
 
     elif file_type == "js":
         is_animation = InputValidator.get_bool("Is this an animation module? (y/n): ")
-        preset_name = f"{module_name}Animation" if is_animation else module_name
+        preset_name = f"{_to_camel_case(module_name)}Animation" if is_animation else module_name
 
     creator = ModuleFileCreator(module_path, file_type, preset_name=preset_name)
     file_path = creator.create_file(use_dir=False)
