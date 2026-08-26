@@ -11,6 +11,7 @@ from main_menu.file_menu import file_menu
 from main_menu.image_menu import image_menu
 from main_menu.init import init, reset_settings
 from main_menu.page_menu import page_menu
+from main_menu.page_theme_file_menu import page_theme_file_menu
 from main_menu.plugins_menu import plugins_menu
 from main_menu.site_settings_menu import site_settings_menu
 from main_menu.taxonomy_menu import taxonomy_menu
@@ -29,6 +30,7 @@ def menu(
     menu_menus: bool = False,
     menu_files: bool = False,
     menu_taxonomy: bool = False,
+    menu_page_theme_file: bool = False,
 ):
     options = [
         "0).ACF",
@@ -41,10 +43,11 @@ def menu(
         "07).Menus",
         "08).Contact Form",
         "09).Files",
-        "10).Site Settings",
-        "11).Init",
-        "12).Reset Settings",
-        "13).Exit",
+        "10).Page Theme File",
+        "11).Site Settings",
+        "12).Init",
+        "13).Reset Settings",
+        "14).Exit",
     ]
     if menu_acf:
         acf_func(to_import)
@@ -63,6 +66,9 @@ def menu(
         return menu()
     elif menu_files:
         file_menu()
+        return menu()
+    elif menu_page_theme_file:
+        page_theme_file_menu()
         return menu()
     elif menu_pages:
         page_menu()
@@ -103,15 +109,18 @@ def menu(
         file_menu()
         menu()
     elif choice == 10:
-        site_settings_menu()
+        page_theme_file_menu()
         menu()
     elif choice == 11:
+        site_settings_menu()
+        menu()
+    elif choice == 12:
         init()
         exit(0)
-    elif choice == 12:
+    elif choice == 13:
         reset_settings()
         exit(0)
-    elif choice == 13:
+    elif choice == 14:
         print("Exiting the program. Goodbye!")
         exit(0)
     else:
@@ -195,6 +204,11 @@ ACF import/export notes:
         action="store_true",
         help="Directly open the Taxonomy menu",
     )
+    parser.add_argument(
+        "--menu-page-theme-file",
+        action="store_true",
+        help="Directly open the Page Theme File menu",
+    )
     args = parser.parse_args()
     check_is_wp()
     WPPaths.initialize()
@@ -208,4 +222,5 @@ ACF import/export notes:
         menu_menus=args.menu_wp_menus,
         menu_files=args.menu_files,
         menu_taxonomy=args.menu_taxonomy,
+        menu_page_theme_file=args.menu_page_theme_file,
     )
