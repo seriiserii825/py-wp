@@ -1,4 +1,5 @@
 import os
+from classes.csv.MntProjectsPathsCsv import MntProjectsPathsCsv
 from classes.files.FilesHandle import FilesHandle
 from classes.selenium.MySelenium import MySelenium
 from classes.utils.Command import Command
@@ -117,20 +118,44 @@ class Backup:
             print("[red]No backups found to copy.")
 
     def create_and_copy_to_mnt(self):
-        directory_exists = os.path.isdir("/mnt/Projects")
-        if directory_exists:
+        project_name = self.theme_dir_path.name
+        mnt_csv = MntProjectsPathsCsv()
+        saved_path = mnt_csv.get_path_for_project(project_name)
+
+        path_to_selected_dir = None
+        if saved_path and os.path.isdir(saved_path):
+            use_saved = InputValidator.get_bool_true_default(
+                f"[yellow]Use saved mount path for '{project_name}': {saved_path}? "
+                "(Enter = yes, 'n' = choose another): "
+            )
+            if use_saved:
+                path_to_selected_dir = saved_path
+        elif saved_path:
+            print(f"[red]Saved mount path for '{project_name}' not found: {saved_path}")
+
+        newly_saved = False
+        if not path_to_selected_dir:
+            directory_exists = os.path.isdir("/mnt/Projects")
+            if not directory_exists:
+                print("[red]Directory /mnt/Projects not exists!")
+                exit(1)
             path_to_dir = "/mnt/Projects"
             fh = FilesHandle()
             path_to_selected_dir = fh.create_or_choose_directory(path_to_dir)
             fh.list_dir(path_to_selected_dir)
             path_to_selected_dir = fh.create_or_choose_directory(path_to_selected_dir)
-            self.make_backup()
-            self.last_backup_to_mnt(path_to_selected_dir)
-            last_backup = self.get_last_backup_path()
-            print(f"[green]Backup created and copied to /mnt/Projects/{last_backup}")
-        else:
-            print("[red]Directory /mnt/Projects not exists!")
-            exit(1)
+            mnt_csv.save_path_for_project(project_name, path_to_selected_dir)
+            newly_saved = True
+
+        self.make_backup()
+        self.last_backup_to_mnt(path_to_selected_dir)
+        last_backup = self.get_last_backup_path()
+        print(f"[green]Backup created and copied to {path_to_selected_dir}/{last_backup}")
+        if newly_saved:
+            print(
+                f"[green]Mount path for '{project_name}' saved to "
+                f"{mnt_csv.file_path}: {path_to_selected_dir}"
+            )
 
     def remove_backups_on_mnt_by_count(self, mnt_path, count=10):
         if os.path.isdir(mnt_path):
