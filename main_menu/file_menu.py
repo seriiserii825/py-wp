@@ -82,6 +82,10 @@ def _module_menu():
             name = input("  ").strip()
             preset_name = name if name else module_name
 
+    elif file_type == "js":
+        is_animation = InputValidator.get_bool("Is this an animation module? (y/n): ")
+        preset_name = f"{module_name}Animation" if is_animation else module_name
+
     creator = ModuleFileCreator(module_path, file_type, preset_name=preset_name)
     file_path = creator.create_file(use_dir=False)
     creator.template_to_file(file_path)

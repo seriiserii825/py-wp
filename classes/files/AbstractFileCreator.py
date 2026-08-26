@@ -36,8 +36,12 @@ class AbstractFileCreator(FileCreatorInterface, ABC):
         file_name = InputValidator.get_string("Enter file name without extension: ")
         file_name = self._remove_extension(file_name)
         file_name = self._clear_whitespaces(file_name)
+        file_name = self._transform_file_name(file_name)
         file_name = self._add_extension(file_name, self.get_extension())
         return str(Path(path_to_dir) / file_name)
+
+    def _transform_file_name(self, file_name: str) -> str:
+        return file_name
 
     def _create_file(self, file_path: str) -> None:
         file_abs_path = Path(file_path).resolve()
