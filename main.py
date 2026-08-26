@@ -131,6 +131,19 @@ def menu(
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
         formatter_class=argparse.RawDescriptionHelpFormatter,
+        description="""\
+Shell aliases (defined in ~/dotfiles/zsh_modules/zsh_python):
+  wb    -> main.py                       (interactive menu)
+  wba   -> main.py --menu-acf
+  wbp   -> main.py --menu-plugins
+  wbpg  -> main.py --menu-pages
+  wbt   -> main.py --menu-taxonomy
+  wbb   -> main.py --menu-backups
+  wbi   -> main.py --menu-images
+  wbm   -> main.py --menu-wp-menus
+  wbf   -> main.py --menu-files
+  wbfp  -> main.py --menu-page-theme-file
+""",
         epilog="""\
 ACF import/export notes:
   Plain `python main.py` (no --to-import) exports: it overwrites acf/*.json
@@ -206,6 +219,7 @@ ACF import/export notes:
     )
     parser.add_argument(
         "--menu-page-theme-file",
+        "--ptf",
         action="store_true",
         help="Directly open the Page Theme File menu",
     )

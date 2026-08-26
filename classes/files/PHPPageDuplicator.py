@@ -1,5 +1,3 @@
-from pathlib import Path
-
 from rich import print
 
 from classes.files.FileWriter import FileWriter
@@ -20,9 +18,12 @@ class PHPPageDuplicator:
             print("[yellow]No PHP files found in theme root.[/yellow]")
             return
 
-        selected = Select.select_fzf_one(php_files)
-        if not selected:
+        selected = Select.select_fzf_one([*php_files, "Back", "Exit"])
+        if not selected or selected == "Back":
             return
+        if selected == "Exit":
+            print("Exiting the program. Goodbye!")
+            exit(0)
 
         source_path = theme_dir / selected
 
