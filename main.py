@@ -43,7 +43,7 @@ def menu(
         "07).Menus",
         "08).Contact Form",
         "09).Files",
-        "10).Page Theme File",
+        "10).Root template",
         "11).Site Settings",
         "12).Init",
         "13).Reset Settings",

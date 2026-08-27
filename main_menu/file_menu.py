@@ -51,12 +51,12 @@ def _module_menu():
     module_path = FilesHandle().create_or_choose_directory("modules")
     print(f"[green]Module: {module_path}[/green]")
 
-    selected = Select.select_with_fzf(
-        ["php", "scss", "js", "phps", "api", "icon", "Back"]
-    )
+    file_types = ["api", "icon", "js", "php", "phps", "scss", "Back"]
+    numbered_types = [f"{i + 1:02d}.{t}" for i, t in enumerate(file_types)]
+    selected = Select.select_with_fzf(numbered_types)
     if not selected:
         return
-    file_type = selected[0]
+    file_type = file_types[numbered_types.index(selected[0])]
     if file_type == "Back":
         return
 
