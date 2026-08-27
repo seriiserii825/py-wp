@@ -65,14 +65,16 @@ def _module_menu():
 
     if file_type == "php":
         if not (Path(module_path) / f"{module_name}.php").exists():
-            print(f"[yellow]No PHP file found for module '{module_name}'.[/yellow]")
+            print(
+                f"[yellow]No PHP file found for module '{module_name}'.[/yellow]")
             print(f"[dim]Enter file name (Enter = '{module_name}'):[/dim]")
             name = input("  ").strip()
             preset_name = name if name else module_name
 
     elif file_type == "scss":
         if not (Path(module_path) / f"{module_name}.scss").exists():
-            print(f"[yellow]No SCSS file found for module '{module_name}'.[/yellow]")
+            print(
+                f"[yellow]No SCSS file found for module '{module_name}'.[/yellow]")
             print(f"[dim]Enter file name (Enter = '{module_name}'):[/dim]")
             name = input("  ").strip()
             preset_name = name if name else module_name
@@ -84,15 +86,24 @@ def _module_menu():
             missing = " + ".join(
                 ext for ext, m in [("PHP", php_missing), ("SCSS", scss_missing)] if m
             )
-            print(f"[yellow]Missing: {missing} for module '{module_name}'.[/yellow]")
-            print(f"[dim]Enter file name for both (Enter = '{module_name}'):[/dim]")
+            print(
+                f"[yellow]Missing: {missing} for module '{module_name}'.[/yellow]")
+            print(
+                f"[dim]Enter file name for both (Enter = '{module_name}'):[/dim]")
             name = input("  ").strip()
             preset_name = name if name else module_name
 
     elif file_type == "js":
-        is_animation = InputValidator.get_bool("Is this an animation module? (y/n): ")
-        preset_name = f"{_to_camel_case(module_name)}Animation" if is_animation else module_name
+        is_animation = InputValidator.get_bool(
+            "Is this an animation file? (y/n): ")
+        if is_animation:
+            preset_name = f"{_to_camel_case(module_name)}Animation"
+        else:
+            print(f"[dim]Enter file name (Enter = '{module_name}'):[/dim]")
+            name = input("  ").strip()
+            preset_name = name if name else module_name
 
-    creator = ModuleFileCreator(module_path, file_type, preset_name=preset_name)
+    creator = ModuleFileCreator(
+        module_path, file_type, preset_name=preset_name)
     file_path = creator.create_file(use_dir=False)
     creator.template_to_file(file_path)
