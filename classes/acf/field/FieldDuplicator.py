@@ -1,4 +1,5 @@
 import copy
+from typing import cast
 
 from classes.acf.field.FieldMover import FieldMover
 from classes.acf.field.FieldRepository import FieldRepository
@@ -13,7 +14,7 @@ class FieldDuplicator:
 
     SEPARATOR = "|"
 
-    def duplicate_field(self, data: list, fields: list):
+    def duplicate_field(self, data: list, fields: list) -> list[int] | None:
         source_index = InputValidator.get_string("Enter source field index to duplicate (e.g. 0 or 1.2): ")
         field = self.mover.get_field_by_index(fields, source_index)
 
@@ -24,7 +25,7 @@ class FieldDuplicator:
         labels = [lbl.strip() for lbl in raw.split(self.SEPARATOR) if lbl.strip()]
         if not labels:
             print("No labels provided, aborting.")
-            return
+            return None
 
         after_original = InputValidator.get_bool_true_default(
             "Place all new fields right after original? (Y/n): "
@@ -34,11 +35,13 @@ class FieldDuplicator:
             dest_parent = self.mover.get_field_container(fields, source_path)
             last = source_path[-1]
             insert_at = (last if last is not None else 0) + 1
+            parent_path = source_path[:-1]
         else:
             dest_index = InputValidator.get_string("Enter destination index (e.g. 0 or 1.): ")
             dest_path = self.mover.parse_index_path(dest_index)
             dest_parent = self.mover.get_field_container(fields, dest_path, create=True)
             insert_at = dest_path[-1] if dest_path[-1] is not None else len(dest_parent)
+            parent_path = dest_path[:-1]
 
         for offset, label in enumerate(labels):
             name = label.replace(" ", "_").lower()
@@ -51,6 +54,7 @@ class FieldDuplicator:
 
         self.repo.save(data)
         print(f"Done. {len(labels)} field(s) duplicated.")
+        return cast(list[int], parent_path + [insert_at + len(labels) - 1])
 
     def _regenerate_keys(self, field: dict):
         field["key"] = Generate.get_field_id()

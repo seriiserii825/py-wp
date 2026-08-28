@@ -201,7 +201,9 @@ class FieldMenu:
         data, fields = self._load_fields()
         self._check_field_is_empty(fields)
         try:
-            self.duplicator.duplicate_field(data, fields)
+            final_path = self.duplicator.duplicate_field(data, fields)
+            if final_path is not None:
+                self.last_created_index = final_path
         except Exception as e:
             print(f"Error duplicating field: {e}")
 
