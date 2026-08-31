@@ -39,3 +39,4 @@ hydra
 elmarx
 algor
 algor
+manitoba
