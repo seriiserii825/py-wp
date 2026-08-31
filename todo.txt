@@ -38,5 +38,4 @@ foresteria
 hydra
 elmarx
 algor
-algor
 manitoba
