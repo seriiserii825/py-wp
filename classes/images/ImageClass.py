@@ -147,7 +147,7 @@ class ImagesClass:
     def select_images(self):
         images = self.get_images()
         selected_images = Select.select_with_fzf(images)
-        self.import_images(selected_images)
+        self.import_images(selected_images, ask_bulk_png=True)
 
     def import_images(self, images: list[str], ask_bulk_png: bool = False):
         convert_all_png = False
