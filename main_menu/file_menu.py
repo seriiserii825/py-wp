@@ -25,7 +25,7 @@ def file_menu():
     else:
         print("[bold yellow]Standard system detected[/bold yellow]")
 
-    if not InputValidator.get_bool_true_default("Continue? (Enter/n): "):
+    if not InputValidator.confirm("Continue?"):
         return
 
     if is_modules:
@@ -94,8 +94,7 @@ def _module_menu():
             preset_name = name if name else module_name
 
     elif file_type == "js":
-        is_animation = InputValidator.get_bool(
-            "Is this an animation file? (y/n): ")
+        is_animation = InputValidator.confirm("Is this an animation file?")
         if is_animation:
             preset_name = f"{_to_camel_case(module_name)}Animation"
         else:

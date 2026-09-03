@@ -123,7 +123,7 @@ class ModuleFileCreator(AbstractFileCreator):
         Command.run(f"bat '{my_scss.resolve()}'")
 
     def _offer_get_template_part(self, file_path: str) -> None:
-        if not InputValidator.get_bool("Include in a PHP file? (y/n): "):
+        if not InputValidator.confirm("Include in a PHP file?"):
             return
 
         php_files = sorted(str(f) for f in Path(".").glob("*.php"))

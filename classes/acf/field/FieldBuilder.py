@@ -26,9 +26,7 @@ class FieldBuilder:
 
     def ask_required(self, field_type: EFieldType) -> int | bool:
         if self.is_simple_field(field_type):
-            bool_result = InputValidator.get_bool_true_default(
-                "Is required, for no type 'n', 'y' by default: "
-            )
+            bool_result = InputValidator.confirm("Is required")
             return True if bool_result else 0
         return 0
 
@@ -58,8 +56,8 @@ class FieldBuilder:
 
     def handle_tab_field(self, field: FieldDTO, label: str) -> list[dict]:
         tab_field = FieldTemplateFactory.create(field)
-        if InputValidator.get_bool(
-            "Do you want to create a group with the same label inside this tab? (y/n): "
+        if InputValidator.confirm(
+            "Do you want to create a group with the same label inside this tab?"
         ):
             print("Creating group under the tab...")
             group_field = self.create_group(label)
@@ -86,9 +84,7 @@ class FieldBuilder:
         if field_type == EFieldType.TRUE_FALSE:
             return (
                 1
-                if InputValidator.get_bool(
-                    "Do you want to have UI for this field? (y/n): "
-                )
+                if InputValidator.confirm("Do you want to have UI for this field?")
                 else 0
             )
         return 0
@@ -97,9 +93,7 @@ class FieldBuilder:
         if field_type == EFieldType.TRUE_FALSE:
             return (
                 1
-                if InputValidator.get_bool(
-                    "Do you want to set default value for this field? (y/n): "
-                )
+                if InputValidator.confirm("Do you want to set default value for this field?")
                 else 0
             )
         if field_type in {
@@ -107,9 +101,7 @@ class FieldBuilder:
             EFieldType.TEXTAREA,
             EFieldType.NUMBER,
         }:
-            if InputValidator.get_bool(
-                "Do you want to set a default value for this field? (y/n): "
-            ):
+            if InputValidator.confirm("Do you want to set a default value for this field?"):
                 return InputValidator.get_string("Enter default value: ")
             return ""
         return 0
@@ -125,9 +117,7 @@ class FieldBuilder:
 
     def ask_post_type(self, field_type: EFieldType | None = None) -> str:
         if field_type == EFieldType.PAGE_LINK:
-            use_default = InputValidator.get_bool_true_default(
-                "Use default post type 'page'? 'n' for no, 'y' by default: "
-            )
+            use_default = InputValidator.confirm("Use default post type 'page'?")
             if use_default:
                 return "page"
         entity_type = self._choose_type()

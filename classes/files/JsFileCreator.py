@@ -13,7 +13,7 @@ class JsFileCreator(AbstractFileCreator):
         return "ts"
 
     def _transform_file_name(self, file_name: str) -> str:
-        if InputValidator.get_bool("Is this an animation module? (y/n): "):
+        if InputValidator.confirm("Is this an animation module?"):
             return f"{self._to_camel_case(file_name)}Animation"
         return file_name
 

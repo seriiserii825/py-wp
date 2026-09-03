@@ -59,9 +59,7 @@ class InputValidator:
             console.print("Invalid input. Please enter 'y' or 'n'.")
 
     @staticmethod
-    def get_bool_true_default(prompt="Enter 'n' for no or 'y' by default: "):
-        while True:
-            value = console.input(prompt).strip().lower()
-            if value in ("n", "no"):
-                return False
-            return True
+    def confirm(question: str) -> bool:
+        """Ask a yes/no question defaulting to yes: Enter, 'y' or 'Y' confirm, 'n' declines."""
+        value = console.input(f"{question} (Y/n, Y - press Enter): ").strip().lower()
+        return value not in ("n", "no")

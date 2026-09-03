@@ -114,9 +114,7 @@ class EditSection:
         with open(file_path, "w") as f:
             json.dump([section], f, indent=4)
         Print.success(f"File '{file_name}' updated.")
-        want_to_import = InputValidator.get_bool(
-            "Do you want to import the updated ACF data? (y/n): "
-        )
+        want_to_import = InputValidator.confirm("Do you want to import the updated ACF data?")
         if want_to_import:
             AcfTransfer.wp_import_single(file_path)
             Print.success("ACF data imported successfully.")

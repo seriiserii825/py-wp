@@ -139,8 +139,8 @@ class FieldMenu:
     def _ask_destination_for_new_field(self, fields: list) -> str:
         suggested = self._suggest_next_index(fields)
         if suggested is not None:
-            use_suggested = InputValidator.get_bool_true_default(
-                f"Insert right after the last created field, at index {suggested}? (Y/n): "
+            use_suggested = InputValidator.confirm(
+                f"Insert right after the last created field, at index {suggested}?"
             )
             if use_suggested:
                 return suggested

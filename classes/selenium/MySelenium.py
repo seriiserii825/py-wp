@@ -229,7 +229,7 @@ class MySelenium:
         if self.page.locator("#user_login").count() > 0:
             print("Login element exists")
         else:
-            go_next = InputValidator.get_bool("Go next? [y/n]: ")
+            go_next = InputValidator.confirm("Go next?")
             if go_next:
                 print("Go next")
             else:

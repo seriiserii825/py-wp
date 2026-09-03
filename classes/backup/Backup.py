@@ -124,9 +124,8 @@ class Backup:
 
         path_to_selected_dir = None
         if saved_path and os.path.isdir(saved_path):
-            use_saved = InputValidator.get_bool_true_default(
-                f"[yellow]Use saved mount path for '{project_name}': {saved_path}? "
-                "(Enter = yes, 'n' = choose another): "
+            use_saved = InputValidator.confirm(
+                f"[yellow]Use saved mount path for '{project_name}': {saved_path}?"
             )
             if use_saved:
                 path_to_selected_dir = saved_path

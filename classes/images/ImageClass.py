@@ -154,8 +154,8 @@ class ImagesClass:
         ask_png_individually = True
 
         if ask_bulk_png and any(image.endswith(".png") for image in images):
-            convert_all_png = InputValidator.get_bool(
-                "PNG images found. Do you want to convert all of them to jpg, (y/n)? "
+            convert_all_png = InputValidator.confirm(
+                "PNG images found. Do you want to convert all of them to jpg?"
             )
             ask_png_individually = not convert_all_png
 
@@ -167,8 +167,8 @@ class ImagesClass:
                 if convert_all_png:
                     self.convert_png_and_upload(image)
                 elif ask_png_individually:
-                    convert_png = InputValidator.get_bool(
-                        f'Do you want to convert "{image}" png to jpg, (y/n)? '
+                    convert_png = InputValidator.confirm(
+                        f'Do you want to convert "{image}" png to jpg?'
                     )
                     if convert_png:
                         self.convert_png_and_upload(image)

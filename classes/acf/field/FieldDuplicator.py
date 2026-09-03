@@ -27,9 +27,7 @@ class FieldDuplicator:
             print("No labels provided, aborting.")
             return None
 
-        after_original = InputValidator.get_bool_true_default(
-            "Place all new fields right after original? (Y/n): "
-        )
+        after_original = InputValidator.confirm("Place all new fields right after original?")
         if after_original:
             source_path = self.mover.parse_index_path(source_index)
             dest_parent = self.mover.get_field_container(fields, source_path)

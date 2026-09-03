@@ -14,9 +14,7 @@ class PhpTemplateToFile:
         html = f'<?php \n\n ?>\n<section class="{file_name}">\n</section>\n'
         FileWriter.write_file(Path(file_path), html)
 
-        choice = InputValidator.get_bool(
-            "Do you want to include this template in another PHP file? (y/n): "
-        )
+        choice = InputValidator.confirm("Do you want to include this template in another PHP file?")
         if not choice:
             return PhpTemplateToFile._return_path(file_path)
 
