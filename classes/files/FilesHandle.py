@@ -97,6 +97,9 @@ class FilesHandle:
     def _create_dir(self, abs_path):
         dir_name = InputValidator.get_string("Enter directory name: ")
         current_path = str(Path(abs_path) / dir_name)
+        if Path(current_path).exists():
+            Print.error(f"Module '{dir_name}' already exists.")
+            exit(1)
         os.makedirs(current_path)
         print("Directory created")
         return current_path
