@@ -30,7 +30,10 @@ class FieldCreator:
         layout = self.builder.ask_layout(selected_type)
         message = self.builder.ask_message(selected_type)
         ui = self.builder.ui_for_true_false(selected_type)
-        default_value = self.builder.ask_default_value(selected_type)
+        if selected_type in {EFieldType.TEXT, EFieldType.TEXTAREA, EFieldType.NUMBER}:
+            default_value = self.builder.empty_default_value(selected_type)
+        else:
+            default_value = self.builder.ask_default_value(selected_type)
 
         field = FieldDTO(
             key=key,
