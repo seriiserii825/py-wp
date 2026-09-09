@@ -10,7 +10,14 @@ class Select:
     def select_with_fzf(options) -> list[str]:
         input_text = "\n".join(options)
         result = subprocess.run(
-            ["fzf", "--multi", "--height", "50%", "--reverse", "--no-mouse"],
+            [
+                "fzf",
+                "--multi",
+                "--height", "50%",
+                "--reverse",
+                "--no-mouse",
+                "--bind", "ctrl-a:select-all,ctrl-r:toggle-all",
+            ],
             input=input_text.encode(),
             stdout=subprocess.PIPE,
         )
