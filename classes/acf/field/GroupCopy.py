@@ -17,7 +17,10 @@ class GroupCopy:
             raise ValueError("Selected field must be a group or repeater.")
 
         php_lines: list = []
-        self._generate_php(field, var_name=field["name"], indent=0, output=php_lines)
+        var_name = field["name"]
+        var_expr = f"${var_name}"
+        php_lines.append(f"{var_expr} = get_field('{var_name}');")
+        self._generate_sub_fields(field, source_expr=var_expr, indent=0, output=php_lines, repeater_depth=0)
 
         php_code = "\n".join(php_lines)
         pyperclip.copy(php_code)
@@ -27,44 +30,38 @@ class GroupCopy:
         )
         nt.notify()
 
-    def _generate_php(
-        self, field: dict, var_name: str, indent: int, output: list, parent_chain=None
+    def _generate_sub_fields(
+        self, field: dict, source_expr: str, indent: int, output: list, repeater_depth: int
     ):
-        parent_chain = parent_chain or []
-
         field_type = field.get("type")
         sub_fields = field.get("sub_fields", [])
         prefix = "    " * indent
 
-        if field_type == "group":
-            chain = parent_chain + [var_name]
-            var_full = "$" + "_".join(chain)
-            output.append(f"{prefix}{var_full} = get_field('{var_name}');")
+        if field_type == "repeater":
+            repeater_depth += 1
+            # Unique loop variable per nesting depth so nested repeaters don't shadow each other.
+            item_var = "$item" if repeater_depth == 1 else f"$item{repeater_depth}"
+            output.append(f"{prefix}foreach ({source_expr} as {item_var}) {{")
             for sub in sub_fields:
-                sub_name = sub.get("name")
-                if sub_name:
-                    self._generate_php(
-                        sub,
-                        var_name=sub_name,
-                        indent=indent,
-                        output=output,
-                        parent_chain=chain,
-                    )
-
-        elif field_type == "repeater":
-            chain = "$" + "_".join(parent_chain)
-            var_full = f"${var_name}"
-            output.append(f"{prefix}{var_full} = {chain}['{var_name}'];")
-            for sub in sub_fields:
-                sub_name = sub.get("name")
-                if sub_name:
-                    output.append(f"{prefix}        ${sub_name} = $item['{sub_name}'];")
-
+                self._emit_field(sub, item_var, indent + 1, output, repeater_depth)
+            output.append(f"{prefix}}}")
         else:
-            # Simple field inside a group
-            if parent_chain:
-                chain = "$" + "_".join(parent_chain)
-                output.append(f"{prefix}${var_name} = {chain}['{var_name}'];")
+            for sub in sub_fields:
+                self._emit_field(sub, source_expr, indent, output, repeater_depth)
+
+    def _emit_field(
+        self, field: dict, source_expr: str, indent: int, output: list, repeater_depth: int
+    ):
+        name = field.get("name")
+        if not name:
+            return
+
+        prefix = "    " * indent
+        var_expr = f"${name}"
+        output.append(f"{prefix}{var_expr} = {source_expr}['{name}'];")
+
+        if field.get("type") in ("group", "repeater"):
+            self._generate_sub_fields(field, var_expr, indent, output, repeater_depth)
 
     def _get_nested_field(self, fields: list, index_path: list):
         current = fields
