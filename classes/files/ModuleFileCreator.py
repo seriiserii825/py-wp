@@ -29,7 +29,11 @@ class ModuleFileCreator(AbstractFileCreator):
             file_name = self._add_extension(file_name, self.get_extension())
             return str(Path(path_to_dir) / file_name)
         if self._file_type == "icon":
-            file_name = InputValidator.get_string("Enter icon name, icon- will be added: ")
+            module_name = Path(self._module_path).name
+            if InputValidator.confirm(f"Use '{module_name}' as icon name?"):
+                file_name = module_name
+            else:
+                file_name = InputValidator.get_string("Enter icon name, icon- will be added: ")
             file_name = f"icon-{file_name}"
             file_name = self._remove_extension(file_name)
             file_name = self._clear_whitespaces(file_name)
