@@ -32,7 +32,9 @@ def _print_in_columns(items):
 
 
 class FilesHandle:
-    def list_files(self, path_to_list, file_extension=None, mtime=True) -> None:
+    def list_files(
+        self, path_to_list, file_extension=None, mtime=True, newest_first=False
+    ) -> None:
         abs_path = Path(path_to_list).resolve()
         print(f"[green]Listing files in ================ {abs_path}")
 
@@ -40,7 +42,10 @@ class FilesHandle:
         if not files:
             print("[yellow]No files found in this directory.")
             return
-        sorted_files = sorted(files, key=lambda f: f.name.lower())
+        if newest_first:
+            sorted_files = sorted(files, key=lambda f: f.stat().st_mtime, reverse=True)
+        else:
+            sorted_files = sorted(files, key=lambda f: f.name.lower())
 
         for f in sorted_files:
             if file_extension:
@@ -123,7 +128,7 @@ class FilesHandle:
                     return True
         return False
 
-    def choose_file(self, path_to_dir, extension=None):
+    def choose_file(self, path_to_dir, extension=None, newest_first=False):
         choosed_files = []
         for entry in os.listdir(path_to_dir):
             if os.path.isfile(os.path.join(path_to_dir, entry)):
@@ -135,8 +140,12 @@ class FilesHandle:
         if len(choosed_files) == 0:
             Print.error("No files found")
             exit()
-        else:
-            return Select.select_one(choosed_files)
+        if newest_first:
+            choosed_files.sort(
+                key=lambda f: os.path.getmtime(os.path.join(path_to_dir, f)),
+                reverse=True,
+            )
+        return Select.select_one(choosed_files)
 
     def append_to_file(self, file_path, text):
         with open(file_path, "a") as f:
