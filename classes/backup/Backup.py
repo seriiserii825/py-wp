@@ -16,19 +16,20 @@ class Backup:
 
     def make_backup(self):
         self.list_backup()
-        self._delete_node_modules()
+        self._delete_dir_if_exists("node_modules")
+        self._delete_dir_if_exists("vendor")
         Command.run("wp ai1wm backup")
         self._deleteMore3Backups()
         self.list_backup()
         self._last_backup_to_downloads()
 
-    def _delete_node_modules(self):
-        path = self.theme_dir_path / "node_modules"
+    def _delete_dir_if_exists(self, dir_name: str):
+        path = self.theme_dir_path / dir_name
         if path.exists():
             os.system(f'rm -rf "{path}"')
-            print("[blue]node_modules deleted successfully.")
+            print(f"[blue]{dir_name} deleted successfully.")
         else:
-            print(f"[red]node_modules not found: {path}")
+            print(f"[red]{dir_name} not found: {path}")
 
     def _deleteMore3Backups(self):
         os.chdir(self.backup_dir_abs_path)
