@@ -17,7 +17,6 @@ class Backup:
     def make_backup(self):
         self.list_backup()
         self._delete_dir_if_exists("node_modules")
-        self._delete_dir_if_exists("vendor")
         Command.run("wp ai1wm backup")
         self._deleteMore3Backups()
         self.list_backup()
@@ -150,7 +149,9 @@ class Backup:
         self.make_backup()
         self.last_backup_to_mnt(path_to_selected_dir)
         last_backup = self.get_last_backup_path()
-        print(f"[green]Backup created and copied to {path_to_selected_dir}/{last_backup}")
+        print(
+            f"[green]Backup created and copied to {path_to_selected_dir}/{last_backup}"
+        )
         if newly_saved:
             print(
                 f"[green]Mount path for '{project_name}' saved to "
