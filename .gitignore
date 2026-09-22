@@ -53,3 +53,5 @@ uv.lock
 list.csv
 google-data.csv
 sessions/
+list.csv.sha256
+google-data.csv.sha256
