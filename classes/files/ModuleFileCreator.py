@@ -30,7 +30,8 @@ class ModuleFileCreator(AbstractFileCreator):
             return str(Path(path_to_dir) / file_name)
         if self._file_type == "icon":
             module_name = Path(self._module_path).name
-            if InputValidator.confirm(f"Use '{module_name}' as icon name?"):
+            default_exists = (Path(path_to_dir) / f"icon-{module_name}.php").exists()
+            if not default_exists and InputValidator.confirm(f"Use '{module_name}' as icon name?"):
                 file_name = module_name
             else:
                 file_name = InputValidator.get_string("Enter icon name, icon- will be added: ")
