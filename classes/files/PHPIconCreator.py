@@ -6,7 +6,7 @@ from py_libs.Command import Command
 from py_libs.Notification import Notification
 from py_libs.Print import Print
 from py_libs.InputValidator import InputValidator
-from classes.files.FilesHandle import FilesHandle
+from py_libs.FilesHandle import FilesHandle
 
 
 class PHPIconCreator(AbstractFileCreator):

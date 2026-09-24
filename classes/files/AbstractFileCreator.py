@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 from pathlib import Path
 from classes.files.FileCreatorInterface import FileCreatorInterface
-from classes.files.FilesHandle import FilesHandle
+from py_libs.FilesHandle import FilesHandle
 from py_libs.InputValidator import InputValidator
 
 

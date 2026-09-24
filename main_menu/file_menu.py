@@ -1,7 +1,7 @@
 from pathlib import Path
 
 from classes.files.FileCreatorFactory import FileCreatorFactory
-from classes.files.FilesHandle import FilesHandle
+from py_libs.FilesHandle import FilesHandle
 from classes.files.ModuleFileCreator import ModuleFileCreator
 from py_libs.InputValidator import InputValidator
 from classes.utils.ModuleSystemDetector import ModuleSystemDetector
