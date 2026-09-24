@@ -32,6 +32,15 @@ dependencies = [
     "typing-extensions (==4.14.1)",
     "wcwidth (==0.2.13)",
     "pytest-playwright>=0.7.2",
+    "py-libs",
 ]
+
+[tool.uv.workspace]
+members = [
+    "libs/py-libs",
+]
+
+[tool.uv.sources]
+py-libs = { workspace = true, editable = true }
 
 
