@@ -13,7 +13,7 @@ from playwright.sync_api import (
 )
 
 from classes.projects.Project import Project
-from classes.utils.InputValidator import InputValidator
+from py_libs.InputValidator import InputValidator
 
 
 SESSIONS_DIR = Path(__file__).resolve().parent.parent.parent / "sessions"

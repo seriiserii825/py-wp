@@ -1,8 +1,8 @@
 from classes.data.WpData import WpData
 from classes.taxonomy.TermDisplayer import TermDisplayer
-from classes.utils.Command import Command
-from classes.utils.Print import Print
-from classes.utils.Select import Select
+from py_libs.Command import Command
+from py_libs.Print import Print
+from py_libs.Select import Select
 from dto.TermDto import TermDto
 
 

@@ -4,7 +4,7 @@ from typing import cast
 from classes.acf.field.FieldMover import FieldMover
 from classes.acf.field.FieldRepository import FieldRepository
 from classes.utils.Generate import Generate
-from classes.utils.InputValidator import InputValidator
+from py_libs.InputValidator import InputValidator
 
 
 class FieldDuplicator:

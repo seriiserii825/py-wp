@@ -1,4 +1,4 @@
-from classes.csv.CsvFile import CsvFile
+from py_libs.CsvFile import CsvFile
 from classes.utils.WPPaths import WPPaths
 from dto.CsvPluginDto import CsvPluginDto
 

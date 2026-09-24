@@ -4,8 +4,8 @@ from rich import print
 from rich.table import Table
 from rich.console import Console
 
-from classes.utils.Print import Print
-from classes.utils.Select import Select
+from py_libs.Print import Print
+from py_libs.Select import Select
 from classes.utils.WPPaths import WPPaths
 
 class WpMenuLocations:

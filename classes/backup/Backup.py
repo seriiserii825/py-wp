@@ -2,8 +2,8 @@ import os
 from classes.csv.MntProjectsPathsCsv import MntProjectsPathsCsv
 from classes.files.FilesHandle import FilesHandle
 from classes.selenium.MySelenium import MySelenium
-from classes.utils.Command import Command
-from classes.utils.InputValidator import InputValidator
+from py_libs.Command import Command
+from py_libs.InputValidator import InputValidator
 from classes.utils.WPPaths import WPPaths
 from rich import print
 

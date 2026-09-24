@@ -1,4 +1,4 @@
-from classes.utils.Command import Command
+from py_libs.Command import Command
 
 
 class AcfBlock:

@@ -1,7 +1,7 @@
 from pathlib import Path
 from classes.files.FileWriter import FileWriter
 from classes.files.AbstractFileCreator import AbstractFileCreator
-from classes.utils.Command import Command
+from py_libs.Command import Command
 
 
 class SCSSFileCreator(AbstractFileCreator):

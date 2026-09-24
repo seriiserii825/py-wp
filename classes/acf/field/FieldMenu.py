@@ -13,7 +13,7 @@ from classes.acf.field.FieldEditor import FieldEditor
 from classes.acf.field.FieldMover import FieldMover
 from classes.acf.field.FieldRepository import FieldRepository
 from classes.acf.field.GroupCopy import GroupCopy
-from classes.utils.InputValidator import InputValidator
+from py_libs.InputValidator import InputValidator
 
 
 class FieldMenu:
@@ -54,7 +54,7 @@ class FieldMenu:
                     field.print_field(index=index, indent=0, active=False)
 
     def select_tab_group_index(self) -> int | None:
-        from classes.utils.Select import Select
+        from py_libs.Select import Select
 
         _, fields = self._load_fields()
         tab_groups = [

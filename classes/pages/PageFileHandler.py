@@ -1,4 +1,4 @@
-from classes.utils.Print import Print
+from py_libs.Print import Print
 from classes.utils.WPPaths import WPPaths
 
 

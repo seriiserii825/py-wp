@@ -2,9 +2,9 @@ import shlex
 
 from rich import print
 
-from classes.utils.Command import Command
-from classes.utils.Menu import Menu
-from classes.utils.Print import Print
+from py_libs.Command import Command
+from py_libs.Menu import Menu
+from py_libs.Print import Print
 
 
 class WpMenu:
@@ -70,13 +70,13 @@ class WpMenu:
     def _ask_index_fzf(self, flat: list) -> dict | None:
         opts = [self._format_item(i) for i in flat]
         mapping = dict(zip(opts, flat))
-        from classes.utils.Select import Select
+        from py_libs.Select import Select
         selected = Select.select_fzf_one(opts)
         return mapping.get(selected) if selected else None
 
     def _ask_indexes_fzf(self, flat: list) -> list:
         opts = [self._format_item(i) for i in flat]
-        from classes.utils.Menu import Menu
+        from py_libs.Menu import Menu
         indices = Menu.select_fzf_multi(opts)
         return [flat[i] for i in indices]
 

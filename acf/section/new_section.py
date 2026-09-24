@@ -1,7 +1,7 @@
 from classes.acf.AcfTransfer import AcfTransfer
 from classes.acf.section.CreateSection import CreateSection
 from classes.exception.NewSectionException import NewSectionException
-from classes.utils.Print import Print
+from py_libs.Print import Print
 
 
 def new_section():

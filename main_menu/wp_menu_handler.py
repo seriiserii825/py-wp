@@ -1,4 +1,4 @@
-from classes.utils.Menu import Menu
+from py_libs.Menu import Menu
 from classes.wp_menus.WpMenu import WpMenu
 
 

@@ -2,7 +2,7 @@ from typing import List
 
 from rich import print
 
-from classes.utils.MyTable import MyTable
+from py_libs.MyTable import MyTable
 
 
 class SectionMenu:

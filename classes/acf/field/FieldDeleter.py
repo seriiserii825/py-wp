@@ -1,5 +1,5 @@
-from classes.utils.InputValidator import InputValidator
-from classes.utils.Print import Print
+from py_libs.InputValidator import InputValidator
+from py_libs.Print import Print
 
 
 class FieldDeleter:

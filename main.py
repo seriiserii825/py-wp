@@ -2,7 +2,7 @@
 
 import argparse
 
-from classes.utils.Menu import Menu
+from py_libs.Menu import Menu
 from classes.utils.WPPaths import WPPaths
 from main_menu.acf_func import acf_func
 from main_menu.backup_menu import backup_menu

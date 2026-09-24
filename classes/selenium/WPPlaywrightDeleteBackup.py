@@ -3,7 +3,7 @@ import time
 from playwright.sync_api import TimeoutError as PlaywrightTimeoutError
 
 from classes.selenium.WPPlaywright import WPPlaywright, log
-from classes.utils.InputValidator import InputValidator
+from py_libs.InputValidator import InputValidator
 
 
 class WPPlaywrightDeleteBackup(WPPlaywright):

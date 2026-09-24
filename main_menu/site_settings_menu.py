@@ -1,8 +1,8 @@
 from rich import print
 
-from classes.utils.Command import Command
-from classes.utils.Menu import Menu
-from classes.utils.Print import Print
+from py_libs.Command import Command
+from py_libs.Menu import Menu
+from py_libs.Print import Print
 
 
 def _run_best_effort(cmd: str):

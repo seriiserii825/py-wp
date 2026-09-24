@@ -2,8 +2,8 @@ from acf.section.new_section import new_section
 from acf.section.select_section import select_section
 from acf.section.show_sections import show_sections
 from classes.acf.AcfTransfer import AcfTransfer
-from classes.utils.Menu import Menu
-from classes.utils.Print import Print
+from py_libs.Menu import Menu
+from py_libs.Print import Print
 
 
 def acf_func(to_import: bool = False):

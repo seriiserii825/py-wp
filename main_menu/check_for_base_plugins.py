@@ -1,6 +1,6 @@
 from classes.csv.BasePluginsCsv import BasePluginsCsv
 from classes.plugin.Plugin import Plugin
-from classes.utils.Print import Print
+from py_libs.Print import Print
 
 
 def check_for_base_plugins():

@@ -1,9 +1,9 @@
 from pathlib import Path
 
 from classes.files.FileWriter import FileWriter
-from classes.utils.Command import Command
-from classes.utils.InputValidator import InputValidator
-from classes.utils.Select import Select
+from py_libs.Command import Command
+from py_libs.InputValidator import InputValidator
+from py_libs.Select import Select
 from classes.utils.WPPaths import WPPaths
 
 

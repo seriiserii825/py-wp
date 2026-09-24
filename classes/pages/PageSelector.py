@@ -1,4 +1,4 @@
-from classes.utils.Select import Select
+from py_libs.Select import Select
 from dto.PageDto import PageDto
 
 

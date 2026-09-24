@@ -2,8 +2,8 @@ from classes.pages.PageDisplayer import PageDisplayer
 from classes.pages.PageFileHandler import PageFileHandler
 from classes.pages.PageManager import PageManager
 from classes.pages.PageSelector import PageSelector
-from classes.utils.Command import Command
-from classes.utils.Print import Print
+from py_libs.Command import Command
+from py_libs.Print import Print
 from dto.PageDto import PageDto
 
 

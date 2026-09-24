@@ -4,11 +4,11 @@ from pathlib import Path
 from classes.files.AbstractFileCreator import AbstractFileCreator
 from classes.files.FileWriter import FileWriter
 from classes.files.PHPApiFileCreator import PHPApiFileCreator
-from classes.utils.Command import Command
-from classes.utils.InputValidator import InputValidator
-from classes.utils.Notification import Notification
-from classes.utils.Print import Print
-from classes.utils.Select import Select
+from py_libs.Command import Command
+from py_libs.InputValidator import InputValidator
+from py_libs.Notification import Notification
+from py_libs.Print import Print
+from py_libs.Select import Select
 
 
 class ModuleFileCreator(AbstractFileCreator):

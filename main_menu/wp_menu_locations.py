@@ -1,4 +1,4 @@
-from classes.utils.Menu import Menu
+from py_libs.Menu import Menu
 from classes.wp_menus.WpMenuLocations import WpMenuLocations
 from main_menu.wp_menu_handler import wp_menu_handler
 

@@ -2,7 +2,7 @@ import os
 from typing import List
 
 from classes.exception.NewSectionException import NewSectionException
-from classes.utils.Select import Select
+from py_libs.Select import Select
 
 
 class SelectSection:

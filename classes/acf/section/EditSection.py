@@ -8,11 +8,11 @@ from classes.acf.section.AcfBlock import AcfBlock
 from classes.acf.section.CreateSection import CreateSection
 from classes.exception.NewSectionException import NewSectionException
 from classes.pages.Page import Page
-from classes.utils.Command import Command
-from classes.utils.InputValidator import InputValidator
-from classes.utils.Menu import Menu
-from classes.utils.Print import Print
-from classes.utils.Select import Select
+from py_libs.Command import Command
+from py_libs.InputValidator import InputValidator
+from py_libs.Menu import Menu
+from py_libs.Print import Print
+from py_libs.Select import Select
 
 
 class EditSection:

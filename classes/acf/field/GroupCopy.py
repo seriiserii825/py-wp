@@ -1,7 +1,7 @@
 import pyperclip
 
 from classes.acf.field.FieldMover import FieldMover
-from classes.utils.Notification import Notification
+from py_libs.Notification import Notification
 
 
 class GroupCopy:

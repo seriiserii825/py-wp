@@ -1,7 +1,7 @@
 from classes.csv.BasePluginsCsv import BasePluginsCsv
 from classes.csv.OtherPluginsCsv import OtherPluginsCsv
 from classes.plugin.Plugin import Plugin
-from classes.utils.Menu import Menu
+from py_libs.Menu import Menu
 
 
 def plugins_menu():

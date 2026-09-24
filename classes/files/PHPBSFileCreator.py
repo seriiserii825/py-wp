@@ -2,7 +2,7 @@ from pathlib import Path
 from classes.files.AbstractFileCreator import AbstractFileCreator
 from classes.files.PHPBlockFileCreator import PHPBlockFileCreator
 from classes.files.PhpTemplateToFile import PhpTemplateToFile
-from classes.utils.Command import Command
+from py_libs.Command import Command
 from classes.files.SCSSFileCreator import SCSSFileCreator
 
 

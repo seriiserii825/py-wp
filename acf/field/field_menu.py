@@ -4,7 +4,7 @@ from pathlib import Path
 from rich import print
 from classes.acf.AcfTransfer import AcfTransfer
 from classes.acf.field.FieldMenu import FieldMenu
-from classes.utils.Menu import Menu
+from py_libs.Menu import Menu
 from classes.utils.WPPaths import WPPaths
 
 

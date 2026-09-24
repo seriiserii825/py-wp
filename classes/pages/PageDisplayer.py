@@ -1,5 +1,5 @@
 from classes.pages.PageManager import PageManager
-from classes.utils.Menu import Menu
+from py_libs.Menu import Menu
 from dto.PageDto import PageDto
 
 

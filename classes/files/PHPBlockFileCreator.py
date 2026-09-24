@@ -3,8 +3,8 @@ import re
 from classes.files.AbstractFileCreator import AbstractFileCreator
 from classes.files.FileWriter import FileWriter
 from classes.files.FilesHandle import FilesHandle
-from classes.utils.Command import Command
-from classes.utils.InputValidator import InputValidator
+from py_libs.Command import Command
+from py_libs.InputValidator import InputValidator
 
 
 class PHPBlockFileCreator(AbstractFileCreator):

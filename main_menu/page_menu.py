@@ -1,6 +1,6 @@
 from rich import print
 from classes.pages.Page import Page
-from classes.utils.Menu import Menu
+from py_libs.Menu import Menu
 
 
 def page_menu():

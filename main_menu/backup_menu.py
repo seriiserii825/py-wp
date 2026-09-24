@@ -1,5 +1,5 @@
 from classes.backup.Backup import Backup
-from classes.utils.Menu import Menu
+from py_libs.Menu import Menu
 from main_menu.check_for_base_plugins import check_for_base_plugins
 
 

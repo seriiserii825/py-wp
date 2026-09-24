@@ -1,6 +1,6 @@
 import os
 
-from classes.utils.Print import Print
+from py_libs.Print import Print
 
 
 def check_is_wp():

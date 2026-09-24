@@ -7,10 +7,10 @@ from classes.acf.section.SectionMenu import SectionMenu
 from classes.data.WpData import WpData
 from classes.exception.NewSectionException import NewSectionException
 from classes.utils.Generate import Generate
-from classes.utils.InputValidator import InputValidator
-from classes.utils.Menu import Menu
-from classes.utils.Print import Print
-from classes.utils.Select import Select
+from py_libs.InputValidator import InputValidator
+from py_libs.Menu import Menu
+from py_libs.Print import Print
+from py_libs.Select import Select
 from classes.utils.WPPaths import WPPaths
 from dto.SectionDto import SectionDTO
 

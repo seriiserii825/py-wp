@@ -2,8 +2,8 @@ from classes.theme.Theme import Theme
 
 
 def theme_menu():
-    from classes.utils.Select import Select
-    from classes.utils.Command import Command
+    from py_libs.Select import Select
+    from py_libs.Command import Command
 
     options = [
         "List all themes",

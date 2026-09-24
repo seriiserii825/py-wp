@@ -1,7 +1,7 @@
 import re
 import shlex
 
-from classes.utils.Command import Command
+from py_libs.Command import Command
 
 
 class PageManager:

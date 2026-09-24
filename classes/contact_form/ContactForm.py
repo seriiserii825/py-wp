@@ -10,10 +10,10 @@ from classes.contact_form.HoneypotChecker import HoneypotChecker
 from classes.contact_form.RandomFieldDisplayer import RandomFieldDisplayer
 from classes.contact_form.RandomFieldService import RandomFieldService
 from classes.contact_form.form_dto.FormFilesDto import FormFilesDto
-from classes.utils.Command import Command
-from classes.utils.Menu import Menu
-from classes.utils.Print import Print
-from classes.utils.Select import Select
+from py_libs.Command import Command
+from py_libs.Menu import Menu
+from py_libs.Print import Print
+from py_libs.Select import Select
 from classes.utils.WPPaths import WPPaths
 from dto.ContactFormDto import ContactFormDto
 from dto.FormFieldsDto import FormFieldsDto

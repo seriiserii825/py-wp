@@ -3,9 +3,9 @@ from pathlib import Path
 from classes.files.FileCreatorFactory import FileCreatorFactory
 from classes.files.FilesHandle import FilesHandle
 from classes.files.ModuleFileCreator import ModuleFileCreator
-from classes.utils.InputValidator import InputValidator
+from py_libs.InputValidator import InputValidator
 from classes.utils.ModuleSystemDetector import ModuleSystemDetector
-from classes.utils.Select import Select
+from py_libs.Select import Select
 from main_menu.file_type_menu import file_type_menu
 from rich import print
 

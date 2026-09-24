@@ -4,8 +4,8 @@ import subprocess
 from pathlib import Path
 
 from classes.acf.AcfSnapshotService import AcfSnapshotService
-from classes.utils.Command import Command
-from classes.utils.Print import Print
+from py_libs.Command import Command
+from py_libs.Print import Print
 from classes.utils.WPPaths import WPPaths, PathKey
 
 
