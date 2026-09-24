@@ -6,6 +6,7 @@ from rich import print
 from classes.utils.Command import Command
 from classes.utils.InputValidator import InputValidator
 from classes.utils.Menu import Menu
+from classes.utils.Print import Print
 from classes.utils.Select import Select
 
 
@@ -142,42 +143,46 @@ class ImagesClass:
 
     def upload_all(self):
         images = self.get_images()
-        self.import_images(images, ask_bulk_png=True)
+        self.import_images(images)
 
     def select_images(self):
         images = self.get_images()
         selected_images = Select.select_with_fzf(images)
-        self.import_images(selected_images, ask_bulk_png=True)
+        self.import_images(selected_images)
 
-    def import_images(self, images: list[str], ask_bulk_png: bool = False):
-        convert_all_png = False
-        ask_png_individually = True
-
-        if ask_bulk_png and any(image.endswith(".png") for image in images):
-            convert_all_png = InputValidator.confirm(
-                "PNG images found. Do you want to convert all of them to jpg?"
-            )
-            ask_png_individually = not convert_all_png
+    def import_images(self, images: list[str]):
+        png_to_convert = self._choose_png_to_convert(images)
 
         for image in images:
             if image.endswith(".jpg"):
                 self.optimize_image(image)
                 self.upload_image(image)
-            elif image.endswith(".png"):
-                if convert_all_png:
-                    self.convert_png_and_upload(image)
-                elif ask_png_individually:
-                    convert_png = InputValidator.confirm(
-                        f'Do you want to convert "{image}" png to jpg?'
-                    )
-                    if convert_png:
-                        self.convert_png_and_upload(image)
-                    else:
-                        self.upload_image(image)
-                else:
-                    self.upload_image(image)
+            elif image in png_to_convert:
+                self.convert_png_and_upload(image)
             else:
                 self.upload_image(image)
+
+    def _choose_png_to_convert(self, images: list[str]) -> set[str]:
+        png_images = [image for image in images if image.endswith(".png")]
+        if not png_images:
+            return set()
+
+        options = [
+            "Convert all to jpg",
+            "Convert some of them to jpg",
+            "Leave all png",
+        ]
+        print(f"[yellow]PNG images found: {len(png_images)}")
+        match Menu.select_fzf(options):
+            case 0:
+                return set(png_images)
+            case 1:
+                Print.info(
+                    "Use <Tab> to select multiple items, <Enter> to confirm."
+                )
+                return set(Select.select_with_fzf(png_images))
+            case _:
+                return set()
 
     def convert_png_and_upload(self, image: str):
         os.system("mogrify -format jpg ~/Downloads/" + image)
