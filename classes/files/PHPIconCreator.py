@@ -10,6 +10,9 @@ from py_libs.FilesHandle import FilesHandle
 
 
 class PHPIconCreator(AbstractFileCreator):
+    def __init__(self) -> None:
+        self._multiple = False
+
     def get_root_dir(self) -> str:
         try:
             self._get_svg_from_clipboard()
@@ -22,8 +25,13 @@ class PHPIconCreator(AbstractFileCreator):
         return "php"
 
     def _file_path(self, path_to_dir) -> str:
+        self._multiple = not InputValidator.confirm("Create one icon?")
+        FilesHandle().list_files(path_to_dir, file_extension=".php")
         file_name = InputValidator.get_string(
             "Enter icon name, icon- will be added: ")
+        return self._build_icon_path(path_to_dir, file_name)
+
+    def _build_icon_path(self, path_to_dir: str, file_name: str) -> str:
         file_name = f"icon-{file_name}"
         file_name = self._remove_extension(file_name)
         file_name = self._clear_whitespaces(file_name)
@@ -31,6 +39,22 @@ class PHPIconCreator(AbstractFileCreator):
         return str(Path(path_to_dir) / file_name)
 
     def template_to_file(self, file_path: str) -> None:
+        self._write_icon(file_path)
+        if not self._multiple:
+            return
+
+        dir_path = str(Path(file_path).parent)
+        while True:
+            FilesHandle().list_files(dir_path, file_extension=".php")
+            file_name = InputValidator.get_string(
+                "Copy next SVG, then enter icon name (or 'exit'): ")
+            if file_name.lower() == "exit":
+                exit(0)
+            next_path = self._build_icon_path(dir_path, file_name)
+            self._create_file(next_path)
+            self._write_icon(next_path)
+
+    def _write_icon(self, file_path: str) -> None:
         try:
             svg = self._get_svg_from_clipboard()
         except ValueError as e:

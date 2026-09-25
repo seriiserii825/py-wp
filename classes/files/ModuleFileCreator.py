@@ -5,6 +5,7 @@ from classes.files.AbstractFileCreator import AbstractFileCreator
 from classes.files.FileWriter import FileWriter
 from classes.files.PHPApiFileCreator import PHPApiFileCreator
 from py_libs.Command import Command
+from py_libs.FilesHandle import FilesHandle
 from py_libs.InputValidator import InputValidator
 from py_libs.Notification import Notification
 from py_libs.Print import Print
@@ -20,6 +21,7 @@ class ModuleFileCreator(AbstractFileCreator):
         self._preset_name = preset_name
         self._api_func_name: str = ""
         self._api_route: str = ""
+        self._multiple_icons = False
 
     def _file_path(self, path_to_dir) -> str:
         if self._file_type == "api":
@@ -30,6 +32,8 @@ class ModuleFileCreator(AbstractFileCreator):
             return str(Path(path_to_dir) / file_name)
         if self._file_type == "icon":
             module_name = Path(self._module_path).name
+            FilesHandle().list_files(path_to_dir, file_extension=".php")
+            self._multiple_icons = not InputValidator.confirm("Create one icon?")
             default_exists = (Path(path_to_dir) / f"icon-{module_name}.php").exists()
             if not default_exists and InputValidator.confirm(f"Use '{module_name}' as icon name?"):
                 file_name = module_name
@@ -69,6 +73,8 @@ class ModuleFileCreator(AbstractFileCreator):
                 return
             case "icon":
                 self._write_icon(file_path)
+                if self._multiple_icons:
+                    self._write_more_icons(str(Path(file_path).parent))
                 return
 
         Command.run(f"bat '{Path(file_path).resolve()}'")
@@ -97,6 +103,21 @@ class ModuleFileCreator(AbstractFileCreator):
         name = Path(file_path).stem
         content = f"export default function {name}() {{\n}}\n"
         FileWriter.write_file(Path(file_path), content)
+
+    def _write_more_icons(self, dir_path: str) -> None:
+        while True:
+            FilesHandle().list_files(dir_path, file_extension=".php")
+            file_name = InputValidator.get_string(
+                "Copy next SVG, then enter icon name (or 'exit'): ")
+            if file_name.lower() == "exit":
+                exit(0)
+            file_name = f"icon-{file_name}"
+            file_name = self._remove_extension(file_name)
+            file_name = self._clear_whitespaces(file_name)
+            file_name = self._add_extension(file_name, self.get_extension())
+            next_path = str(Path(dir_path) / file_name)
+            self._create_file(next_path)
+            self._write_icon(next_path)
 
     def _write_icon(self, file_path: str) -> None:
         svg = pyperclip.paste()
