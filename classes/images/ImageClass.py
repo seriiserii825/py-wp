@@ -133,6 +133,22 @@ class ImagesClass:
         sorted_images = sorted(images)
         return sorted_images
 
+    def show_downloads_images(self):
+        images = self.get_images()
+        if not images:
+            print("[red]No images found in Downloads folder!")
+            return
+        headers = ["File", "Size (KB)"]
+        rows = []
+        for image in images:
+            size_kb = os.path.getsize(os.path.join(self.downloads_dir, image)) / 1024
+            rows.append([image, f"{size_kb:.2f} KB"])
+        Menu.display(
+            "Images in Downloads",
+            headers,
+            rows,
+        )
+
     def optimize_image(self, image):
         os.system(
             f"jpegoptim --strip-all --all-progressive -ptm 85 ~/Downloads/{image}"

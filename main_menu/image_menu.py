@@ -5,6 +5,7 @@ from rich import print
 def image_menu():
     image_class = ImagesClass()
     image_class.replace_space_with_uderscore()
+    image_class.show_downloads_images()
     print("[green]1) Show all")
     print("[green]2) Upload all")
     print("[blue]3) Select")

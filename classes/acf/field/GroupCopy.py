@@ -35,16 +35,15 @@ class GroupCopy:
     ):
         field_type = field.get("type")
         sub_fields = field.get("sub_fields", [])
-        prefix = "    " * indent
 
         if field_type == "repeater":
             repeater_depth += 1
-            # Unique loop variable per nesting depth so nested repeaters don't shadow each other.
+            # No foreach is emitted: repeater sub fields are only indented,
+            # the loop itself is written by hand.
+            # Unique item variable per nesting depth so nested repeaters don't shadow each other.
             item_var = "$item" if repeater_depth == 1 else f"$item{repeater_depth}"
-            output.append(f"{prefix}foreach ({source_expr} as {item_var}) {{")
             for sub in sub_fields:
                 self._emit_field(sub, item_var, indent + 1, output, repeater_depth)
-            output.append(f"{prefix}}}")
         else:
             for sub in sub_fields:
                 self._emit_field(sub, source_expr, indent, output, repeater_depth)
