@@ -1,5 +1,6 @@
 from classes.acf.enum.EFieldType import EFieldType
 from classes.acf.field.FieldBuilder import FieldBuilder
+from classes.utils.ExitApp import ExitApp
 from py_libs.InputValidator import InputValidator
 from py_libs.Print import Print
 from py_libs.Select import Select
@@ -30,18 +31,19 @@ class FieldEditor:
             attributes = self.get_all_attributes(target, inside_repeater)
             editable = self._get_editable(attributes)
             editable["back"] = "Back"
+            editable["exit"] = "Exit"
             self._print_attributes(editable)
 
             selected = Select.select_with_fzf(list(editable.keys()))[0]
             Print.info(f"Selected attribute: {selected}")
 
-            if selected is None or selected == "exit":
-                Print.info("Exiting edit mode.")
+            if selected is None or selected == "back":
+                Print.info("Going back.\n")
                 return
 
-            if selected == "back":
-                Print.info("Going back to main menu.\n")
-                return
+            if selected == "exit":
+                ExitApp.confirm_and_exit()
+                continue
 
             self._edit_attribute(selected, target)
             self.repo.save(data)
@@ -50,7 +52,6 @@ class FieldEditor:
     def _get_editable(self, attrs):
         attrs = dict(attrs)
         attrs.pop("name", None)
-        attrs["exit"] = "Exit edit mode"
         return attrs
 
     def _type_enum(self, target) -> EFieldType:

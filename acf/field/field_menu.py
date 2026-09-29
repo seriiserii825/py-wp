@@ -5,6 +5,7 @@ from rich import print
 from classes.acf.AcfTransfer import AcfTransfer
 from classes.acf.field.FieldMenu import FieldMenu
 from py_libs.Menu import Menu
+from classes.utils.ExitApp import ExitApp
 from classes.utils.WPPaths import WPPaths
 
 
@@ -52,7 +53,8 @@ def acf_menu(section_file_json_path):
             "12.Copy group to clipboard",
             "13.Upload changes to WordPress",
             "14.Reorder from snapshot",
-            "15.Exit",
+            "15.Back",
+            "16.Exit",
         ]
         choice = Menu.select_fzf(menu_options)
         if choice == 0:
@@ -122,8 +124,11 @@ def acf_menu(section_file_json_path):
             except Exception as e:
                 print(f"Error reordering from snapshot: {e}")
         elif choice == 15:
-            print("Exiting ACF Field Menu.")
+            print("Going back.")
             break
+        elif choice == 16:
+            ExitApp.confirm_and_exit()
+            render()
         else:
             print("Invalid choice. Please try again.")
 
