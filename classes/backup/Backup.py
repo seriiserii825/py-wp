@@ -3,6 +3,7 @@ from classes.csv.MntProjectsPathsCsv import MntProjectsPathsCsv
 from py_libs.FilesHandle import FilesHandle
 from classes.selenium.MySelenium import MySelenium
 from py_libs.Command import Command
+from py_libs.Rsync import Rsync
 from py_libs.InputValidator import InputValidator
 from classes.utils.WPPaths import WPPaths
 from rich import print
@@ -74,7 +75,7 @@ class Backup:
         fh.list_files(downloads_dir, ".wpress", mtime=True, newest_first=True)
         selected_backup = fh.choose_file(downloads_dir, ".wpress", newest_first=True)
         print(f"selected_backup: {selected_backup}")
-        os.system(f'cp ~/Downloads/{selected_backup} "{self.backup_dir_abs_path}"')
+        Rsync.local(f"{downloads_dir}/{selected_backup}", self.backup_dir_abs_path)
         self.list_backup()
         os.system(f"wp ai1wm restore {selected_backup}")
 
@@ -104,7 +105,7 @@ class Backup:
         if last_backup:
             backup_path = f"{self.backup_dir_abs_path}/{last_backup}"
             destination = os.path.expanduser("~/Downloads")
-            Command.run(f'cp "{backup_path}" {destination}')
+            Rsync.local(backup_path, destination)
             print(f"[green]Last backup copied to ~/Downloads/{last_backup}")
         else:
             print("[red]No backups found to copy.")
@@ -113,7 +114,7 @@ class Backup:
         last_backup = self.get_last_backup_path()
         if last_backup:
             backup_path = f"{self.backup_dir_abs_path}/{last_backup}"
-            Command.run(f"cp '{backup_path}' '{mnt_path}'")
+            Rsync.local(backup_path, mnt_path)
         else:
             print("[red]No backups found to copy.")
 
