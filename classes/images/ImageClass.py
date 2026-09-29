@@ -154,8 +154,17 @@ class ImagesClass:
             f"jpegoptim --strip-all --all-progressive -ptm 85 ~/Downloads/{image}"
         )
 
-    def upload_image(self, image: str):
-        os.system("wp media import ~/Downloads/" + image + " --title=" + image)
+    def upload_image(self, image: str) -> int | None:
+        path = os.path.join(self.downloads_dir, image)
+        try:
+            output = Command.run_quiet(
+                Command.build("wp media import", path, f"--title={image}", "--porcelain")
+            )
+        except RuntimeError as err:
+            print(f"[red]{err}")
+            return None
+        print(f"[green]Uploaded: {image} (ID {output})")
+        return int(output) if output.isdigit() else None
 
     def upload_all(self):
         images = self.get_images()
@@ -167,16 +176,37 @@ class ImagesClass:
         self.import_images(selected_images)
 
     def import_images(self, images: list[str]):
+        images = sorted(images)
         png_to_convert = self._choose_png_to_convert(images)
 
+        uploaded_ids: list[int] = []
         for image in images:
             if image.endswith(".jpg"):
                 self.optimize_image(image)
-                self.upload_image(image)
+                image_id = self.upload_image(image)
             elif image in png_to_convert:
-                self.convert_png_and_upload(image)
+                image_id = self.convert_png_and_upload(image)
             else:
-                self.upload_image(image)
+                image_id = self.upload_image(image)
+            if image_id is not None:
+                uploaded_ids.append(image_id)
+
+        self._set_dates_in_title_order(uploaded_ids)
+
+    def _set_dates_in_title_order(self, image_ids: list[int]):
+        """Media library sorts by post_date DESC with 1-second precision, so images
+        uploaded within the same second end up in random order. Give each image its
+        own second: the first (alphabetically) gets the newest date and shows on top."""
+        if not image_ids:
+            return
+        ids = ",".join(str(image_id) for image_id in image_ids)
+        Command.run_quiet(
+            "wp eval '$now = current_time(\"timestamp\");"
+            f" foreach ([{ids}] as $i => $id) {{"
+            " $date = date(\"Y-m-d H:i:s\", $now - $i);"
+            " wp_update_post([\"ID\" => $id, \"post_date\" => $date,"
+            " \"post_date_gmt\" => get_gmt_from_date($date)]); }'"
+        )
 
     def _choose_png_to_convert(self, images: list[str]) -> set[str]:
         png_images = [image for image in images if image.endswith(".png")]
@@ -200,9 +230,9 @@ class ImagesClass:
             case _:
                 return set()
 
-    def convert_png_and_upload(self, image: str):
+    def convert_png_and_upload(self, image: str) -> int | None:
         os.system("mogrify -format jpg ~/Downloads/" + image)
         new_image = image.replace(".png", ".jpg")
         os.system("rm ~/Downloads/" + image)
         self.optimize_image(new_image)
-        self.upload_image(new_image)
+        return self.upload_image(new_image)
