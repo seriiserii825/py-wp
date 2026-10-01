@@ -29,6 +29,7 @@ def menu(
     menu_pages: bool = False,
     page_ignore: bool = False,
     rank_math: bool = False,
+    rank_math_page: bool = False,
     menu_backups: bool = False,
     menu_images: bool = False,
     menu_menus: bool = False,
@@ -74,6 +75,9 @@ def menu(
     elif menu_page_theme_file:
         page_theme_file_menu()
         return menu()
+    elif rank_math_page:
+        RankMathMetabox.toggle(post_type="page")
+        exit(0)
     elif rank_math:
         RankMathMetabox.toggle()
         exit(0)
@@ -149,6 +153,7 @@ Shell aliases (defined in ~/dotfiles/zsh_modules/zsh_python):
   wbg   -> main.py --menu-pages
   wbgi  -> main.py --page-ignore
   wbgr  -> main.py --rank-math
+  wbgrp -> main.py --rank-math-page
   wbt   -> main.py --menu-taxonomy
   wbb   -> main.py --menu-backups
   wbi   -> main.py --menu-images
@@ -228,6 +233,12 @@ ACF import/export notes:
         ),
     )
     parser.add_argument(
+        "--rank-math-page",
+        "--rmp",
+        action="store_true",
+        help="Toggle Rank Math metaboxes for Pages (no post type prompt)",
+    )
+    parser.add_argument(
         "--menu-backups", action="store_true", help="Directly open the Backups menu"
     )
     parser.add_argument(
@@ -260,6 +271,7 @@ ACF import/export notes:
         menu_pages=args.menu_pages,
         page_ignore=args.page_ignore,
         rank_math=args.rank_math,
+        rank_math_page=args.rank_math_page,
         menu_backups=args.menu_backups,
         menu_images=args.menu_images,
         menu_menus=args.menu_wp_menus,
