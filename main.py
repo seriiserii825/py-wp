@@ -14,6 +14,7 @@ from classes.pages.Page import Page
 from classes.pages.RankMathMetabox import RankMathMetabox
 from main_menu.page_menu import page_menu
 from main_menu.page_theme_file_menu import page_theme_file_menu
+from main_menu.post_menu import post_menu
 from main_menu.plugins_menu import plugins_menu
 from main_menu.site_settings_menu import site_settings_menu
 from main_menu.taxonomy_menu import taxonomy_menu
@@ -27,6 +28,7 @@ def menu(
     menu_acf: bool = False,
     menu_plugins: bool = False,
     menu_pages: bool = False,
+    menu_posts: bool = False,
     page_ignore: bool = False,
     rank_math: bool = False,
     rank_math_page: bool = False,
@@ -42,7 +44,7 @@ def menu(
         "01).Plugins",
         "02).Backups",
         "03).Images",
-        "04).Pages",
+        "04).Pages / Posts",
         "05).Taxonomy",
         "06).Themes",
         "07).Menus",
@@ -75,6 +77,9 @@ def menu(
     elif menu_page_theme_file:
         page_theme_file_menu()
         return menu()
+    elif menu_posts:
+        post_menu()
+        exit(0)
     elif rank_math_page:
         RankMathMetabox.toggle(post_type="page")
         exit(0)
@@ -151,6 +156,7 @@ Shell aliases (defined in ~/dotfiles/zsh_modules/zsh_python):
   wba   -> main.py --menu-acf
   wbp   -> main.py --menu-plugins
   wbg   -> main.py --menu-pages
+  wbgo  -> main.py --menu-posts
   wbgi  -> main.py --page-ignore
   wbgr  -> main.py --rank-math
   wbgrp -> main.py --rank-math-page
@@ -218,6 +224,9 @@ ACF import/export notes:
         "--menu-pages", action="store_true", help="Directly open the Pages menu"
     )
     parser.add_argument(
+        "--menu-posts", action="store_true", help="Directly open the Posts menu"
+    )
+    parser.add_argument(
         "--page-ignore",
         "--pi",
         action="store_true",
@@ -269,6 +278,7 @@ ACF import/export notes:
         menu_acf=args.menu_acf,
         menu_plugins=args.menu_plugins,
         menu_pages=args.menu_pages,
+        menu_posts=args.menu_posts,
         page_ignore=args.page_ignore,
         rank_math=args.rank_math,
         rank_math_page=args.rank_math_page,

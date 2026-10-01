@@ -53,7 +53,7 @@ class Page:
 
     @classmethod
     def create_many(cls):
-        titles = input("Enter page titles (comma-separated): ").strip().split(",")
+        titles = input("Enter page titles (separated by |): ").strip().split("|")
         if not titles:
             Print.error("No titles provided.")
             return

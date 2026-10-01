@@ -6,16 +6,16 @@ from py_libs.Command import Command
 
 class PageManager:
     @staticmethod
-    def create(title: str):
+    def create(title: str, post_type: str = "page"):
         Command.run(
-            f"wp post create --post_type=page "
-            f"--post_status=publish --post_title='{title}'"
+            f"wp post create --post_type={post_type} "
+            f"--post_status=publish --post_title={shlex.quote(title)}"
         )
 
     @classmethod
-    def create_many(cls, titles: list[str]):
+    def create_many(cls, titles: list[str], post_type: str = "page"):
         for title in titles:
-            cls.create(title.strip())
+            cls.create(title.strip(), post_type)
 
     @staticmethod
     def delete(page_id: int):
