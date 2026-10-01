@@ -17,7 +17,8 @@ def page_menu():
         6: "blue",
         7: "blue",
         8: "blue",
-        9: "red",
+        9: "yellow",
+        10: "red",
     }
     menu_items = [
         ["0", "List Pages"],
@@ -29,7 +30,8 @@ def page_menu():
         ["6", "Rename Page"],
         ["7", "Change Template"],
         ["8", "Set Front Page"],
-        ["9", "Exit"],
+        ["9", "Ignore page & Exit"],
+        ["10", "Exit"],
     ]
 
     Menu.display(
@@ -79,6 +81,9 @@ def page_menu():
         Page.set_front_page()
         page_menu()
     elif choice == 9:
+        Page.ignore_page()
+        return
+    elif choice == 10:
         print("[red]Exiting the program. Goodbye!")
         return
     else:
