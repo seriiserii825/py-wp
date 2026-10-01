@@ -3,6 +3,7 @@ import time
 from playwright.sync_api import TimeoutError as PlaywrightTimeoutError
 
 from classes.selenium.WPPlaywright import WPPlaywright, log
+from classes.selenium.WPPlugins import WPPlugins, BACKUP_PLUGINS, BACKUP_PLUGINS_OPTIONAL
 from py_libs.InputValidator import InputValidator
 
 
@@ -10,7 +11,8 @@ class WPPlaywrightDeleteBackup(WPPlaywright):
     def start(self):
         try:
             self.ensure_logged_in()
-            self.delete_backup_in_chrome()
+            with WPPlugins(self.page, self.project_url).activated(BACKUP_PLUGINS, BACKUP_PLUGINS_OPTIONAL):
+                self.delete_backup_in_chrome()
         finally:
             self.close()
 

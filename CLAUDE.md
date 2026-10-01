@@ -72,6 +72,9 @@ The most complex subsystem, split into two concerns:
 
 `PHPBlockFileCreator` additionally generates ACF block registration code and appends an include to `functions.php`.
 
+### Browser Backups
+Backup create/download/delete/restore through wp-admin (Playwright, All-in-One WP Migration plugins toggled on/off around each run) live in `classes/selenium/` — details in `classes/selenium/CLAUDE.md`.
+
 ### DTOs
 Global DTOs live in `dto/`. Module-local DTOs (e.g., `FieldDTO`) live alongside their module in `classes/acf/field/dto/`.
 

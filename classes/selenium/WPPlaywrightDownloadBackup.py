@@ -4,6 +4,7 @@ from pathlib import Path
 from playwright.sync_api import TimeoutError as PlaywrightTimeoutError
 
 from classes.selenium.WPPlaywright import WPPlaywright, log
+from classes.selenium.WPPlugins import WPPlugins, BACKUP_PLUGINS, BACKUP_PLUGINS_OPTIONAL
 
 
 class WPPlaywrightDownloadBackup(WPPlaywright):
@@ -11,7 +12,8 @@ class WPPlaywrightDownloadBackup(WPPlaywright):
         try:
             self.ensure_logged_in()
             self.goToUsers()
-            return self.download_last_backup_from_server()
+            with WPPlugins(self.page, self.project_url).activated(BACKUP_PLUGINS, BACKUP_PLUGINS_OPTIONAL):
+                return self.download_last_backup_from_server()
         finally:
             self.close()
 

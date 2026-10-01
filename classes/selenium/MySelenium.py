@@ -13,6 +13,12 @@ from playwright.sync_api import (
 )
 
 from classes.projects.Project import Project
+from classes.selenium.WPPlugins import (
+    WPPlugins,
+    BACKUP_PLUGINS,
+    BACKUP_PLUGINS_OPTIONAL,
+    PluginNotInstalledError,
+)
 from py_libs.InputValidator import InputValidator
 
 
@@ -292,6 +298,11 @@ class MySelenium:
     def restore_backup_in_chrome(self):
         self._login(check_login_element=True)
         self.goToUsers()
+        try:
+            WPPlugins(self.page, self.project_url).activate(BACKUP_PLUGINS, BACKUP_PLUGINS_OPTIONAL)
+        except PluginNotInstalledError:
+            self._close()
+            raise
         backups_url = f"{self.project_url}/wp-admin/admin.php?page=ai1wm_backups"
         self.page.goto(backups_url)
 
@@ -329,13 +340,11 @@ class MySelenium:
         self.page.locator("#submit").click()
         self._handle_post_permalink_redirect()
 
-        plugins_url = f"{self.project_url}/wp-admin/plugins.php"
-        self.page.goto(plugins_url)
-        self._find_and_click("#activate-wps-hide-login")
-        try:
-            self._find_and_click("#activate-altuofianco-theme-login")
-        except PlaywrightTimeoutError:
-            print("[dim]    altuofianco-theme-login not found, skipping[/dim]")
+        # page was recreated by _restart_browser — new WPPlugins instance
+        plugins = WPPlugins(self.page, self.project_url)
+        login_plugins = ["wps-hide-login", "altuofianco-theme-login"]
+        plugins.activate(login_plugins, optional=login_plugins)
+        plugins.deactivate(list(reversed(BACKUP_PLUGINS)))
 
         self._close()
 
