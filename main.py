@@ -11,6 +11,7 @@ from main_menu.file_menu import file_menu
 from main_menu.image_menu import image_menu
 from main_menu.init import init, reset_settings
 from classes.pages.Page import Page
+from classes.pages.RankMathMetabox import RankMathMetabox
 from main_menu.page_menu import page_menu
 from main_menu.page_theme_file_menu import page_theme_file_menu
 from main_menu.plugins_menu import plugins_menu
@@ -27,6 +28,7 @@ def menu(
     menu_plugins: bool = False,
     menu_pages: bool = False,
     page_ignore: bool = False,
+    rank_math: bool = False,
     menu_backups: bool = False,
     menu_images: bool = False,
     menu_menus: bool = False,
@@ -72,6 +74,9 @@ def menu(
     elif menu_page_theme_file:
         page_theme_file_menu()
         return menu()
+    elif rank_math:
+        RankMathMetabox.toggle()
+        exit(0)
     elif page_ignore:
         Page.ignore_page()
         exit(0)
@@ -143,6 +148,7 @@ Shell aliases (defined in ~/dotfiles/zsh_modules/zsh_python):
   wbp   -> main.py --menu-plugins
   wbg   -> main.py --menu-pages
   wbgi  -> main.py --page-ignore
+  wbgr  -> main.py --rank-math
   wbt   -> main.py --menu-taxonomy
   wbb   -> main.py --menu-backups
   wbi   -> main.py --menu-images
@@ -213,6 +219,15 @@ ACF import/export notes:
         help="Directly run 'Ignore page' from the Pages menu, then exit",
     )
     parser.add_argument(
+        "--rank-math",
+        "--rmm",
+        action="store_true",
+        help=(
+            "Toggle Rank Math metaboxes (Screen Options) in the editor, "
+            "then exit"
+        ),
+    )
+    parser.add_argument(
         "--menu-backups", action="store_true", help="Directly open the Backups menu"
     )
     parser.add_argument(
@@ -244,6 +259,7 @@ ACF import/export notes:
         menu_plugins=args.menu_plugins,
         menu_pages=args.menu_pages,
         page_ignore=args.page_ignore,
+        rank_math=args.rank_math,
         menu_backups=args.menu_backups,
         menu_images=args.menu_images,
         menu_menus=args.menu_wp_menus,

@@ -1,5 +1,6 @@
 from rich import print
 from classes.pages.Page import Page
+from classes.pages.RankMathMetabox import RankMathMetabox
 from py_libs.Menu import Menu
 
 
@@ -17,8 +18,9 @@ def page_menu():
         6: "blue",
         7: "blue",
         8: "blue",
-        9: "yellow",
-        10: "red",
+        9: "blue",
+        10: "yellow",
+        11: "red",
     }
     menu_items = [
         ["0", "List Pages"],
@@ -30,8 +32,9 @@ def page_menu():
         ["6", "Rename Page"],
         ["7", "Change Template"],
         ["8", "Set Front Page"],
-        ["9", "Ignore page & Exit"],
-        ["10", "Exit"],
+        ["9", "Toggle Rank Math metabox"],
+        ["10", "Ignore page & Exit"],
+        ["11", "Exit"],
     ]
 
     Menu.display(
@@ -81,9 +84,12 @@ def page_menu():
         Page.set_front_page()
         page_menu()
     elif choice == 9:
+        RankMathMetabox.toggle()
+        page_menu()
+    elif choice == 10:
         Page.ignore_page()
         return
-    elif choice == 10:
+    elif choice == 11:
         print("[red]Exiting the program. Goodbye!")
         return
     else:
