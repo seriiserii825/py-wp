@@ -315,7 +315,7 @@ class WpMenu:
             return
 
         if edit_mode == 0:
-            self._edit_label_url(db_id)
+            self._edit_label_url(db_id, item)
         elif edit_mode == 1:
             self._update_custom(db_id)
         elif edit_mode == 2:
@@ -327,9 +327,12 @@ class WpMenu:
         elif edit_mode == 5:
             self._replace_with_taxonomy_term(slug, db_id, position, parent_id)
 
-    def _edit_label_url(self, db_id: str):
-        print("[yellow]Leave blank to keep current value[/yellow]")
+    def _edit_label_url(self, db_id: str, item: dict):
+        current_title = item.get("title", "")
+        current_url = item.get("url", "")
+        print(f"[yellow]Press Enter to keep current label:[/yellow] [green]{current_title}[/green]")
         title = input("  Label: ").strip()
+        print(f"[yellow]Press Enter to keep current URL:[/yellow] [cyan]{current_url}[/cyan]")
         url = input("  URL: ").strip()
         if not title and not url:
             Print.info("Nothing to update.")
