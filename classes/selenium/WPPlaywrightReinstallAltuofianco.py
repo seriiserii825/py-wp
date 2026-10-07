@@ -4,6 +4,7 @@ from classes.csv.BasePluginsCsv import BasePluginsCsv
 from classes.selenium.WPPlaywright import WPPlaywright, log
 from classes.selenium.WPPlugins import WPPlugins, BACKUP_PLUGINS
 from classes.utils.WPPaths import WPPaths
+from py_libs.Notification import Notification
 
 DISABLE_COMMENTS_PLUGIN = "disable-comments-altuofianco"
 THEME_LOGIN_PLUGIN = "altuofianco-theme-login"
@@ -20,6 +21,16 @@ class WPPlaywrightReinstallAltuofianco(WPPlaywright):
                 raise FileNotFoundError(f"Plugin zip not found: {zip_path}")
             self.ensure_logged_in()
             plugins = WPPlugins(self.page, self.project_url, relogin=self.relogin)
+            # check BEFORE deleting anything: without the upload form the site
+            # would be left without the login plugin
+            if not plugins.can_upload():
+                message = (
+                    f"No 'Upload plugin' on {self.project_url} — plugin installs are "
+                    "blocked (NinjaFirewall / DISALLOW_FILE_MODS?). Nothing was changed."
+                )
+                log.error(message)
+                Notification(title="Reinstall Altuofianco stopped", message=message).notify()
+                raise SystemExit(1)
             for slug in (DISABLE_COMMENTS_PLUGIN, THEME_LOGIN_PLUGIN):
                 if not plugins.delete(slug):
                     log.info(f"{slug} not installed, nothing to remove")

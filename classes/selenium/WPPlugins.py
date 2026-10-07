@@ -52,22 +52,29 @@ class WPPlugins:
         log.debug(f"  after {after}: {self.page.url} (logged in: {logged_in})")
 
     def _open(self) -> None:
-        self.page.goto(self.plugins_url)
+        # without the check a 404 / login page would look like "plugin not installed"
+        self._goto_admin_page("plugins.php", "body.plugins-php")
+
+    def _goto_admin_page(self, path: str, body_selector: str) -> None:
+        """Open wp-admin/<path> and make sure it really is that page; if the site
+        dropped the session, log in again once (when `relogin` is given)."""
+        url = self.plugins_url.replace("plugins.php", path)
+        self.page.goto(url)
         self.page.wait_for_load_state("load")
-        # without this a 404 / login page would look like "plugin not installed"
-        if self._is_plugins_page():
+        if self.page.locator(body_selector).count() > 0:
             return
         if self.relogin is None:
             raise RuntimeError(
-                f"Plugins page didn't open (ended up at {self.page.url}) — not logged in?"
+                f"{path} didn't open (ended up at {self.page.url}) — not logged in?"
             )
         log.warning(f"Session lost (ended up at {self.page.url}), logging in again")
         self._set_url(self.relogin())
-        self.page.goto(self.plugins_url)
+        url = self.plugins_url.replace("plugins.php", path)
+        self.page.goto(url)
         self.page.wait_for_load_state("load")
-        if not self._is_plugins_page():
+        if self.page.locator(body_selector).count() == 0:
             raise RuntimeError(
-                f"Plugins page didn't open even after re-login (ended up at {self.page.url})"
+                f"{path} didn't open even after re-login (ended up at {self.page.url})"
             )
 
     def _has(self, link_id: str) -> bool:
@@ -139,15 +146,22 @@ class WPPlugins:
         Notification(title="Plugin deleted", message=slug).notify()
         return True
 
+    def can_upload(self) -> bool:
+        """True if Add plugin → Upload plugin is available. Security plugins
+        (e.g. NinjaFirewall) or DISALLOW_FILE_MODS remove the upload form."""
+        self._goto_admin_page("plugin-install.php?tab=upload", "body.plugin-install-php")
+        return self.page.locator("#pluginzip").count() > 0
+
     def upload(self, zip_path: Path) -> None:
         """Install a plugin from a local zip via Add plugin → Upload plugin."""
         if not zip_path.exists():
             raise FileNotFoundError(f"Plugin zip not found: {zip_path}")
-        install_url = self.plugins_url.replace("plugins.php", "plugin-install.php")
-        log.info(f"Navigating to {install_url}")
-        self.page.goto(install_url)
-        self.page.wait_for_load_state("load")
-        self.page.click(".upload-view-toggle")
+        log.info("Opening Add plugin → Upload plugin")
+        # ?tab=upload shows the upload form right away — no toggle click needed
+        if not self.can_upload():
+            raise RuntimeError(
+                f"No upload form on {self.page.url} — plugin installs disabled on this site?"
+            )
         # fills the file input directly — no OS file dialog needed
         self.page.set_input_files("#pluginzip", str(zip_path))
         log.info(f"Uploading [bold]{zip_path.name}[/bold]")
