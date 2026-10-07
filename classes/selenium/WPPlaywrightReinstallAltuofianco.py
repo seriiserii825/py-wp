@@ -28,15 +28,9 @@ class WPPlaywrightReinstallAltuofianco(WPPlaywright):
             plugins = WPPlugins(self.page, self.project_url, relogin=self.relogin)
 
             # a rerun shouldn't reinstall the same version again
-            zip_version = self._zip_version(zip_path)
-            installed_version = plugins.installed_version(THEME_LOGIN_PLUGIN)
-            # unknown zip version → can't compare, reinstall to be safe
-            reinstall = zip_version is None or installed_version != zip_version
-            log.info(
-                f"{THEME_LOGIN_PLUGIN}: installed {installed_version or 'none'}, "
-                f"zip {zip_version} → {'reinstall' if reinstall else 'up to date, skipping'}"
-            )
-            install_backup = not plugins.is_installed(BACKUP_PLUGIN)
+            reinstall = self._needs_install(plugins, THEME_LOGIN_PLUGIN, zip_path)
+            backup_installed = plugins.is_installed(BACKUP_PLUGIN)
+            install_backup = self._needs_install(plugins, BACKUP_PLUGIN, backup_zip_path)
 
             # check BEFORE deleting anything: without the upload form the site
             # would be left without the login plugin
@@ -60,8 +54,12 @@ class WPPlaywrightReinstallAltuofianco(WPPlaywright):
             # verify on plugins.php: active plugins have #deactivate-<slug>
             plugins.activate([THEME_LOGIN_PLUGIN])
             if install_backup:
-                log.info(f"{BACKUP_PLUGIN} not installed, installing (stays deactivated)")
-                plugins.upload(backup_zip_path)
+                # its uninstall only drops ai1wm options; backup files stay on the server
+                if backup_installed:
+                    plugins.delete(BACKUP_PLUGIN)
+                plugins.upload(backup_zip_path)  # left deactivated
+            for slug, path in ((THEME_LOGIN_PLUGIN, zip_path), (BACKUP_PLUGIN, backup_zip_path)):
+                self._check_version(plugins, slug, path)
             # final state of the site: backup plugins off (extension before
             # its base plugin), login hidden
             plugins.deactivate(list(reversed(BACKUP_PLUGINS)))
@@ -78,10 +76,27 @@ class WPPlaywrightReinstallAltuofianco(WPPlaywright):
         finally:
             self.close()
 
+    def _needs_install(self, plugins: WPPlugins, slug: str, zip_path: Path) -> bool:
+        """True if the installed version differs from the zip's (or the plugin is
+        missing, or the zip version can't be read — then reinstall to be safe)."""
+        zip_version = self._zip_version(zip_path, slug)
+        installed = plugins.installed_version(slug)
+        needed = zip_version is None or installed != zip_version
+        log.info(
+            f"{slug}: installed {installed or 'none'}, zip {zip_version} → "
+            f"{'install' if needed else 'up to date, skipping'}"
+        )
+        return needed
+
+    def _check_version(self, plugins: WPPlugins, slug: str, zip_path: Path) -> None:
+        zip_version = self._zip_version(zip_path, slug)
+        installed = plugins.installed_version(slug)
+        if zip_version and installed != zip_version:
+            log.warning(f"{slug}: expected {zip_version}, site has {installed or 'none'}")
+
     @staticmethod
-    def _zip_version(zip_path: Path) -> str | None:
+    def _zip_version(zip_path: Path, slug: str) -> str | None:
         """`Version:` from the plugin header of <slug>/<slug>.php inside the zip."""
-        slug = THEME_LOGIN_PLUGIN
         with zipfile.ZipFile(zip_path) as zf:
             header = zf.read(f"{slug}/{slug}.php").decode(errors="ignore")[:4096]
         match = re.search(r"^\s*\*?\s*Version:\s*(\S+)", header, re.MULTILINE)

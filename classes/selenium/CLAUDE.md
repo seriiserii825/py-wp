@@ -54,9 +54,10 @@ Started from Use from list for a chosen `list.csv` site. Safe to rerun (a run of
 1. Both zips (`altuofianco-theme-login`, `all-in-one-wp-migration`; filenames from `csv/base-plugins.csv`, folder `WPPaths.get_plugins_wp_path()`) must exist — checked **before** touching the site.
 2. Login.
 3. Version check: installed `altuofianco-theme-login` version from its row on `plugins.php` (`WPPlugins.installed_version()`, "Versione 1.1.0 | Di …") vs `Version:` in the zip's plugin header (`_zip_version()`). Equal → skip delete/upload for it (rerun-safe); different, not installed or zip version unreadable → reinstall.
-4. Only if something will be uploaded (reinstall, or `all-in-one-wp-migration` missing): `can_upload()` — upload form missing (NinjaFirewall, `DISALLOW_FILE_MODS`) → error + notification + `SystemExit(1)`, nothing changed.
+   Same check for `all-in-one-wp-migration` (zip `7.79`): different version or missing → reinstall (delete + upload, left deactivated). Its `uninstall.php` only drops ai1wm options (secret key, status, custom backups path) — backup files in `wp-content/ai1wm-backups` stay.
+4. Only if something will be uploaded (either plugin needs (re)install): `can_upload()` — upload form missing (NinjaFirewall, `DISALLOW_FILE_MODS`) → error + notification + `SystemExit(1)`, nothing changed.
 5. `delete` `disable-comments-altuofianco` (old standalone plugin, always); if reinstall: `delete` + `upload` + `activate_after_upload()` `altuofianco-theme-login`.
 6. `activate(["altuofianco-theme-login"])` — check/ensure active.
-7. `all-in-one-wp-migration` not installed → `upload()` its zip (left deactivated).
+7. If needed: `delete` (when installed) + `upload()` `all-in-one-wp-migration` (left deactivated). Then both plugins' installed versions are compared with their zips again — mismatch → warning.
 8. `deactivate` both `BACKUP_PLUGINS` (extension first) → `wps-hide-login`: not installed → `install_from_wordpress_org()` (Add plugin search → "Install now", it's `wps-hide-login,False` in base-plugins.csv — no zip), then `activate` (required) → `activate(["simple-cloudflare-turnstile"])` (optional — re-enables Turnstile the user deactivated to let the tool log in).
 9. Visible browser: wait for Enter; headless: log the `plugins.php` link.
