@@ -80,8 +80,9 @@ Actions on any site from `list.csv`, not the cwd theme:
 - **Reinstall Altuofianco** — site picked by domain substring (input → filter `url`; several matches → fzf) or fzf over all; then `WPPlaywrightReinstallAltuofianco(title, headless=...)`. Exits the script when done.
 - **Find project** — fzf over one-line `title | url | login | password | gestione`, prints the pick.
 - **Add credentials to list** (`main_menu/add_credentials_to_list.py`) — Python port of `~/Documents/bash/bash-scripts/set-theme-in-wp-list-csv.sh`. Clipboard is read and validated FIRST (3 lines: url, login, password); only if invalid is the hint printed. Then asks the theme name and appends to `list.csv`. Doesn't touch `list.csv.gpg` / `.sha256`.
+- **Change credentials** (`main_menu/change_credentials_in_list.py`) — fzf over the RAW `list.csv` lines (not `Project.get_all_projects()`, which normalizes urls), table of fields with current values, new value validated (no commas; url → origin; empty login path drops column 5), `y/n`, then only that line is replaced in the file.
 
-`Project.get_all_projects()` (`classes/projects/Project.py`) is the single `list.csv` reader. It normalizes urls stored with a login path (`https://site.it/gestione` → url `https://site.it`, `gestione` = `gestione` unless column 5 sets it) — anything building `{url}/wp-admin` relies on that.
+`Project.get_all_projects()` (`classes/projects/Project.py`) is the `list.csv` reader for anything that USES a site (only the list-editing menus read raw lines). It normalizes urls stored with a login path (`https://site.it/gestione` → url `https://site.it`, `gestione` = `gestione` unless column 5 sets it) — anything building `{url}/wp-admin` relies on that.
 
 `main_menu/ask_open_browser.py` → `ask_open_browser()` is the shared "Open browser?" table prompt (True = visible, False = headless); used by Use from list and the browser items of the Backups menu.
 

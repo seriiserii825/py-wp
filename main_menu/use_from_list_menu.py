@@ -3,6 +3,7 @@ from rich import print
 from classes.projects.Project import Project
 from main_menu.add_credentials_to_list import add_credentials_to_list
 from main_menu.ask_open_browser import ask_open_browser
+from main_menu.change_credentials_in_list import change_credentials_in_list
 from py_libs.Menu import Menu
 from py_libs.Print import Print
 
@@ -87,13 +88,15 @@ def use_from_list_menu():
         "Reinstall Altuofianco",
         "Find project",
         "Add credentials to list",
+        "Change credentials",
         "Exit",
     ]
     row_styles = {
         0: "bold blue",
         1: "bold green",
         2: "bold blue",
-        3: "bold red",
+        3: "bold green",
+        4: "bold red",
     }
     Menu.display(
         "Use from list",
@@ -110,4 +113,7 @@ def use_from_list_menu():
         use_from_list_menu()
     elif choice == 2:
         add_credentials_to_list()
+        use_from_list_menu()
+    elif choice == 3:
+        change_credentials_in_list()
         use_from_list_menu()
