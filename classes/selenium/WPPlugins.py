@@ -34,6 +34,11 @@ class WPPlugins:
     def _open(self) -> None:
         self.page.goto(self.plugins_url)
         self.page.wait_for_load_state("load")
+        # without this a 404 / login page would look like "plugin not installed"
+        if self.page.locator("body.plugins-php").count() == 0:
+            raise RuntimeError(
+                f"Plugins page didn't open (ended up at {self.page.url}) — not logged in?"
+            )
 
     def _has(self, link_id: str) -> bool:
         return self.page.locator(f"#{link_id}").count() > 0

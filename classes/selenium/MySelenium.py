@@ -98,6 +98,9 @@ class MySelenium:
                     print(f"[dim]    server not ready, retrying in 5s... ({attempt + 1}/10)[/dim]")
                     time.sleep(5)
             self._wait_for_captcha()
+            # valid session on the real host → login page redirects into wp-admin
+            if self.page.locator("body.wp-admin").count() > 0:
+                return url
             if self.page.locator("#user_login").count() > 0:
                 return url
         return None
@@ -134,17 +137,22 @@ class MySelenium:
                 f"{self.project_url}/login"
             )
 
-        if check_login_element:
-            self._go_next_if_no_login_element()
+        if self.page.locator("body.wp-admin").count() == 0:
+            if check_login_element:
+                self._go_next_if_no_login_element()
 
-        self.page.fill("#user_login", self.project_login)
-        self.page.fill("#user_pass", self.project_password)
-        self.page.click("#wp-submit")
+            self.page.fill("#user_login", self.project_login)
+            self.page.fill("#user_pass", self.project_password)
+            self.page.click("#wp-submit")
 
-        self.page.wait_for_url(
-            lambda url: "/wp-admin" in url and "wp-login" not in url,
-            timeout=30_000,
-        )
+            self.page.wait_for_url(
+                lambda url: "/wp-admin" in url and "wp-login" not in url,
+                timeout=30_000,
+            )
+        # follow www/non-www or http/https redirects: cookies belong to the
+        # real host (same as WPPlaywright._use_actual_origin)
+        parsed = urlparse(self.page.url)
+        self.project_url = f"{parsed.scheme}://{parsed.netloc}"
         self._save_session()
 
     def goToUsers(self) -> None:

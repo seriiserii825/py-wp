@@ -2,6 +2,7 @@ import logging
 import os
 import time
 from pathlib import Path
+from urllib.parse import urlparse
 
 from playwright.sync_api import (
     sync_playwright,
@@ -72,19 +73,40 @@ class WPPlaywright:
         log.info("Navigating to wp-admin")
         self.page.goto(f"{self.project_url}/wp-admin")
         self.page.wait_for_load_state("load")
-        # the url alone isn't enough (a 404 under /wp-admin matches too) —
-        # only real admin pages have body.wp-admin
-        if self.page.locator("body.wp-admin").count() > 0:
+        if self._is_admin():
             log.info("Already logged in")
+            self._use_actual_origin()
             return
         log.info("Not logged in, starting login flow")
         self._login()
+        self._use_actual_origin()
         self._save_session()
+
+    def _is_admin(self) -> bool:
+        # the url alone isn't enough (a 404 under /wp-admin matches too)
+        return self.page.locator("body.wp-admin").count() > 0
+
+    def _use_actual_origin(self) -> None:
+        """Switch project_url to the origin we actually ended up on in wp-admin.
+
+        list.csv may say https://www.site.it while the site redirects to
+        https://site.it (or http↔https): login cookies are set for the real
+        host, so every later page must be opened there — on the other host
+        we're logged out and get the login-hider's 404 instead of wp-admin.
+        """
+        parsed = urlparse(self.page.url)
+        origin = f"{parsed.scheme}://{parsed.netloc}"
+        if origin != self.project_url:
+            log.warning(f"Site redirects {self.project_url} → {origin}, using {origin}")
+            self.project_url = origin
 
     def _login(self) -> None:
         login_url = self._find_login_url()
         if login_url is None:
             raise RuntimeError("Login form not found on any candidate URL.")
+        if self._is_admin():
+            # the saved session was valid after all (e.g. for the non-www host)
+            return
 
         log.info(f"Filling credentials for user: {self.project_login}")
         self.page.fill("#user_login", self.project_login)
@@ -110,15 +132,21 @@ class WPPlaywright:
                 try:
                     self.page.goto(url)
                     break
-                except Exception:
+                except Exception as e:
                     if attempt == 9:
                         raise
                     log.warning(
-                        f"Server not ready, retrying in 5s... ({attempt + 1}/10)"
+                        f"Server not ready, retrying in 5s... ({attempt + 1}/10): "
+                        f"{str(e).splitlines()[0]}"
                     )
                     time.sleep(5)
             self._wait_for_captcha()
             log.debug(f"  actual URL after navigation: {self.page.url}")
+            # the login page may redirect straight into wp-admin when the
+            # session is valid on the real host — nothing to fill in then
+            if self._is_admin():
+                log.info(f"Already logged in (redirected to {self.page.url})")
+                return url
             if self.page.locator("#user_login").count() > 0:
                 log.info(f"Login form found at: {url}")
                 return url
