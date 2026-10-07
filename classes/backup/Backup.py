@@ -51,10 +51,10 @@ class Backup:
         else:
             print("[green]Backups less than 3")
 
-    def make_backup_in_chrome(self):
+    def make_backup_in_chrome(self, headless: bool = False):
         from classes.selenium.WPPlaywrightCreateBackup import WPPlaywrightCreateBackup
 
-        WPPlaywrightCreateBackup().start()
+        WPPlaywrightCreateBackup(headless=headless).start()
 
     def list_backup(self):
         os.system("wp ai1wm list-backups")
@@ -65,8 +65,8 @@ class Backup:
         selected_backup = fh.choose_file(self.backup_dir_abs_path, ".wpress")
         os.system(f"wp ai1wm restore {selected_backup}")
 
-    def restore_backup_in_chrome(self):
-        ms = MySelenium()
+    def restore_backup_in_chrome(self, headless: bool = False):
+        ms = MySelenium(headless=headless)
         ms.restore_backup_in_chrome()
 
     def restore_from_downloads(self):
@@ -79,17 +79,17 @@ class Backup:
         self.list_backup()
         os.system(f"wp ai1wm restore {selected_backup}")
 
-    def download_last_backup_from_server(self):
+    def download_last_backup_from_server(self, headless: bool = False):
         from classes.selenium.WPPlaywrightDownloadBackup import (
             WPPlaywrightDownloadBackup,
         )
 
-        WPPlaywrightDownloadBackup().start()
+        WPPlaywrightDownloadBackup(headless=headless).start()
 
-    def delete_backup_in_chrome(self):
+    def delete_backup_in_chrome(self, headless: bool = False):
         from classes.selenium.WPPlaywrightDeleteBackup import WPPlaywrightDeleteBackup
 
-        WPPlaywrightDeleteBackup().start()
+        WPPlaywrightDeleteBackup(headless=headless).start()
 
     def get_last_backup_path(self):
         os.chdir(self.backup_dir_abs_path)

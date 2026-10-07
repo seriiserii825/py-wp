@@ -1,4 +1,5 @@
 from classes.backup.Backup import Backup
+from main_menu.ask_open_browser import ask_open_browser
 from py_libs.Menu import Menu
 from main_menu.check_for_base_plugins import check_for_base_plugins
 
@@ -37,7 +38,7 @@ def backup_menu():
     elif choice == 3:
         print("Creating backup on server...")
         bc = Backup()
-        bc.make_backup_in_chrome()
+        bc.make_backup_in_chrome(headless=not ask_open_browser())
         backup_menu()
     elif choice == 4:
         print("Restoring backup...")
@@ -52,17 +53,17 @@ def backup_menu():
     elif choice == 6:
         print("Restoring in browser...")
         bc = Backup()
-        bc.restore_backup_in_chrome()
+        bc.restore_backup_in_chrome(headless=not ask_open_browser())
         backup_menu()
     elif choice == 7:
         print("Deleting backup in browser...")
         bc = Backup()
-        bc.delete_backup_in_chrome()
+        bc.delete_backup_in_chrome(headless=not ask_open_browser())
         backup_menu()
     elif choice == 8:
         print("Downloading last backup from server...")
         bc = Backup()
-        bc.download_last_backup_from_server()
+        bc.download_last_backup_from_server(headless=not ask_open_browser())
         backup_menu()
     elif choice == 9:
         print("Exiting backup menu...")

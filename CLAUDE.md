@@ -72,8 +72,21 @@ The most complex subsystem, split into two concerns:
 
 `PHPBlockFileCreator` additionally generates ACF block registration code and appends an include to `functions.php`.
 
+### Main menu style
+The top-level menu (`main.py`) and `main_menu/use_from_list_menu.py` use the **table** menu, not fzf: `Menu.display(title, ["Index", "Option"], rows, row_styles=...)` + `Menu.choose_option()`. Main-menu colors are computed: `bold red` for Init / Reset Settings / Exit, otherwise alternating `bold blue` / `bold green` by index — adding an item needs no manual recoloring. Each menu item that should be reachable directly gets a `--flag` in `main.py` (e.g. `--use-from-list`) and a matching `menu_*` kwarg of `menu()`.
+
+### Use from list (`main_menu/use_from_list_menu.py`)
+Actions on any site from `list.csv`, not the cwd theme:
+- **Reinstall Altuofianco** — site picked by domain substring (input → filter `url`; several matches → fzf) or fzf over all; then `WPPlaywrightReinstallAltuofianco(title, headless=...)`. Exits the script when done.
+- **Find project** — fzf over one-line `title | url | login | password | gestione`, prints the pick.
+- **Add credentials to list** (`main_menu/add_credentials_to_list.py`) — Python port of `~/Documents/bash/bash-scripts/set-theme-in-wp-list-csv.sh`. Clipboard is read and validated FIRST (3 lines: url, login, password); only if invalid is the hint printed. Then asks the theme name and appends to `list.csv`. Doesn't touch `list.csv.gpg` / `.sha256`.
+
+`Project.get_all_projects()` (`classes/projects/Project.py`) is the single `list.csv` reader. It normalizes urls stored with a login path (`https://site.it/gestione` → url `https://site.it`, `gestione` = `gestione` unless column 5 sets it) — anything building `{url}/wp-admin` relies on that.
+
+`main_menu/ask_open_browser.py` → `ask_open_browser()` is the shared "Open browser?" table prompt (True = visible, False = headless); used by Use from list and the browser items of the Backups menu.
+
 ### Browser Backups
-Backup create/download/delete/restore through wp-admin (Playwright, All-in-One WP Migration plugins toggled on/off around each run) live in `classes/selenium/` — details in `classes/selenium/CLAUDE.md`.
+Backup create/download/delete/restore through wp-admin (Playwright, All-in-One WP Migration plugins toggled on/off around each run) live in `classes/selenium/` — details in `classes/selenium/CLAUDE.md`. All browser flows support headless mode; the interactive steps (users review, picking backups to delete) then run in the terminal.
 
 ### DTOs
 Global DTOs live in `dto/`. Module-local DTOs (e.g., `FieldDTO`) live alongside their module in `classes/acf/field/dto/`.

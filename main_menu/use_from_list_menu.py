@@ -1,6 +1,8 @@
 from rich import print
 
 from classes.projects.Project import Project
+from main_menu.add_credentials_to_list import add_credentials_to_list
+from main_menu.ask_open_browser import ask_open_browser
 from py_libs.Menu import Menu
 from py_libs.Print import Print
 
@@ -46,30 +48,12 @@ def _select_project() -> dict[str, str] | None:
     return projects[index]
 
 
-def _ask_open_browser() -> bool:
-    options = [
-        "Yes (show browser)",
-        "No (headless)",
-    ]
-    row_styles = {
-        0: "bold blue",
-        1: "bold green",
-    }
-    Menu.display(
-        "Open browser?",
-        ["Index", "Option"],
-        [[str(i), o] for i, o in enumerate(options)],
-        row_styles=row_styles,
-    )
-    return Menu.choose_option() == 0
-
-
 def reinstall_altuofianco():
     project = _select_project()
     if project is None:
         return
     print(f"[green]Site: [bold]{_project_label(project)}")
-    open_browser = _ask_open_browser()
+    open_browser = ask_open_browser()
 
     # imported here: importing WPPlaywright configures logging for the whole process
     from classes.selenium.WPPlaywrightReinstallAltuofianco import (
@@ -102,12 +86,14 @@ def use_from_list_menu():
     options = [
         "Reinstall Altuofianco",
         "Find project",
+        "Add credentials to list",
         "Exit",
     ]
     row_styles = {
         0: "bold blue",
         1: "bold green",
-        2: "bold red",
+        2: "bold blue",
+        3: "bold red",
     }
     Menu.display(
         "Use from list",
@@ -121,4 +107,7 @@ def use_from_list_menu():
         use_from_list_menu()
     elif choice == 1:
         find_project()
+        use_from_list_menu()
+    elif choice == 2:
+        add_credentials_to_list()
         use_from_list_menu()

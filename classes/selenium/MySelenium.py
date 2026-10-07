@@ -19,6 +19,8 @@ from classes.selenium.WPPlugins import (
     BACKUP_PLUGINS_OPTIONAL,
     PluginNotInstalledError,
 )
+from classes.selenium.AI1WMBackups import AI1WMBackups
+from classes.selenium.WPUsers import WPUsers
 from py_libs.InputValidator import InputValidator
 
 
@@ -27,7 +29,8 @@ SESSIONS_DIR.mkdir(exist_ok=True)
 
 
 class MySelenium:
-    def __init__(self):
+    def __init__(self, headless: bool = False):
+        self.headless = headless
         self.download_dir = str(Path.home() / "Downloads")
         self._playwright = sync_playwright().start()
 
@@ -45,16 +48,19 @@ class MySelenium:
         self._launch_browser()
 
     def _launch_browser(self, *, fresh: bool = False) -> None:
-        self._browser: Browser = self._playwright.chromium.launch(headless=False)
+        self._browser: Browser = self._playwright.chromium.launch(headless=self.headless)
         session_file = Path(self.session_path)
         if not fresh and session_file.exists():
             print(f"[dim]Loading saved session: {self.session_path}[/dim]")
             self.context: BrowserContext = self._browser.new_context(
                 storage_state=self.session_path,
                 accept_downloads=True,
+                ignore_https_errors=True,  # sites without own SSL cert, see WPPlaywright
             )
         else:
-            self.context = self._browser.new_context(accept_downloads=True)
+            self.context = self._browser.new_context(
+                accept_downloads=True, ignore_https_errors=True
+            )
         self.page: Page = self.context.new_page()
 
     def _restart_browser(self) -> None:
@@ -116,7 +122,8 @@ class MySelenium:
         """Navigate to login page, handle captcha, and submit credentials."""
         self.page.goto(f"{self.project_url}/wp-admin")
         self._click_through_db_upgrade()
-        if "/wp-admin" in self.page.url and "wp-login" not in self.page.url:
+        # only real admin pages have body.wp-admin (a 404 under /wp-admin doesn't)
+        if self.page.locator("body.wp-admin").count() > 0:
             return
 
         login_url = self._find_login_url()
@@ -143,6 +150,9 @@ class MySelenium:
     def goToUsers(self) -> None:
         users_url = f"{self.project_url}/wp-admin/users.php"
         print(f"[dim]>>> Navigating to users page: {users_url}[/dim]")
+        if self.headless:
+            WPUsers(self.page, self.project_url).review_in_terminal()
+            return
         self.page.goto(users_url)
         self.page.wait_for_load_state("load")
         input("Проверьте страницу пользователей, удалите подозрительных, затем нажмите Enter для продолжения...")
@@ -200,8 +210,9 @@ class MySelenium:
             self.page.evaluate("url => window.location.assign(url)", href)
 
         download = download_info.value
-        downloads_page = self.context.new_page()
-        downloads_page.goto("chrome://downloads/")
+        if not self.headless:
+            downloads_page = self.context.new_page()
+            downloads_page.goto("chrome://downloads/")
 
         suggested_filename = download.suggested_filename or fallback_filename
         save_path = Path(self.download_dir) / suggested_filename
@@ -376,6 +387,9 @@ class MySelenium:
         self.choose_backups_to_delete()
 
     def choose_backups_to_delete(self):
+        if self.headless:
+            AI1WMBackups(self.page, self.project_url).choose_and_delete()
+            return
         num_backups = InputValidator.get_positive_int("Enter number of backups to delete: ")
         print(f"Number of backups: {num_backups}")
 

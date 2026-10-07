@@ -55,11 +55,18 @@ class WPPlaywright:
         self.page: Page = self.context.new_page()
 
     def _make_context(self) -> BrowserContext:
+        # some sites have no own SSL cert (server answers with the hosting's
+        # cert → ERR_CERT_COMMON_NAME_INVALID); a regular browser lets you click
+        # through, Playwright fails — so ignore cert errors like that click does
         if Path(self.session_path).exists():
             log.debug("Loading saved session from file")
-            return self.browser.new_context(storage_state=self.session_path, accept_downloads=True)
+            return self.browser.new_context(
+                storage_state=self.session_path,
+                accept_downloads=True,
+                ignore_https_errors=True,
+            )
         log.debug("No saved session, creating fresh context")
-        return self.browser.new_context(accept_downloads=True)
+        return self.browser.new_context(accept_downloads=True, ignore_https_errors=True)
 
     def ensure_logged_in(self) -> None:
         log.info("Navigating to wp-admin")
@@ -136,6 +143,11 @@ class WPPlaywright:
     def goToUsers(self) -> None:
         users_url = f"{self.project_url}/wp-admin/users.php"
         log.info(f"Navigating to users page: {users_url}")
+        if self.headless:
+            from classes.selenium.WPUsers import WPUsers
+
+            WPUsers(self.page, self.project_url).review_in_terminal()
+            return
         self.page.goto(users_url)
         self.page.wait_for_load_state("load")
         input("Проверьте страницу пользователей, удалите подозрительных, затем нажмите Enter для продолжения...")
@@ -217,12 +229,15 @@ class WPPlaywright:
 
         download = download_info.value
 
-        downloads_page = self.context.new_page()
-        downloads_page.goto("chrome://downloads/")
+        # chrome://downloads only shows progress in the window — no use headless
+        downloads_page = None if self.headless else self.context.new_page()
+        if downloads_page:
+            downloads_page.goto("chrome://downloads/")
 
         suggested_filename = download.suggested_filename or fallback_filename
         save_path = Path(self.download_dir) / suggested_filename
         download.save_as(str(save_path))
-        downloads_page.close()
+        if downloads_page:
+            downloads_page.close()
         log.info(f"Downloaded → {save_path}")
         return save_path

@@ -2,6 +2,7 @@ import time
 
 from playwright.sync_api import TimeoutError as PlaywrightTimeoutError
 
+from classes.selenium.AI1WMBackups import AI1WMBackups
 from classes.selenium.WPPlaywright import WPPlaywright, log
 from classes.selenium.WPPlugins import WPPlugins, BACKUP_PLUGINS, BACKUP_PLUGINS_OPTIONAL
 from py_libs.InputValidator import InputValidator
@@ -25,6 +26,9 @@ class WPPlaywrightDeleteBackup(WPPlaywright):
         self._choose_backups_to_delete()
 
     def _choose_backups_to_delete(self):
+        if self.headless:
+            AI1WMBackups(self.page, self.project_url).choose_and_delete()
+            return
         num_backups = InputValidator.get_positive_int("Enter number of backups to delete: ")
 
         log.info(f"Deleting {num_backups} backup(s)...")
