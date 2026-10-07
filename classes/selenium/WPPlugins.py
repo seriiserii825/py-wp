@@ -1,3 +1,4 @@
+import re
 import time
 from contextlib import contextmanager
 from pathlib import Path
@@ -163,6 +164,16 @@ class WPPlugins:
         log.info(f"Plugin [bold]{slug}[/bold] deleted")
         Notification(title="Plugin deleted", message=slug).notify()
         return True
+
+    def installed_version(self, slug: str) -> str | None:
+        """Version shown in the plugin's row on plugins.php ("Versione 1.1.0 | Di …"),
+        None if the plugin isn't installed or the version can't be read."""
+        self._open()
+        row = self.page.locator(f'tr[data-slug="{slug}"] .plugin-version-author-uri')
+        if row.count() == 0:
+            return None
+        match = re.search(r"\d+(?:\.\d+)+", row.first.inner_text())
+        return match.group(0) if match else None
 
     def is_installed(self, slug: str) -> bool:
         self._open()

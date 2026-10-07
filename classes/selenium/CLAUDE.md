@@ -50,4 +50,13 @@ All-in-One WP Migration plugins are kept **deactivated** on sites and turned on 
 
 ## Reinstall Altuofianco — `WPPlaywrightReinstallAltuofianco`
 
-Started from Use from list for a chosen `list.csv` site. Order: check the zip exists (filename for `altuofianco-theme-login` from `csv/base-plugins.csv`, folder `WPPaths.get_plugins_wp_path()`) **before** touching the site → login → `can_upload()` — if the upload form is missing (NinjaFirewall, `DISALLOW_FILE_MODS`) log an error + notification and `SystemExit(1)` with nothing changed → `delete` `disable-comments-altuofianco` and `altuofianco-theme-login` → `upload` the zip → `activate_after_upload()` → `activate([...])` as a check on `plugins.php` → if `all-in-one-wp-migration` isn't installed, `upload()` its zip from base-plugins.csv (not activated) → `deactivate` both `BACKUP_PLUGINS` (extension first) → `activate(["wps-hide-login"])` (optional: missing → warning) → `activate(["simple-cloudflare-turnstile"])` (optional — re-enables Turnstile the user deactivated to let the tool log in). Visible browser: waits for Enter at the end; headless: logs the `plugins.php` link.
+Started from Use from list for a chosen `list.csv` site. Safe to rerun (a run often has to be repeated after a site-side hiccup). Order:
+1. Both zips (`altuofianco-theme-login`, `all-in-one-wp-migration`; filenames from `csv/base-plugins.csv`, folder `WPPaths.get_plugins_wp_path()`) must exist — checked **before** touching the site.
+2. Login.
+3. Version check: installed `altuofianco-theme-login` version from its row on `plugins.php` (`WPPlugins.installed_version()`, "Versione 1.1.0 | Di …") vs `Version:` in the zip's plugin header (`_zip_version()`). Equal → skip delete/upload for it (rerun-safe); different, not installed or zip version unreadable → reinstall.
+4. Only if something will be uploaded (reinstall, or `all-in-one-wp-migration` missing): `can_upload()` — upload form missing (NinjaFirewall, `DISALLOW_FILE_MODS`) → error + notification + `SystemExit(1)`, nothing changed.
+5. `delete` `disable-comments-altuofianco` (old standalone plugin, always); if reinstall: `delete` + `upload` + `activate_after_upload()` `altuofianco-theme-login`.
+6. `activate(["altuofianco-theme-login"])` — check/ensure active.
+7. `all-in-one-wp-migration` not installed → `upload()` its zip (left deactivated).
+8. `deactivate` both `BACKUP_PLUGINS` (extension first) → `activate(["wps-hide-login"])` (optional) → `activate(["simple-cloudflare-turnstile"])` (optional — re-enables Turnstile the user deactivated to let the tool log in).
+9. Visible browser: wait for Enter; headless: log the `plugins.php` link.
