@@ -20,6 +20,7 @@ from classes.selenium.WPPlugins import (
     PluginNotInstalledError,
 )
 from classes.selenium.AI1WMBackups import AI1WMBackups
+from classes.selenium.WPPlaywright import browser_user_agent, login_candidates
 from classes.selenium.WPUsers import WPUsers
 from py_libs.InputValidator import InputValidator
 
@@ -56,10 +57,13 @@ class MySelenium:
                 storage_state=self.session_path,
                 accept_downloads=True,
                 ignore_https_errors=True,  # sites without own SSL cert, see WPPlaywright
+                user_agent=browser_user_agent(self._browser),
             )
         else:
             self.context = self._browser.new_context(
-                accept_downloads=True, ignore_https_errors=True
+                accept_downloads=True,
+                ignore_https_errors=True,
+                user_agent=browser_user_agent(self._browser),
             )
         self.page: Page = self.context.new_page()
 
@@ -81,13 +85,7 @@ class MySelenium:
 
     def _find_login_url(self) -> str | None:
         """Try login URLs in order, return the first one that shows the login form."""
-        candidates = [
-            self.sitem_login,
-            f"{self.project_url}/wp-admin",
-            f"{self.project_url}/gestione",
-            f"{self.project_url}/login",
-        ]
-        for url in candidates:
+        for url in login_candidates(self.sitem_login, self.project_url):
             for attempt in range(10):
                 try:
                     self.page.goto(url)
@@ -132,9 +130,8 @@ class MySelenium:
         login_url = self._find_login_url()
         if login_url is None:
             raise RuntimeError(
-                f"Login form not found. Tried: {self.sitem_login}, "
-                f"{self.project_url}/wp-admin, {self.project_url}/gestione, "
-                f"{self.project_url}/login"
+                "Login form not found. Tried: "
+                + ", ".join(login_candidates(self.sitem_login, self.project_url))
             )
 
         if self.page.locator("body.wp-admin").count() == 0:

@@ -11,6 +11,10 @@ Both read project url/login/password from `Project(<cwd basename>)` and keep the
 
 Browser contexts are created with `ignore_https_errors=True`: some sites have no own SSL cert (the server answers with the hosting's cert, e.g. `vps6.bludelego.com` → `ERR_CERT_COMMON_NAME_INVALID`), which a regular browser lets you click through but Playwright fails on.
 
+Contexts also get a regular Chrome `user_agent` (`browser_user_agent()`): headless Chromium identifies as `HeadlessChrome/…`, and NinjaFirewall answers that with `403 Forbidden` on every page — looks like "Login form not found on any candidate URL".
+
+Login form is searched at `login_candidates()` (`WPPlaywright.py`, shared with `MySelenium`): the list.csv login path, then `/wp-admin`, `/gestione`, `/login`, `/login.php`, `/wp-login.php`. A candidate that redirects straight into wp-admin counts as "already logged in".
+
 "Already logged in" is detected by `body.wp-admin` on the page, NOT by the url — a 404 under `/wp-admin` (e.g. from a wrong url) also contains `/wp-admin`. Both base classes use this check.
 
 ## Headless mode

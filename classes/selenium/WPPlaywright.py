@@ -31,6 +31,29 @@ log = logging.getLogger("WPPlaywright")
 
 
 SESSIONS_DIR = Path(__file__).resolve().parent.parent.parent / "sessions"
+
+
+def browser_user_agent(browser: Browser) -> str:
+    """A regular Chrome user agent. Headless Chromium sends "HeadlessChrome/…",
+    which firewalls like NinjaFirewall answer with 403 (no login form)."""
+    return (
+        "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 "
+        f"(KHTML, like Gecko) Chrome/{browser.version} Safari/537.36"
+    )
+
+
+def login_candidates(site_login_url: str, project_url: str) -> list[str]:
+    """Urls where the login form may live, in the order they are tried
+    (custom login path from list.csv first, duplicates dropped)."""
+    urls = [
+        site_login_url,
+        f"{project_url}/wp-admin",
+        f"{project_url}/gestione",
+        f"{project_url}/login",
+        f"{project_url}/login.php",
+        f"{project_url}/wp-login.php",
+    ]
+    return list(dict.fromkeys(urls))
 SESSIONS_DIR.mkdir(exist_ok=True)
 
 
@@ -65,9 +88,14 @@ class WPPlaywright:
                 storage_state=self.session_path,
                 accept_downloads=True,
                 ignore_https_errors=True,
+                user_agent=browser_user_agent(self.browser),
             )
         log.debug("No saved session, creating fresh context")
-        return self.browser.new_context(accept_downloads=True, ignore_https_errors=True)
+        return self.browser.new_context(
+            accept_downloads=True,
+            ignore_https_errors=True,
+            user_agent=browser_user_agent(self.browser),
+        )
 
     def ensure_logged_in(self) -> None:
         log.info("Navigating to wp-admin")
@@ -126,13 +154,7 @@ class WPPlaywright:
         log.info("Login successful")
 
     def _find_login_url(self) -> str | None:
-        candidates = [
-            self.sitem_login,
-            f"{self.project_url}/wp-admin",
-            f"{self.project_url}/gestione",
-            f"{self.project_url}/login",
-        ]
-        for url in candidates:
+        for url in login_candidates(self.sitem_login, self.project_url):
             log.debug(f"Trying login URL: {url}")
             for attempt in range(10):
                 try:
