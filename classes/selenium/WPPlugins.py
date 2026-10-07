@@ -1,8 +1,9 @@
+import time
 from contextlib import contextmanager
 from pathlib import Path
 from typing import Callable, Iterable, Iterator
 
-from playwright.sync_api import Page
+from playwright.sync_api import Error as PlaywrightError, Page
 
 from classes.selenium.WPPlaywright import log
 from py_libs.Notification import Notification
@@ -50,6 +51,13 @@ class WPPlugins:
         """Diagnostics: where the browser ended up after an action."""
         logged_in = self.page.locator("body.wp-admin").count() > 0
         log.debug(f"  after {after}: {self.page.url} (logged in: {logged_in})")
+        if self.plugins_url.startswith("https://") and self.page.url.startswith("http://"):
+            # WP redirects after admin actions to its own address; https login
+            # cookies aren't sent over http → looks logged out (hide-login 404)
+            log.warning(
+                "WordPress redirected to http:// — the site's address in "
+                "Settings → General is http, should be https. Continuing over https."
+            )
 
     def _open(self) -> None:
         # without the check a 404 / login page would look like "plugin not installed"
@@ -58,9 +66,7 @@ class WPPlugins:
     def _goto_admin_page(self, path: str, body_selector: str) -> None:
         """Open wp-admin/<path> and make sure it really is that page; if the site
         dropped the session, log in again once (when `relogin` is given)."""
-        url = self.plugins_url.replace("plugins.php", path)
-        self.page.goto(url)
-        self.page.wait_for_load_state("load")
+        self._goto(self.plugins_url.replace("plugins.php", path))
         if self.page.locator(body_selector).count() > 0:
             return
         if self.relogin is None:
@@ -69,13 +75,25 @@ class WPPlugins:
             )
         log.warning(f"Session lost (ended up at {self.page.url}), logging in again")
         self._set_url(self.relogin())
-        url = self.plugins_url.replace("plugins.php", path)
-        self.page.goto(url)
-        self.page.wait_for_load_state("load")
+        self._goto(self.plugins_url.replace("plugins.php", path))
         if self.page.locator(body_selector).count() == 0:
             raise RuntimeError(
                 f"{path} didn't open even after re-login (ended up at {self.page.url})"
             )
+
+    def _goto(self, url: str, attempts: int = 3) -> None:
+        """goto() that survives net::ERR_ABORTED — seen right after an action
+        redirected to http:// and the next https navigation collided with it."""
+        for attempt in range(1, attempts + 1):
+            try:
+                self.page.goto(url)
+                self.page.wait_for_load_state("load")
+                return
+            except PlaywrightError as e:
+                if "ERR_ABORTED" not in str(e) or attempt == attempts:
+                    raise
+                log.warning(f"Navigation to {url} aborted, retrying ({attempt}/{attempts})")
+                time.sleep(2)
 
     def _has(self, link_id: str) -> bool:
         return self.page.locator(f"#{link_id}").count() > 0
