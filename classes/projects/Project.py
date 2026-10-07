@@ -1,4 +1,5 @@
 import csv
+from urllib.parse import urlparse
 
 from rich import print
 
@@ -25,6 +26,13 @@ class Project:
                 }
                 if len(row) > 4:
                     project["gestione"] = row[4]
+                # some rows store the login page in the url itself
+                # (https://site.it/gestione) — split it into site url + login path
+                parsed = urlparse(project["url"].strip())
+                login_path = parsed.path.strip("/")
+                if login_path:
+                    project["url"] = f"{parsed.scheme}://{parsed.netloc}"
+                    project.setdefault("gestione", login_path)
                 projects.append(project)
         return projects
 

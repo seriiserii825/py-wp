@@ -61,14 +61,32 @@ def reinstall_altuofianco():
     exit(0)
 
 
+def _project_full_line(project: dict[str, str]) -> str:
+    fields = [project["title"], project["url"], project["login"], project["password"]]
+    if project.get("gestione"):
+        fields.append(project["gestione"])
+    return " | ".join(fields)
+
+
+def find_project():
+    projects = Project.get_all_projects()
+    lines = [_project_full_line(p) for p in projects]
+    index = Menu.select_fzf(lines)
+    if index == -1:
+        return
+    print(f"[green]{lines[index]}")
+
+
 def use_from_list_menu():
     options = [
         "Reinstall Altuofianco",
+        "Find project",
         "Exit",
     ]
     row_styles = {
         0: "bold blue",
-        1: "bold red",
+        1: "bold green",
+        2: "bold red",
     }
     Menu.display(
         "Use from list",
@@ -79,4 +97,7 @@ def use_from_list_menu():
     choice = Menu.choose_option()
     if choice == 0:
         reinstall_altuofianco()
+        use_from_list_menu()
+    elif choice == 1:
+        find_project()
         use_from_list_menu()

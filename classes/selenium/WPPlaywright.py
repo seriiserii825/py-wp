@@ -64,7 +64,9 @@ class WPPlaywright:
         log.info("Navigating to wp-admin")
         self.page.goto(f"{self.project_url}/wp-admin")
         self.page.wait_for_load_state("load")
-        if "/wp-admin" in self.page.url and "wp-login" not in self.page.url:
+        # the url alone isn't enough (a 404 under /wp-admin matches too) —
+        # only real admin pages have body.wp-admin
+        if self.page.locator("body.wp-admin").count() > 0:
             log.info("Already logged in")
             return
         log.info("Not logged in, starting login flow")
