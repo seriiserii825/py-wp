@@ -19,7 +19,7 @@ class WPPlaywrightReinstallAltuofianco(WPPlaywright):
             if not zip_path.exists():
                 raise FileNotFoundError(f"Plugin zip not found: {zip_path}")
             self.ensure_logged_in()
-            plugins = WPPlugins(self.page, self.project_url)
+            plugins = WPPlugins(self.page, self.project_url, relogin=self.relogin)
             for slug in (DISABLE_COMMENTS_PLUGIN, THEME_LOGIN_PLUGIN):
                 if not plugins.delete(slug):
                     log.info(f"{slug} not installed, nothing to remove")

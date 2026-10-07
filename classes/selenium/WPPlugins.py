@@ -1,6 +1,6 @@
 from contextlib import contextmanager
 from pathlib import Path
-from typing import Iterable, Iterator
+from typing import Callable, Iterable, Iterator
 
 from playwright.sync_api import Page
 
@@ -27,17 +27,47 @@ class WPPlugins:
     `#deactivate-<slug>` for active ones, so the link id tells us the state.
     """
 
-    def __init__(self, page: Page, project_url: str) -> None:
+    def __init__(
+        self,
+        page: Page,
+        project_url: str,
+        relogin: Callable[[], str] | None = None,
+    ) -> None:
+        """`relogin` logs in again and returns the (possibly changed) site url;
+        used when the site drops the session mid-run (seen right after a
+        plugin deactivation, likely a security plugin on the site)."""
         self.page = page
+        self.relogin = relogin
+        self._set_url(project_url)
+
+    def _set_url(self, project_url: str) -> None:
         self.plugins_url = f"{project_url}/wp-admin/plugins.php"
+
+    def _is_plugins_page(self) -> bool:
+        return self.page.locator("body.plugins-php").count() > 0
+
+    def _log_where(self, after: str) -> None:
+        """Diagnostics: where the browser ended up after an action."""
+        logged_in = self.page.locator("body.wp-admin").count() > 0
+        log.debug(f"  after {after}: {self.page.url} (logged in: {logged_in})")
 
     def _open(self) -> None:
         self.page.goto(self.plugins_url)
         self.page.wait_for_load_state("load")
         # without this a 404 / login page would look like "plugin not installed"
-        if self.page.locator("body.plugins-php").count() == 0:
+        if self._is_plugins_page():
+            return
+        if self.relogin is None:
             raise RuntimeError(
                 f"Plugins page didn't open (ended up at {self.page.url}) — not logged in?"
+            )
+        log.warning(f"Session lost (ended up at {self.page.url}), logging in again")
+        self._set_url(self.relogin())
+        self.page.goto(self.plugins_url)
+        self.page.wait_for_load_state("load")
+        if not self._is_plugins_page():
+            raise RuntimeError(
+                f"Plugins page didn't open even after re-login (ended up at {self.page.url})"
             )
 
     def _has(self, link_id: str) -> bool:
@@ -59,6 +89,7 @@ class WPPlugins:
                 log.info(f"Plugin [bold]{slug}[/bold]: {action} → clicking")
                 self.page.click(f"#{action}-{slug}")
                 self.page.wait_for_load_state("load")
+                self._log_where(f"{action} {slug}")
                 changed.append(slug)
             elif self._has(f"{opposite}-{slug}"):
                 log.info(f"Plugin [bold]{slug}[/bold]: already {action}d, skipping")
@@ -103,6 +134,7 @@ class WPPlugins:
         self.page.click(f"#delete-{slug}")
         # deletion is ajax: the delete link disappears once the plugin is gone
         self.page.locator(f"#delete-{slug}").wait_for(state="detached", timeout=60_000)
+        self._log_where(f"delete {slug}")
         log.info(f"Plugin [bold]{slug}[/bold] deleted")
         Notification(title="Plugin deleted", message=slug).notify()
         return True
@@ -121,6 +153,7 @@ class WPPlugins:
         log.info(f"Uploading [bold]{zip_path.name}[/bold]")
         self.page.click("#install-plugin-submit")
         self.page.wait_for_load_state("load", timeout=120_000)
+        self._log_where(f"upload {zip_path.name}")
         # the result page offers "Activate plugin" only when install succeeded
         if self.page.locator('a[href*="action=activate"]').count() == 0:
             Notification(title="Plugin NOT installed", message=zip_path.name).notify()
@@ -133,6 +166,7 @@ class WPPlugins:
         log.info("Activating uploaded plugin")
         self.page.click('a[href*="action=activate"]')
         self.page.wait_for_load_state("load")
+        self._log_where("activate uploaded plugin")
 
     @contextmanager
     def activated(self, slugs: list[str], optional: Iterable[str] = ()) -> Iterator[None]:

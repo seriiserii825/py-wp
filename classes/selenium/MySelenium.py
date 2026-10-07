@@ -155,6 +155,11 @@ class MySelenium:
         self.project_url = f"{parsed.scheme}://{parsed.netloc}"
         self._save_session()
 
+    def _relogin(self) -> str:
+        """For WPPlugins(relogin=...): log in again, return the site url."""
+        self._login()
+        return self.project_url
+
     def goToUsers(self) -> None:
         users_url = f"{self.project_url}/wp-admin/users.php"
         print(f"[dim]>>> Navigating to users page: {users_url}[/dim]")
@@ -318,7 +323,7 @@ class MySelenium:
         self._login(check_login_element=True)
         self.goToUsers()
         try:
-            WPPlugins(self.page, self.project_url).activate(BACKUP_PLUGINS, BACKUP_PLUGINS_OPTIONAL)
+            WPPlugins(self.page, self.project_url, relogin=self._relogin).activate(BACKUP_PLUGINS, BACKUP_PLUGINS_OPTIONAL)
         except PluginNotInstalledError:
             self._close()
             raise
@@ -360,7 +365,7 @@ class MySelenium:
         self._handle_post_permalink_redirect()
 
         # page was recreated by _restart_browser — new WPPlugins instance
-        plugins = WPPlugins(self.page, self.project_url)
+        plugins = WPPlugins(self.page, self.project_url, relogin=self._relogin)
         login_plugins = ["wps-hide-login", "altuofianco-theme-login"]
         plugins.activate(login_plugins, optional=login_plugins)
         plugins.deactivate(list(reversed(BACKUP_PLUGINS)))

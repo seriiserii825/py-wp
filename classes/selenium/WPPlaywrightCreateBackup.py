@@ -11,7 +11,7 @@ class WPPlaywrightCreateBackup(WPPlaywright):
     def start(self):
         try:
             self.ensure_logged_in()
-            with WPPlugins(self.page, self.project_url).activated(BACKUP_PLUGINS, BACKUP_PLUGINS_OPTIONAL):
+            with WPPlugins(self.page, self.project_url, relogin=self.relogin).activated(BACKUP_PLUGINS, BACKUP_PLUGINS_OPTIONAL):
                 return self.make_backup_in_chrome()
         finally:
             self.close()

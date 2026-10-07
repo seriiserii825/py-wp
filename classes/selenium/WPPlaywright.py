@@ -82,6 +82,12 @@ class WPPlaywright:
         self._use_actual_origin()
         self._save_session()
 
+    def relogin(self) -> str:
+        """Log in again after the site dropped the session; returns the site url
+        (for WPPlugins(relogin=...))."""
+        self.ensure_logged_in()
+        return self.project_url
+
     def _is_admin(self) -> bool:
         # the url alone isn't enough (a 404 under /wp-admin matches too)
         return self.page.locator("body.wp-admin").count() > 0

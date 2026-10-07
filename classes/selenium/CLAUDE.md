@@ -29,7 +29,9 @@ With a visible browser both steps behave as before (browser pause / count prompt
 
 All-in-One WP Migration plugins are kept **deactivated** on sites and turned on only for the duration of a backup operation.
 
-- `WPPlugins(page, project_url)` works on `wp-admin/plugins.php`; plugin state is detected by link id: `#activate-<slug>` = inactive, `#deactivate-<slug>` = active, neither = not installed.
+- `WPPlugins(page, project_url, relogin=...)` works on `wp-admin/plugins.php`; plugin state is detected by link id: `#activate-<slug>` = inactive, `#deactivate-<slug>` = active, neither = not installed.
+- `_open()` verifies it really is the plugins page (`body.plugins-php`). Some sites drop the session mid-run (seen right after deactivating `all-in-one-wp-migration`; the login-hider then answers `/404/`, which would otherwise read as "plugin not installed"). With `relogin` (`WPPlaywright.relogin` / `MySelenium._relogin`, both return the site url) it logs in once more and retries; without it, or if that fails too, it raises. Always pass `relogin`.
+- After every click (toggle, delete, upload, activate-after-upload) `_log_where()` logs a DEBUG line with the resulting url and whether still logged in — use it to see which step loses the session.
 - `activate(slugs, optional)` / `deactivate(slugs)` — skip plugins already in the target state; send one `Notification` listing what actually changed.
 - A required plugin that isn't installed → `PluginNotInstalledError` + notification (fail fast, before reaching `ai1wm_*` pages). Plugins in `optional` → warning only. Missing plugin on deactivate is never an error.
 - `activated(slugs, optional)` — context manager used by the `WPPlaywright*Backup` classes; deactivates in reverse order (extension before base) even if activation or the block raised.

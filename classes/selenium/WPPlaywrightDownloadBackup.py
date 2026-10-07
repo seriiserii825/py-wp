@@ -12,7 +12,7 @@ class WPPlaywrightDownloadBackup(WPPlaywright):
         try:
             self.ensure_logged_in()
             self.goToUsers()
-            with WPPlugins(self.page, self.project_url).activated(BACKUP_PLUGINS, BACKUP_PLUGINS_OPTIONAL):
+            with WPPlugins(self.page, self.project_url, relogin=self.relogin).activated(BACKUP_PLUGINS, BACKUP_PLUGINS_OPTIONAL):
                 return self.download_last_backup_from_server()
         finally:
             self.close()
