@@ -77,7 +77,7 @@ The top-level menu (`main.py`) and `main_menu/use_from_list_menu.py` use the **t
 
 ### Use from list (`main_menu/use_from_list_menu.py`)
 Actions on any site from `list.csv`, not the cwd theme:
-- **Reinstall Altuofianco** — site picked by domain substring (input → filter `url`; several matches → fzf) or fzf over all; then `WPPlaywrightReinstallAltuofianco(title, headless=...)`. Exits the script when done.
+- **Reinstall Altuofianco** — site picked by domain substring (input → filter `url`; several matches → fzf) or fzf over all; then `WPPlaywrightReinstallAltuofianco(title, headless=...)`. Returns to the Use from list menu when done.
 - **Find project** — fzf over one-line `title | url | login | password | gestione`, prints the pick.
 - **Add credentials to list** (`main_menu/add_credentials_to_list.py`) — Python port of `~/Documents/bash/bash-scripts/set-theme-in-wp-list-csv.sh`. Clipboard is read and validated FIRST (3 lines: url, login, password); only if invalid is the hint printed. Then asks the theme name and appends to `list.csv`. Doesn't touch `list.csv.gpg` / `.sha256`.
 - **Copy credentials** — `_select_project()`, then `Clipboard.write(password, show=False)`, `COPY_DELAY_SECONDS` (1 s) pause so the clipboard manager records both, `Clipboard.write(login)`.

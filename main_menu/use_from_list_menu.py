@@ -70,7 +70,6 @@ def reinstall_altuofianco():
         ).start(),
         headless=not open_browser,
     )
-    exit(0)
 
 
 def _project_full_line(project: dict[str, str]) -> str:
