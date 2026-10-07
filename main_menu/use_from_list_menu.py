@@ -46,18 +46,39 @@ def _select_project() -> dict[str, str] | None:
     return projects[index]
 
 
+def _ask_open_browser() -> bool:
+    options = [
+        "Yes (show browser)",
+        "No (headless)",
+    ]
+    row_styles = {
+        0: "bold blue",
+        1: "bold green",
+    }
+    Menu.display(
+        "Open browser?",
+        ["Index", "Option"],
+        [[str(i), o] for i, o in enumerate(options)],
+        row_styles=row_styles,
+    )
+    return Menu.choose_option() == 0
+
+
 def reinstall_altuofianco():
     project = _select_project()
     if project is None:
         return
     print(f"[green]Site: [bold]{_project_label(project)}")
+    open_browser = _ask_open_browser()
 
     # imported here: importing WPPlaywright configures logging for the whole process
     from classes.selenium.WPPlaywrightReinstallAltuofianco import (
         WPPlaywrightReinstallAltuofianco,
     )
 
-    WPPlaywrightReinstallAltuofianco(project["title"]).start()
+    WPPlaywrightReinstallAltuofianco(
+        project["title"], headless=not open_browser
+    ).start()
     exit(0)
 
 

@@ -26,7 +26,10 @@ class WPPlaywrightReinstallAltuofianco(WPPlaywright):
             plugins.activate_after_upload()
             # verify on plugins.php: active plugins have #deactivate-<slug>
             plugins.activate([THEME_LOGIN_PLUGIN])
-            input("Check the site, then press Enter to close the browser...")
+            if self.headless:
+                log.info(f"Done, check: {self.project_url}/wp-admin/plugins.php")
+            else:
+                input("Check the site, then press Enter to close the browser...")
         finally:
             self.close()
 

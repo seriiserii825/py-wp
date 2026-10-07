@@ -34,7 +34,7 @@ SESSIONS_DIR.mkdir(exist_ok=True)
 
 
 class WPPlaywright:
-    def __init__(self, theme_name: str | None = None) -> None:
+    def __init__(self, theme_name: str | None = None, headless: bool = False) -> None:
         # by default the project is the current theme folder; pass a list.csv
         # title to work on another site
         theme_name = theme_name or os.path.basename(os.getcwd())
@@ -48,8 +48,9 @@ class WPPlaywright:
         self.download_dir: str = str(Path.home() / "Downloads")
         log.info(f"Project: [bold]{theme_name}[/bold] | URL: {self.project_url} | session: {self.session_path}")
 
+        self.headless = headless
         self._playwright: Playwright = sync_playwright().start()
-        self.browser: Browser = self._playwright.chromium.launch(headless=False)
+        self.browser: Browser = self._playwright.chromium.launch(headless=headless)
         self.context: BrowserContext = self._make_context()
         self.page: Page = self.context.new_page()
 
