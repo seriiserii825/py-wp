@@ -2,11 +2,12 @@ from pathlib import Path
 
 from classes.csv.BasePluginsCsv import BasePluginsCsv
 from classes.selenium.WPPlaywright import WPPlaywright, log
-from classes.selenium.WPPlugins import WPPlugins
+from classes.selenium.WPPlugins import WPPlugins, BACKUP_PLUGINS
 from classes.utils.WPPaths import WPPaths
 
 DISABLE_COMMENTS_PLUGIN = "disable-comments-altuofianco"
 THEME_LOGIN_PLUGIN = "altuofianco-theme-login"
+HIDE_LOGIN_PLUGIN = "wps-hide-login"
 
 
 class WPPlaywrightReinstallAltuofianco(WPPlaywright):
@@ -26,6 +27,11 @@ class WPPlaywrightReinstallAltuofianco(WPPlaywright):
             plugins.activate_after_upload()
             # verify on plugins.php: active plugins have #deactivate-<slug>
             plugins.activate([THEME_LOGIN_PLUGIN])
+            # final state of the site: backup plugins off (extension before
+            # its base plugin), login hidden
+            plugins.deactivate(list(reversed(BACKUP_PLUGINS)))
+            # optional: a site without it gets a warning, not an abort
+            plugins.activate([HIDE_LOGIN_PLUGIN], optional=[HIDE_LOGIN_PLUGIN])
             if self.headless:
                 log.info(f"Done, check: {self.project_url}/wp-admin/plugins.php")
             else:
