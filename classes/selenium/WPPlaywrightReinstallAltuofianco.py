@@ -65,8 +65,10 @@ class WPPlaywrightReinstallAltuofianco(WPPlaywright):
             # final state of the site: backup plugins off (extension before
             # its base plugin), login hidden
             plugins.deactivate(list(reversed(BACKUP_PLUGINS)))
-            # optional: a site without it gets a warning, not an abort
-            plugins.activate([HIDE_LOGIN_PLUGIN], optional=[HIDE_LOGIN_PLUGIN])
+            # login must end up hidden: install it when the site doesn't have it
+            if not plugins.is_installed(HIDE_LOGIN_PLUGIN):
+                plugins.install_from_wordpress_org(HIDE_LOGIN_PLUGIN)
+            plugins.activate([HIDE_LOGIN_PLUGIN])
             # only if installed: most sites don't have it
             plugins.activate([TURNSTILE_PLUGIN_SLUG], optional=[TURNSTILE_PLUGIN_SLUG])
             if self.headless:

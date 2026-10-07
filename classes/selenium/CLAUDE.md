@@ -58,5 +58,5 @@ Started from Use from list for a chosen `list.csv` site. Safe to rerun (a run of
 5. `delete` `disable-comments-altuofianco` (old standalone plugin, always); if reinstall: `delete` + `upload` + `activate_after_upload()` `altuofianco-theme-login`.
 6. `activate(["altuofianco-theme-login"])` — check/ensure active.
 7. `all-in-one-wp-migration` not installed → `upload()` its zip (left deactivated).
-8. `deactivate` both `BACKUP_PLUGINS` (extension first) → `activate(["wps-hide-login"])` (optional) → `activate(["simple-cloudflare-turnstile"])` (optional — re-enables Turnstile the user deactivated to let the tool log in).
+8. `deactivate` both `BACKUP_PLUGINS` (extension first) → `wps-hide-login`: not installed → `install_from_wordpress_org()` (Add plugin search → "Install now", it's `wps-hide-login,False` in base-plugins.csv — no zip), then `activate` (required) → `activate(["simple-cloudflare-turnstile"])` (optional — re-enables Turnstile the user deactivated to let the tool log in).
 9. Visible browser: wait for Enter; headless: log the `plugins.php` link.

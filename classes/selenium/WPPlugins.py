@@ -179,6 +179,31 @@ class WPPlugins:
         self._open()
         return self._has(f"activate-{slug}") or self._has(f"deactivate-{slug}")
 
+    def install_from_wordpress_org(self, slug: str) -> None:
+        """Add plugin → search the slug → "Install now" (ajax); doesn't activate.
+        For plugins listed as `<slug>,False` in base-plugins.csv (no local zip)."""
+        log.info(f"Installing [bold]{slug}[/bold] from wordpress.org")
+        self._goto_admin_page(
+            f"plugin-install.php?s={slug}&tab=search&type=term", "body.plugin-install-php"
+        )
+        install = self.page.locator(f'a.install-now[data-slug="{slug}"]')
+        try:
+            install.first.wait_for(state="visible", timeout=30_000)
+        except PlaywrightError:
+            Notification(title="Plugin NOT installed", message=slug).notify()
+            raise RuntimeError(
+                f"No 'Install now' for {slug} on {self.page.url} — plugin installs "
+                "blocked on this site, or the plugin isn't found on wordpress.org?"
+            )
+        install.first.click()
+        # when the ajax install finishes the button turns into "Activate"
+        self.page.locator(f'a.activate-now[data-slug="{slug}"]').first.wait_for(
+            state="visible", timeout=120_000
+        )
+        self._log_where(f"install {slug}")
+        log.info(f"Plugin [bold]{slug}[/bold] installed")
+        Notification(title="Plugin installed", message=slug).notify()
+
     def can_upload(self) -> bool:
         """True if Add plugin → Upload plugin is available. Security plugins
         (e.g. NinjaFirewall) or DISALLOW_FILE_MODS remove the upload form."""
