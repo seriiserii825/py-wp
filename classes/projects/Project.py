@@ -10,7 +10,8 @@ class Project:
         self.theme_name = theme_name
         self.project = self.getProject()
 
-    def getProject(self) -> dict[str, str]:
+    @staticmethod
+    def get_all_projects() -> list[dict[str, str]]:
         projects: list[dict[str, str]] = []
         csv_file_path = WPPaths.get_list_csv_path()
         with open(csv_file_path) as my_file:
@@ -25,6 +26,10 @@ class Project:
                 if len(row) > 4:
                     project["gestione"] = row[4]
                 projects.append(project)
+        return projects
+
+    def getProject(self) -> dict[str, str]:
+        projects = self.get_all_projects()
         theme_is_in_projects = [
             project for project in projects if project["title"] == self.theme_name
         ]

@@ -19,6 +19,7 @@ from main_menu.plugins_menu import plugins_menu
 from main_menu.site_settings_menu import site_settings_menu
 from main_menu.taxonomy_menu import taxonomy_menu
 from main_menu.theme_menu import theme_menu
+from main_menu.use_from_list_menu import use_from_list_menu
 from main_menu.wp_menu_locations import wp_menu_locations
 from modules.check_is_wp import check_is_wp
 
@@ -38,23 +39,25 @@ def menu(
     menu_files: bool = False,
     menu_taxonomy: bool = False,
     menu_page_theme_file: bool = False,
+    menu_use_from_list: bool = False,
 ):
     options = [
-        "0).ACF",
-        "01).Plugins",
-        "02).Backups",
-        "03).Images",
-        "04).Pages / Posts",
-        "05).Taxonomy",
-        "06).Themes",
-        "07).Menus",
-        "08).Contact Form",
-        "09).Files",
-        "10).Root template",
-        "11).Site Settings",
-        "12).Init",
-        "13).Reset Settings",
-        "14).Exit",
+        "ACF",
+        "Plugins",
+        "Backups",
+        "Images",
+        "Pages / Posts",
+        "Taxonomy",
+        "Themes",
+        "Menus",
+        "Contact Form",
+        "Files",
+        "Root template",
+        "Site Settings",
+        "Init",
+        "Reset Settings",
+        "Use from list",
+        "Exit",
     ]
     if menu_acf:
         acf_func(to_import)
@@ -95,8 +98,24 @@ def menu(
     elif menu_taxonomy:
         taxonomy_menu()
         return menu()
+    elif menu_use_from_list:
+        use_from_list_menu()
+        return menu()
 
-    choice = Menu.select_fzf(options)
+    red_options = {"Init", "Reset Settings", "Exit"}
+    row_styles = {
+        i: "bold red"
+        if o in red_options
+        else ("bold blue" if i % 2 == 0 else "bold green")
+        for i, o in enumerate(options)
+    }
+    Menu.display(
+        "Main Menu",
+        ["Index", "Option"],
+        [[str(i), o] for i, o in enumerate(options)],
+        row_styles=row_styles,
+    )
+    choice = Menu.choose_option()
     if choice == 0:
         acf_func(to_import)
         menu()
@@ -140,6 +159,9 @@ def menu(
         reset_settings()
         exit(0)
     elif choice == 14:
+        use_from_list_menu()
+        menu()
+    elif choice == 15:
         print("Exiting the program. Goodbye!")
         exit(0)
     else:
@@ -270,6 +292,11 @@ ACF import/export notes:
         action="store_true",
         help="Directly open the Page Theme File menu",
     )
+    parser.add_argument(
+        "--use-from-list",
+        action="store_true",
+        help="Directly open the Use from list menu",
+    )
     args = parser.parse_args()
     check_is_wp()
     WPPaths.initialize()
@@ -288,4 +315,5 @@ ACF import/export notes:
         menu_files=args.menu_files,
         menu_taxonomy=args.menu_taxonomy,
         menu_page_theme_file=args.menu_page_theme_file,
+        menu_use_from_list=args.use_from_list,
     )

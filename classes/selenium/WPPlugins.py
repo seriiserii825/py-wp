@@ -1,4 +1,5 @@
 from contextlib import contextmanager
+from pathlib import Path
 from typing import Iterable, Iterator
 
 from playwright.sync_api import Page
@@ -80,6 +81,53 @@ class WPPlugins:
 
     def deactivate(self, slugs: list[str]) -> list[str]:
         return self._toggle(slugs, "deactivate")
+
+    def delete(self, slug: str) -> bool:
+        """Deactivate (if active) and delete a plugin via `#delete-<slug>`.
+
+        Returns False if the plugin is not installed — nothing to delete.
+        """
+        self.deactivate([slug])
+        self._open()
+        if not self._has(f"delete-{slug}"):
+            log.warning(f"Plugin [bold]{slug}[/bold] not installed, skipping delete")
+            return False
+        log.info(f"Plugin [bold]{slug}[/bold]: delete → clicking")
+        # WP asks "Are you sure you want to delete...?" via confirm()
+        self.page.once("dialog", lambda dialog: dialog.accept())
+        self.page.click(f"#delete-{slug}")
+        # deletion is ajax: the delete link disappears once the plugin is gone
+        self.page.locator(f"#delete-{slug}").wait_for(state="detached", timeout=60_000)
+        log.info(f"Plugin [bold]{slug}[/bold] deleted")
+        Notification(title="Plugin deleted", message=slug).notify()
+        return True
+
+    def upload(self, zip_path: Path) -> None:
+        """Install a plugin from a local zip via Add plugin → Upload plugin."""
+        if not zip_path.exists():
+            raise FileNotFoundError(f"Plugin zip not found: {zip_path}")
+        install_url = self.plugins_url.replace("plugins.php", "plugin-install.php")
+        log.info(f"Navigating to {install_url}")
+        self.page.goto(install_url)
+        self.page.wait_for_load_state("load")
+        self.page.click(".upload-view-toggle")
+        # fills the file input directly — no OS file dialog needed
+        self.page.set_input_files("#pluginzip", str(zip_path))
+        log.info(f"Uploading [bold]{zip_path.name}[/bold]")
+        self.page.click("#install-plugin-submit")
+        self.page.wait_for_load_state("load", timeout=120_000)
+        # the result page offers "Activate plugin" only when install succeeded
+        if self.page.locator('a[href*="action=activate"]').count() == 0:
+            Notification(title="Plugin NOT installed", message=zip_path.name).notify()
+            raise RuntimeError(f"Plugin upload failed: {zip_path.name} (see {self.page.url})")
+        log.info(f"Plugin [bold]{zip_path.name}[/bold] installed")
+        Notification(title="Plugin installed", message=zip_path.name).notify()
+
+    def activate_after_upload(self) -> None:
+        """Click "Activate plugin" on the page shown right after upload()."""
+        log.info("Activating uploaded plugin")
+        self.page.click('a[href*="action=activate"]')
+        self.page.wait_for_load_state("load")
 
     @contextmanager
     def activated(self, slugs: list[str], optional: Iterable[str] = ()) -> Iterator[None]:

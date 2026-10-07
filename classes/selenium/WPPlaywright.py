@@ -34,8 +34,10 @@ SESSIONS_DIR.mkdir(exist_ok=True)
 
 
 class WPPlaywright:
-    def __init__(self) -> None:
-        theme_name = os.path.basename(os.getcwd())
+    def __init__(self, theme_name: str | None = None) -> None:
+        # by default the project is the current theme folder; pass a list.csv
+        # title to work on another site
+        theme_name = theme_name or os.path.basename(os.getcwd())
         self.pr = Project(theme_name)
         self.project = self.pr.getProject()
         self.project_url: str = self.project["url"]
