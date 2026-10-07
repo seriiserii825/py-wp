@@ -1,9 +1,12 @@
+import time
+
 from rich import print
 
 from classes.projects.Project import Project
 from main_menu.add_credentials_to_list import add_credentials_to_list
 from main_menu.ask_open_browser import ask_open_browser
 from main_menu.change_credentials_in_list import change_credentials_in_list
+from py_libs.Clipboard import Clipboard
 from py_libs.Menu import Menu
 from py_libs.Print import Print
 
@@ -83,12 +86,30 @@ def find_project():
     print(f"[green]{lines[index]}")
 
 
+# pause between the two copies so the clipboard manager stores both entries
+COPY_DELAY_SECONDS = 1.0
+
+
+def copy_credentials():
+    """Password first, login after a delay: the login ends up in the clipboard,
+    the password stays one entry back in the clipboard history."""
+    project = _select_project()
+    if project is None:
+        return
+    print(f"[green]Site: [bold]{_project_label(project)}")
+    Clipboard.write(project["password"], show=False)
+    time.sleep(COPY_DELAY_SECONDS)
+    Clipboard.write(project["login"])
+    print(f"[green]Copied: password, then login ({project['login']})")
+
+
 def use_from_list_menu():
     options = [
         "Reinstall Altuofianco",
         "Find project",
         "Add credentials to list",
         "Change credentials",
+        "Copy credentials",
         "Exit",
     ]
     row_styles = {
@@ -96,7 +117,8 @@ def use_from_list_menu():
         1: "bold green",
         2: "bold blue",
         3: "bold green",
-        4: "bold red",
+        4: "bold blue",
+        5: "bold red",
     }
     Menu.display(
         "Use from list",
@@ -116,4 +138,7 @@ def use_from_list_menu():
         use_from_list_menu()
     elif choice == 3:
         change_credentials_in_list()
+        use_from_list_menu()
+    elif choice == 4:
+        copy_credentials()
         use_from_list_menu()
