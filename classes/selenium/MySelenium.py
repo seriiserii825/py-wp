@@ -20,7 +20,12 @@ from classes.selenium.WPPlugins import (
     PluginNotInstalledError,
 )
 from classes.selenium.AI1WMBackups import AI1WMBackups
-from classes.selenium.WPPlaywright import browser_user_agent, login_candidates
+from classes.selenium.WPPlaywright import (
+    browser_user_agent,
+    login_candidates,
+    submit_login,
+    TurnstileBlockedError,
+)
 from classes.selenium.WPUsers import WPUsers
 from py_libs.InputValidator import InputValidator
 
@@ -138,14 +143,12 @@ class MySelenium:
             if check_login_element:
                 self._go_next_if_no_login_element()
 
-            self.page.fill("#user_login", self.project_login)
-            self.page.fill("#user_pass", self.project_password)
-            self.page.click("#wp-submit")
-
-            self.page.wait_for_url(
-                lambda url: "/wp-admin" in url and "wp-login" not in url,
-                timeout=30_000,
-            )
+            try:
+                submit_login(self.page, self.project_login, self.project_password)
+            except TurnstileBlockedError:
+                # close the browser before run_browser_flow() reports it and exits
+                self._close()
+                raise
         # follow www/non-www or http/https redirects: cookies belong to the
         # real host (same as WPPlaywright._use_actual_origin)
         parsed = urlparse(self.page.url)

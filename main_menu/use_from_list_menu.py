@@ -4,7 +4,7 @@ from rich import print
 
 from classes.projects.Project import Project
 from main_menu.add_credentials_to_list import add_credentials_to_list
-from main_menu.ask_open_browser import ask_open_browser
+from main_menu.ask_open_browser import ask_open_browser, run_browser_flow
 from main_menu.change_credentials_in_list import change_credentials_in_list
 from py_libs.Clipboard import Clipboard
 from py_libs.Menu import Menu
@@ -64,9 +64,12 @@ def reinstall_altuofianco():
         WPPlaywrightReinstallAltuofianco,
     )
 
-    WPPlaywrightReinstallAltuofianco(
-        project["title"], headless=not open_browser
-    ).start()
+    run_browser_flow(
+        lambda headless: WPPlaywrightReinstallAltuofianco(
+            project["title"], headless=headless
+        ).start(),
+        headless=not open_browser,
+    )
     exit(0)
 
 

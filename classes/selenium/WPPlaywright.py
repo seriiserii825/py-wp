@@ -42,6 +42,34 @@ def browser_user_agent(browser: Browser) -> str:
     )
 
 
+TURNSTILE_PLUGIN = "Simple CAPTCHA with Cloudflare Turnstile"
+
+
+class TurnstileBlockedError(RuntimeError):
+    """Login page has Cloudflare Turnstile — it can't be passed from a
+    Playwright browser (navigator.webdriver is true, the widget never issues a
+    token, the submit does nothing), not even by hand in the visible window.
+    `run_browser_flow()` reports it and exits."""
+
+
+def submit_login(page: Page, login: str, password: str) -> None:
+    """Fill the WP login form and get into wp-admin."""
+    if page.locator(".cf-turnstile").count() > 0:
+        raise TurnstileBlockedError(
+            f"Cloudflare Turnstile blocks the login on {page.url}. Log in to "
+            f"wp-admin yourself, deactivate the plugin '{TURNSTILE_PLUGIN}' "
+            "and run again."
+        )
+    page.fill("#user_login", login)
+    page.fill("#user_pass", password)
+    page.click("#wp-submit")
+    log.debug("Waiting for redirect to wp-admin after login")
+    page.wait_for_url(
+        lambda url: "/wp-admin" in url and "wp-login" not in url,
+        timeout=30_000,
+    )
+
+
 def login_candidates(site_login_url: str, project_url: str) -> list[str]:
     """Urls where the login form may live, in the order they are tried
     (custom login path from list.csv first, duplicates dropped)."""
@@ -143,14 +171,7 @@ class WPPlaywright:
             return
 
         log.info(f"Filling credentials for user: {self.project_login}")
-        self.page.fill("#user_login", self.project_login)
-        self.page.fill("#user_pass", self.project_password)
-        self.page.click("#wp-submit")
-        log.debug("Waiting for redirect to wp-admin after login")
-        self.page.wait_for_url(
-            lambda url: "/wp-admin" in url and "wp-login" not in url,
-            timeout=30_000,
-        )
+        submit_login(self.page, self.project_login, self.project_password)
         log.info("Login successful")
 
     def _find_login_url(self) -> str | None:

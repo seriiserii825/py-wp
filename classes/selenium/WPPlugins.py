@@ -146,6 +146,10 @@ class WPPlugins:
         Notification(title="Plugin deleted", message=slug).notify()
         return True
 
+    def is_installed(self, slug: str) -> bool:
+        self._open()
+        return self._has(f"activate-{slug}") or self._has(f"deactivate-{slug}")
+
     def can_upload(self) -> bool:
         """True if Add plugin → Upload plugin is available. Security plugins
         (e.g. NinjaFirewall) or DISALLOW_FILE_MODS remove the upload form."""

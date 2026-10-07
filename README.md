@@ -58,7 +58,7 @@ the login path automatically.
 
 | Option                  | What it does |
 | ----------------------- | ------------ |
-| Reinstall Altuofianco   | Pick a site (type a domain or search with fzf), choose browser / headless, then in wp-admin: first check that "Upload plugin" is available (if a security plugin like NinjaFirewall hides it — error and exit, nothing changed); deactivate + delete `disable-comments-altuofianco` and `altuofianco-theme-login` (skipped if not installed), upload the `altuofianco-theme-login` zip from `~/Documents/plugins-wp` (filename from `csv/base-plugins.csv`) and activate it; finally make sure `all-in-one-wp-migration` and its unlimited extension are deactivated and `wps-hide-login` is active. With a visible browser it waits for Enter at the end so you can check the site. |
+| Reinstall Altuofianco   | Pick a site (type a domain or search with fzf), choose browser / headless, then in wp-admin: first check that "Upload plugin" is available (if a security plugin like NinjaFirewall hides it — error and exit, nothing changed); deactivate + delete `disable-comments-altuofianco` and `altuofianco-theme-login` (skipped if not installed), upload the `altuofianco-theme-login` zip from `~/Documents/plugins-wp` (filename from `csv/base-plugins.csv`) and activate it; install `all-in-one-wp-migration` from its zip if the site doesn't have it; finally make sure `all-in-one-wp-migration` and its unlimited extension are deactivated and `wps-hide-login` is active. With a visible browser it waits for Enter at the end so you can check the site. |
 | Find project            | fzf over all sites, one line each: `title \| url \| login \| password \| login_path`; prints the picked line. |
 | Add credentials to list | Reads 3 lines from the clipboard — domain, login, password. If they are missing/invalid, prints a hint and returns. Otherwise asks for the theme name and appends `theme,login,password,url` to `list.csv` (same rules as `set-theme-in-wp-list-csv.sh`: url reduced to `https://domain`, no duplicates, confirmation if the theme already exists with other data). `list.csv.gpg` is not updated. |
 | Copy credentials        | Pick a site (domain or fzf), copy the password, wait 1 s, copy the login — the clipboard manager keeps both: login is current, password is the previous entry. |
@@ -77,6 +77,40 @@ Last) first asks **Open browser?**:
   and picked in fzf instead of entering a count.
 
 A login captcha can't be solved headless — use the visible browser for such sites.
+
+#### Cloudflare Turnstile on the login page
+
+Some sites protect the login form with Cloudflare Turnstile (plugin
+**"Simple CAPTCHA with Cloudflare Turnstile"**). It can't be passed from the
+browser the tool drives — not even by hand in the visible window: the browser
+reports itself as automated, the widget never issues a token and the login
+button does nothing.
+
+When the tool finds Turnstile on the login page it changes nothing on the site,
+shows a desktop notification "Turnstile blocks the login" and exits with:
+
+> Cloudflare Turnstile blocks the login on <url>. Log in to wp-admin yourself,
+> deactivate the plugin 'Simple CAPTCHA with Cloudflare Turnstile' and run again.
+
+So: log in from your normal browser, deactivate that plugin, run the action again
+— Reinstall Altuofianco activates `simple-cloudflare-turnstile` again at the end
+(if it's installed); after other actions reactivate it yourself.
+
+The dark "Login form protected by WPS Limit Login" box is only that plugin's
+credit line — it is not what blocks the login.
+
+#### Other site protections handled
+
+- **NinjaFirewall** answers headless Chromium (`HeadlessChrome` user agent) with
+  `403` — every context uses a regular Chrome user agent.
+- **No own SSL certificate** (hosting cert, `ERR_CERT_COMMON_NAME_INVALID`) —
+  certificate errors are ignored.
+- **www / non-www redirects** — after login the real address is used.
+- **Session dropped mid-run** — plugin pages log in again once and retry.
+- **Plugin installs blocked** (NinjaFirewall, `DISALLOW_FILE_MODS`) — Reinstall
+  Altuofianco checks the upload form first and exits without changing anything.
+- Login form is searched at the `list.csv` login path, `/wp-admin`, `/gestione`,
+  `/login`, `/login.php`, `/wp-login.php`.
 
 ---
 
