@@ -2,61 +2,41 @@ from rich import print
 from classes.pages.Page import Page
 from classes.pages.RankMathMetabox import RankMathMetabox
 from main_menu.post_menu import post_menu
-from py_libs.Menu import Menu
+from main_menu.table_menu import table_menu
 
 
 def page_menu():
-    options = ["0).Pages", "1).Posts", "2).Exit"]
-    choice = Menu.select_fzf(options)
+    choice = table_menu("Pages / Posts", ["Pages", "Posts"])
     if choice == 0:
         pages_menu()
+        page_menu()
     elif choice == 1:
         post_menu()
-    else:
-        print("[red]Exiting the program. Goodbye!")
+        page_menu()
+    # Back → return to the main menu
 
 
 def pages_menu():
     Page.list_all()
 
-    menu_header = ["Index", "Option"]
-    menu_colors = {
-        0: "green",
-        1: "blue",
-        2: "blue",
-        3: "red",
-        4: "red",
-        5: "yellow",
-        6: "blue",
-        7: "blue",
-        8: "blue",
-        9: "blue",
-        10: "yellow",
-        11: "red",
-    }
-    menu_items = [
-        ["0", "List Pages"],
-        ["1", "Create One Page"],
-        ["2", "Create Multiple Pages"],
-        ["3", "Delete One Page"],
-        ["4", "Delete Multiple Pages"],
-        ["5", "Ignore page"],
-        ["6", "Rename Page"],
-        ["7", "Change Template"],
-        ["8", "Set Front Page"],
-        ["9", "Toggle Rank Math metabox"],
-        ["10", "Ignore page & Exit"],
-        ["11", "Exit"],
+    options = [
+        "List Pages",
+        "Create One Page",
+        "Create Multiple Pages",
+        "Delete One Page",
+        "Delete Multiple Pages",
+        "Ignore page",
+        "Rename Page",
+        "Change Template",
+        "Set Front Page",
+        "Toggle Rank Math metabox",
+        "Ignore page & Exit",
     ]
-
-    Menu.display(
-        title="Page Menu",
-        columns=menu_header,
-        rows=menu_items,
-        row_styles=menu_colors,
+    choice = table_menu(
+        "Page Menu",
+        options,
+        red_options={"Delete One Page", "Delete Multiple Pages"},
     )
-
-    choice = Menu.choose_option()
 
     if choice == 0:
         print("Listing pages...")
@@ -100,10 +80,5 @@ def pages_menu():
         pages_menu()
     elif choice == 10:
         Page.ignore_page()
-        return
-    elif choice == 11:
-        print("[red]Exiting the program. Goodbye!")
-        return
-    else:
-        print("[red]Invalid choice. Please try again.")
-        return
+        exit(0)
+    # Back → return to Pages / Posts

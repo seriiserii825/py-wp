@@ -2,7 +2,6 @@
 
 import argparse
 
-from py_libs.Menu import Menu
 from classes.utils.WPPaths import WPPaths
 from main_menu.acf_func import acf_func
 from main_menu.backup_menu import backup_menu
@@ -19,6 +18,7 @@ from main_menu.plugins_menu import plugins_menu
 from main_menu.site_settings_menu import site_settings_menu
 from main_menu.taxonomy_menu import taxonomy_menu
 from main_menu.theme_menu import theme_menu
+from main_menu.table_menu import table_menu
 from main_menu.use_from_list_menu import use_from_list_menu
 from main_menu.wp_menu_locations import wp_menu_locations
 from modules.check_is_wp import check_is_wp
@@ -57,7 +57,6 @@ def menu(
         "Init",
         "Reset Settings",
         "Use from list",
-        "Exit",
     ]
     if menu_acf:
         acf_func(to_import)
@@ -82,7 +81,7 @@ def menu(
         return menu()
     elif menu_posts:
         post_menu()
-        exit(0)
+        return menu()
     elif rank_math_page:
         RankMathMetabox.toggle(post_type="page")
         exit(0)
@@ -94,7 +93,7 @@ def menu(
         exit(0)
     elif menu_pages:
         page_menu()
-        exit(0)
+        return menu()
     elif menu_taxonomy:
         taxonomy_menu()
         return menu()
@@ -102,20 +101,9 @@ def menu(
         use_from_list_menu()
         return menu()
 
-    red_options = {"Init", "Reset Settings", "Exit"}
-    row_styles = {
-        i: "bold red"
-        if o in red_options
-        else ("bold blue" if i % 2 == 0 else "bold green")
-        for i, o in enumerate(options)
-    }
-    Menu.display(
-        "Main Menu",
-        ["Index", "Option"],
-        [[str(i), o] for i, o in enumerate(options)],
-        row_styles=row_styles,
+    choice = table_menu(
+        "Main Menu", options, back=False, red_options={"Init", "Reset Settings"}
     )
-    choice = Menu.choose_option()
     if choice == 0:
         acf_func(to_import)
         menu()
@@ -130,7 +118,7 @@ def menu(
         menu()
     elif choice == 4:
         page_menu()
-        exit(0)
+        menu()
     elif choice == 5:
         taxonomy_menu()
         menu()
@@ -161,12 +149,6 @@ def menu(
     elif choice == 14:
         use_from_list_menu()
         menu()
-    elif choice == 15:
-        print("Exiting the program. Goodbye!")
-        exit(0)
-    else:
-        print("Invalid choice. Please try again.")
-        exit(0)
 
 
 if __name__ == "__main__":

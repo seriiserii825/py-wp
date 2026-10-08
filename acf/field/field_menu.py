@@ -4,8 +4,7 @@ from pathlib import Path
 from rich import print
 from classes.acf.AcfTransfer import AcfTransfer
 from classes.acf.field.FieldMenu import FieldMenu
-from py_libs.Menu import Menu
-from classes.utils.ExitApp import ExitApp
+from main_menu.table_menu import BACK, table_menu
 from classes.utils.WPPaths import WPPaths
 
 
@@ -38,25 +37,27 @@ def acf_menu(section_file_json_path):
 
     while True:
         menu_options = [
-            "0.Show All Fields",
-            "1.Show Only Tab/Group Fields",
-            "2.Collapse All",
-            "3.Order Fields",
-            "4.Create new field",
-            "5.Move field",
-            "6.Move multiple fields",
-            "7.Edit field",
-            "8.Delete field",
-            "9.Delete multiple fields",
-            "10.Duplicate field",
-            "11.Toggle required by indexes",
-            "12.Copy group to clipboard",
-            "13.Upload changes to WordPress",
-            "14.Reorder from snapshot",
-            "15.Back",
-            "16.Exit",
+            "Show All Fields",
+            "Show Only Tab/Group Fields",
+            "Collapse All",
+            "Order Fields",
+            "Create new field",
+            "Move field",
+            "Move multiple fields",
+            "Edit field",
+            "Delete field",
+            "Delete multiple fields",
+            "Duplicate field",
+            "Toggle required by indexes",
+            "Copy group to clipboard",
+            "Upload changes to WordPress",
+            "Reorder from snapshot",
         ]
-        choice = Menu.select_fzf(menu_options)
+        choice = table_menu(
+            "ACF Field Menu",
+            menu_options,
+            red_options={"Delete field", "Delete multiple fields"},
+        )
         if choice == 0:
             current_view = VIEW_ALL
             render()
@@ -123,14 +124,9 @@ def acf_menu(section_file_json_path):
                 print(f"Snapshot not found: {e}")
             except Exception as e:
                 print(f"Error reordering from snapshot: {e}")
-        elif choice == 15:
+        elif choice == BACK:
             print("Going back.")
             break
-        elif choice == 16:
-            ExitApp.confirm_and_exit()
-            render()
-        else:
-            print("Invalid choice. Please try again.")
 
 
 def upload_changes(section_file_json_path: str | Path):

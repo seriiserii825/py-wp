@@ -1,8 +1,8 @@
 from classes.theme.Theme import Theme
+from main_menu.table_menu import BACK, table_menu
 
 
 def theme_menu():
-    from py_libs.Select import Select
     from py_libs.Command import Command
 
     options = [
@@ -11,20 +11,19 @@ def theme_menu():
         "Activate theme",
         "Deactivate theme",
         "Delete theme",
-        "Exit",
     ]
 
     while True:
-        choice = Select.select_one(options)
-        if choice == "List all themes":
+        choice = table_menu("Themes", options, red_options={"Delete theme"})
+        if choice == 0:
             Command.run("wp theme list")
-        elif choice == "Install theme":
+        elif choice == 1:
             Theme.install_theme()
-        elif choice == "Activate theme":
+        elif choice == 2:
             Theme.activate_theme()
-        elif choice == "Deactivate theme":
+        elif choice == 3:
             Theme.deactivate_theme()
-        elif choice == "Delete theme":
+        elif choice == 4:
             Theme.delete_theme()
-        elif choice == "Exit":
+        elif choice == BACK:
             break

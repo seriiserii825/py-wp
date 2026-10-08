@@ -7,6 +7,7 @@ from main_menu.add_credentials_to_list import add_credentials_to_list
 from main_menu.ask_open_browser import ask_open_browser, run_browser_flow
 from main_menu import saved_project
 from main_menu.change_credentials_in_list import change_credentials_in_list
+from main_menu.table_menu import BACK, table_menu
 from py_libs.Clipboard import Clipboard
 from py_libs.Menu import Menu
 from py_libs.Print import Print
@@ -20,14 +21,10 @@ def _select_project() -> dict[str, str] | None:
     options = [
         "Enter domain",
         "Search with fzf",
-        "Back",
-        "Exit",
     ]
-    choice = _table_menu("Find site", options)
-    if choice == 2:
+    choice = table_menu("Find site", options)
+    if choice == BACK:
         return None
-    if choice == 3:
-        exit(0)
 
     projects = Project.get_all_projects()
     if choice == 0:
@@ -120,23 +117,6 @@ def copy_credentials():
     print(f"[green]Copied: password, then login ({project['login']})")
 
 
-def _table_menu(title: str, options: list[str]) -> int:
-    """Table menu like the main one; Back / Exit rows are red."""
-    row_styles = {
-        i: "bold red"
-        if o in ("Back", "Exit")
-        else ("bold blue" if i % 2 == 0 else "bold green")
-        for i, o in enumerate(options)
-    }
-    Menu.display(
-        title,
-        ["Index", "Option"],
-        [[str(i), o] for i, o in enumerate(options)],
-        row_styles=row_styles,
-    )
-    return Menu.choose_option()
-
-
 def project_menu():
     """Actions on the project saved by Reinstall / Find project
     (saved-project.txt); shown right after one was picked."""
@@ -146,18 +126,14 @@ def project_menu():
     options = [
         "Copy credentials",
         "Change credentials",
-        "Back",
-        "Exit",
     ]
-    choice = _table_menu("Project", options)
+    choice = table_menu("Project", options)
     if choice == 0:
         copy_credentials()
         project_menu()
     elif choice == 1:
         change_credentials_in_list()
         project_menu()
-    elif choice == 3:
-        exit(0)
     # Back → return to Use from list
 
 
@@ -166,10 +142,8 @@ def use_from_list_menu():
         "Reinstall Altuofianco",
         "Find project",
         "Add credentials",
-        "Back",
-        "Exit",
     ]
-    choice = _table_menu("Use from list", options)
+    choice = table_menu("Use from list", options)
     if choice == 0:
         reinstall_altuofianco()
         use_from_list_menu()
@@ -181,6 +155,4 @@ def use_from_list_menu():
         if add_credentials_to_list():
             project_menu()
         use_from_list_menu()
-    elif choice == 4:
-        exit(0)
     # Back → return to the main menu (main.py shows it after we return)

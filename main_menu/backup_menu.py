@@ -1,26 +1,25 @@
 from classes.backup.Backup import Backup
 from main_menu.ask_open_browser import ask_and_run_browser_flow
-from py_libs.Menu import Menu
 from main_menu.check_for_base_plugins import check_for_base_plugins
+from main_menu.table_menu import table_menu
 
 
 def backup_menu():
     check_for_base_plugins()
 
-    menu_items = [
-        "0).List Backups",
-        "1).Create Backup",
-        "2).Create and Copy to Mount",
-        "3).Create Backup on Server",
-        "4).Restore Backup",
-        "5).Restore from Downloads",
-        "6).Restore in Browser",
-        "7).Delete in Browser",
-        "8).Download Last Backup from Server",
-        "9).Exit",
+    options = [
+        "List Backups",
+        "Create Backup",
+        "Create and Copy to Mount",
+        "Create Backup on Server",
+        "Restore Backup",
+        "Restore from Downloads",
+        "Restore in Browser",
+        "Delete in Browser",
+        "Download Last Backup from Server",
     ]
 
-    choice = Menu.select_fzf(menu_items)
+    choice = table_menu("Backups", options)
     if choice == 0:
         print("Listing backups...")
         bc = Backup()
@@ -65,6 +64,4 @@ def backup_menu():
         bc = Backup()
         ask_and_run_browser_flow(bc.download_last_backup_from_server)
         backup_menu()
-    elif choice == 9:
-        print("Exiting backup menu...")
-        return
+    # Back → return to the main menu

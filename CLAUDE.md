@@ -72,11 +72,11 @@ The most complex subsystem, split into two concerns:
 
 `PHPBlockFileCreator` additionally generates ACF block registration code and appends an include to `functions.php`.
 
-### Main menu style
-The top-level menu (`main.py`) and `main_menu/use_from_list_menu.py` use the **table** menu, not fzf: `Menu.display(title, ["Index", "Option"], rows, row_styles=...)` + `Menu.choose_option()`. Main-menu colors are computed: `bold red` for Init / Reset Settings / Exit, otherwise alternating `bold blue` / `bold green` by index — adding an item needs no manual recoloring. Each menu item that should be reachable directly gets a `--flag` in `main.py` (e.g. `--use-from-list`) and a matching `menu_*` kwarg of `menu()`.
+### Menu style
+All navigation menus (main menu and every submenu in `main_menu/`, plus the ACF Field Menu in `acf/field/field_menu.py`) use the **table** menu through one helper, `main_menu/table_menu.py` → `table_menu(title, options, back=True, red_options=None)`. Pass only the real actions: it appends **Back** and **Exit** rows (red) itself, returns the picked index or `BACK` (-1), and Exit quits the program (`exit(0)`). Back = just `return` / `break` one level up. Colors are computed: alternating `bold blue` / `bold green` by index, `bold red` for Back/Exit and `red_options` (e.g. Delete items, Init / Reset Settings in the main menu). The main menu passes `back=False`. fzf stays only for picking from data lists (sites, languages, files, menu items…). Each main-menu item that should be reachable directly gets a `--flag` in `main.py` (e.g. `--use-from-list`) and a matching `menu_*` kwarg of `menu()`.
 
 ### Use from list (`main_menu/use_from_list_menu.py`)
-Actions on any site from `list.csv`, not the cwd theme. Two table menus (`_table_menu()`; `Back`/`Exit` rows red): **Back** returns one level up (just `return`), **Exit** quits the program (`exit(0)`).
+Actions on any site from `list.csv`, not the cwd theme. Two `table_menu()` menus.
 
 - `use_from_list_menu()`: Reinstall Altuofianco, Find project, Add credentials, Back (→ main menu), Exit.
 - `project_menu()`: opened after Reinstall / Find project picked a project or Add credentials added one — Copy credentials, Change credentials, Back (→ Use from list), Exit. Does nothing if no project is saved.

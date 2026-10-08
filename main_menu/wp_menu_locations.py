@@ -1,5 +1,5 @@
-from py_libs.Menu import Menu
 from classes.wp_menus.WpMenuLocations import WpMenuLocations
+from main_menu.table_menu import BACK, table_menu
 from main_menu.wp_menu_handler import wp_menu_handler
 
 
@@ -9,17 +9,16 @@ def wp_menu_locations():
         wp_menu.show_missing_hint()
         return
     options = [
-        "0.Choose Location Slug",
-        "1.List Locations",
-        "2.Create Location",
-        "3.Edit Location",
-        "4.Delete Location",
-        "5.Exit",
+        "Choose Location Slug",
+        "List Locations",
+        "Create Location",
+        "Edit Location",
+        "Delete Location",
     ]
 
     while True:
         wp_menu.list_locations()
-        choice = Menu.select_fzf(options)
+        choice = table_menu("Menus", options, red_options={"Delete Location"})
         if choice == 0:
             location_slug = wp_menu.choose_location_slug()
             if location_slug:
@@ -32,5 +31,5 @@ def wp_menu_locations():
             wp_menu.edit_location()
         elif choice == 4:
             wp_menu.delete_location()
-        elif choice == 5:
+        elif choice == BACK:
             break

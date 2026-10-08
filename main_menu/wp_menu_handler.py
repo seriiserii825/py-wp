@@ -1,5 +1,5 @@
-from py_libs.Menu import Menu
 from classes.wp_menus.WpMenu import WpMenu
+from main_menu.table_menu import BACK, table_menu
 
 
 def wp_menu_handler(location: str):
@@ -11,11 +11,10 @@ def wp_menu_handler(location: str):
             return
 
     options = [
-        "0.Create Item",
-        "1.Edit Item",
-        "2.Move Item",
-        "3.Delete Item",
-        "4.Exit",
+        "Create Item",
+        "Edit Item",
+        "Move Item",
+        "Delete Item",
     ]
 
     def render() -> list:
@@ -23,7 +22,7 @@ def wp_menu_handler(location: str):
 
     items = render()
     while True:
-        choice = Menu.select_fzf(options)
+        choice = table_menu(f"Menu: {location}", options, red_options={"Delete Item"})
         if choice == 0:
             wp_menu.create_item(items)
             items = render()
@@ -36,5 +35,5 @@ def wp_menu_handler(location: str):
         elif choice == 3:
             wp_menu.delete_item(items)
             items = render()
-        elif choice == 4:
+        elif choice == BACK:
             break

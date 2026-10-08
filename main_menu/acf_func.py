@@ -2,8 +2,7 @@ from acf.section.new_section import new_section
 from acf.section.select_section import select_section
 from acf.section.show_sections import show_sections
 from classes.acf.AcfTransfer import AcfTransfer
-from classes.utils.ExitApp import ExitApp
-from py_libs.Menu import Menu
+from main_menu.table_menu import table_menu
 from py_libs.Print import Print
 
 
@@ -18,8 +17,8 @@ def acf_func(to_import: bool = False):
 
 def _choose_section():
     menu_options = ["Select section",
-                    "Edit Section", "Create new section", "Delete Section", "Back", "Exit"]
-    choice = Menu.select_with_fzf(menu_options)
+                    "Edit Section", "Create new section", "Delete Section"]
+    choice = table_menu("ACF", menu_options, red_options={"Delete Section"})
 
     if choice == 0:
         Print.info("Select section selected.")
@@ -37,9 +36,4 @@ def _choose_section():
 
         Print.info("Delete section selected.")
         EditSection.delete_section()
-    elif choice == 4:
-        Print.info("Going back.")
-        return
-    elif choice == 5:
-        ExitApp.confirm_and_exit()
-        _choose_section()
+    # Back → return to the main menu

@@ -1,40 +1,21 @@
 from rich import print
 from classes.pages.RankMathMetabox import RankMathMetabox
 from classes.posts.Post import Post
-from py_libs.Menu import Menu
+from main_menu.table_menu import table_menu
 
 
 def post_menu():
     Post.list_all()
 
-    menu_header = ["Index", "Option"]
-    menu_colors = {
-        0: "green",
-        1: "blue",
-        2: "blue",
-        3: "red",
-        4: "blue",
-        5: "blue",
-        6: "red",
-    }
-    menu_items = [
-        ["0", "List Posts"],
-        ["1", "Create One Post"],
-        ["2", "Create Multiple Posts"],
-        ["3", "Delete Posts"],
-        ["4", "Rename Post"],
-        ["5", "Toggle Rank Math metabox"],
-        ["6", "Exit"],
+    options = [
+        "List Posts",
+        "Create One Post",
+        "Create Multiple Posts",
+        "Delete Posts",
+        "Rename Post",
+        "Toggle Rank Math metabox",
     ]
-
-    Menu.display(
-        title="Post Menu",
-        columns=menu_header,
-        rows=menu_items,
-        row_styles=menu_colors,
-    )
-
-    choice = Menu.choose_option()
+    choice = table_menu("Post Menu", options, red_options={"Delete Posts"})
 
     if choice == 0:
         Post.list_all()
@@ -58,9 +39,4 @@ def post_menu():
     elif choice == 5:
         RankMathMetabox.toggle(post_type="post")
         post_menu()
-    elif choice == 6:
-        print("[red]Exiting the program. Goodbye!")
-        return
-    else:
-        print("[red]Invalid choice. Please try again.")
-        return
+    # Back → return one level up

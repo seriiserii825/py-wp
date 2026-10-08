@@ -1,20 +1,19 @@
 from classes.csv.BasePluginsCsv import BasePluginsCsv
 from classes.csv.OtherPluginsCsv import OtherPluginsCsv
 from classes.plugin.Plugin import Plugin
-from py_libs.Menu import Menu
+from main_menu.table_menu import table_menu
 
 
 def plugins_menu():
-    rows = [
-        "0.List installed",
-        "1.List base from csv file",
-        "2.List other from csv file",
-        "3.Install base",
-        "4.Install other",
-        "5.Uninstall",
-        "6.Exit",
+    options = [
+        "List installed",
+        "List base from csv file",
+        "List other from csv file",
+        "Install base",
+        "Install other",
+        "Uninstall",
     ]
-    choice = Menu.select_fzf(rows)
+    choice = table_menu("Plugins", options, red_options={"Uninstall"})
 
     if choice == 0:
         pi = Plugin()

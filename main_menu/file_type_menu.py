@@ -1,42 +1,24 @@
-from py_libs.Menu import Menu
 from enum_folder.FileTypeEnum import FileTypeEnum
+from main_menu.table_menu import BACK, table_menu
+
+FILE_TYPES = [
+    (FileTypeEnum.PHP, "php"),
+    (FileTypeEnum.SCSS, "scss"),
+    (FileTypeEnum.PHPBlock, "phpb"),
+    (FileTypeEnum.PHPS, "php and css"),
+    (FileTypeEnum.PHPBS, "php and block and css"),
+    (FileTypeEnum.PHPP, "php page"),
+    (FileTypeEnum.PHPI, "php icon"),
+    (FileTypeEnum.JS, "js"),
+    (FileTypeEnum.PHPAPI, "php api"),
+]
 
 
 def file_type_menu() -> FileTypeEnum:
-    rows = [
-        f"0.{FileTypeEnum.PHP.label} (php)",
-        f"1.{FileTypeEnum.SCSS.label} (scss)",
-        f"2.{FileTypeEnum.PHPBlock.label} (phpb)",
-        f"3.{FileTypeEnum.PHPS.label} (php and css)",
-        f"4.{FileTypeEnum.PHPBS.label} (php and block and css)",
-        f"5.{FileTypeEnum.PHPP.label} (php page)",
-        f"6.{FileTypeEnum.PHPI.label} (php icon)",
-        f"7.{FileTypeEnum.JS.label} (js)",
-        f"8.{FileTypeEnum.PHPAPI.label} (php api)",
-        "9.Back",
-    ]
-
-    choice = Menu.select_fzf(rows)
-    if choice == 0:
-        return FileTypeEnum.PHP
-    if choice == 1:
-        return FileTypeEnum.SCSS
-    elif choice == 2:
-        return FileTypeEnum.PHPBlock
-    elif choice == 3:
-        return FileTypeEnum.PHPS
-    elif choice == 4:
-        return FileTypeEnum.PHPBS
-    elif choice == 5:
-        return FileTypeEnum.PHPP
-    elif choice == 6:
-        return FileTypeEnum.PHPI
-    elif choice == 7:
-        return FileTypeEnum.JS
-    elif choice == 8:
-        return FileTypeEnum.PHPAPI
-    elif choice == 9:
+    """Picked file type; FileTypeEnum.NONE on Back."""
+    choice = table_menu(
+        "File type", [f"{t.label} ({hint})" for t, hint in FILE_TYPES]
+    )
+    if choice == BACK:
         return FileTypeEnum.NONE
-    else:
-        print("Invalid option. Please try again.")
-        return file_type_menu()
+    return FILE_TYPES[choice][0]

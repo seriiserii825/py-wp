@@ -3,6 +3,7 @@ from rich import print
 from py_libs.Command import Command
 from py_libs.Menu import Menu
 from py_libs.Print import Print
+from main_menu.table_menu import table_menu
 
 
 def _run_best_effort(cmd: str):
@@ -103,13 +104,12 @@ def _delete_language():
 def change_site_language_menu():
     _print_language_status()
     options = [
-        "0).Add new",
-        "1).Select one",
-        "2).Delete one",
-        "3).Show all",
-        "4).Back",
+        "Add new",
+        "Select one",
+        "Delete one",
+        "Show all",
     ]
-    choice = Menu.select_fzf(options)
+    choice = table_menu("Site Language", options, red_options={"Delete one"})
     if choice == 0:
         _add_language()
         change_site_language_menu()
@@ -122,18 +122,19 @@ def change_site_language_menu():
     elif choice == 3:
         _show_all_languages()
         change_site_language_menu()
+    # Back → return to Site Settings
 
 
 def site_settings_menu():
     options = [
-        "0).Update Translations",
-        "1).Change Site Language",
-        "2).Back",
+        "Update Translations",
+        "Change Site Language",
     ]
-    choice = Menu.select_fzf(options)
+    choice = table_menu("Site Settings", options)
     if choice == 0:
         update_translations()
         site_settings_menu()
     elif choice == 1:
         change_site_language_menu()
         site_settings_menu()
+    # Back → return to the main menu

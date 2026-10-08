@@ -5,8 +5,8 @@ from py_libs.FilesHandle import FilesHandle
 from classes.files.ModuleFileCreator import ModuleFileCreator
 from py_libs.InputValidator import InputValidator
 from classes.utils.ModuleSystemDetector import ModuleSystemDetector
-from py_libs.Select import Select
 from main_menu.file_type_menu import file_type_menu
+from main_menu.table_menu import BACK, table_menu
 from rich import print
 
 
@@ -52,14 +52,11 @@ def _module_menu():
     print(f"[green]Module: {module_path}[/green]")
     FilesHandle().list_files(module_path)
 
-    file_types = ["api", "icon", "js", "php", "phps", "scss", "Back"]
-    numbered_types = [f"{i + 1:02d}.{t}" for i, t in enumerate(file_types)]
-    selected = Select.select_with_fzf(numbered_types)
-    if not selected:
+    file_types = ["api", "icon", "js", "php", "phps", "scss"]
+    choice = table_menu("File type", file_types)
+    if choice == BACK:
         return
-    file_type = file_types[numbered_types.index(selected[0])]
-    if file_type == "Back":
-        return
+    file_type = file_types[choice]
 
     preset_name = None
     module_name = Path(module_path).name
