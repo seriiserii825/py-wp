@@ -50,6 +50,7 @@ def _standard_menu():
 def _module_menu():
     module_path = FilesHandle().create_or_choose_directory("modules")
     print(f"[green]Module: {module_path}[/green]")
+    FilesHandle().list_files(module_path)
 
     file_types = ["api", "icon", "js", "php", "phps", "scss", "Back"]
     numbered_types = [f"{i + 1:02d}.{t}" for i, t in enumerate(file_types)]
