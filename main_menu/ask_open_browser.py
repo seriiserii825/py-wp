@@ -4,15 +4,20 @@ from py_libs.Menu import Menu
 from py_libs.Notification import Notification
 
 
-def ask_open_browser() -> bool:
-    """True → show the browser window, False → run Playwright headless."""
+def ask_open_browser() -> bool | None:
+    """True → show the browser window, False → run Playwright headless,
+    None → Back (cancel); Exit quits the program."""
     options = [
         "Yes (show browser)",
         "No (headless)",
+        "Back",
+        "Exit",
     ]
     row_styles = {
         0: "bold blue",
         1: "bold green",
+        2: "bold red",
+        3: "bold red",
     }
     Menu.display(
         "Open browser?",
@@ -20,7 +25,17 @@ def ask_open_browser() -> bool:
         [[str(i), o] for i, o in enumerate(options)],
         row_styles=row_styles,
     )
-    return Menu.choose_option() == 0
+    choice = Menu.choose_option()
+    if choice == 3:
+        exit(0)
+    return None if choice == 2 else choice == 0
+
+
+def ask_and_run_browser_flow(run: Callable[[bool], object]) -> None:
+    """ask_open_browser() + run_browser_flow(); Back → nothing is run."""
+    open_browser = ask_open_browser()
+    if open_browser is not None:
+        run_browser_flow(run, headless=not open_browser)
 
 
 def run_browser_flow(run: Callable[[bool], object], headless: bool) -> None:

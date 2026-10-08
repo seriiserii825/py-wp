@@ -20,18 +20,14 @@ def _select_project() -> dict[str, str] | None:
     options = [
         "Enter domain",
         "Search with fzf",
+        "Back",
+        "Exit",
     ]
-    row_styles = {
-        0: "bold blue",
-        1: "bold green",
-    }
-    Menu.display(
-        "Find site",
-        ["Index", "Option"],
-        [[str(i), o] for i, o in enumerate(options)],
-        row_styles=row_styles,
-    )
-    choice = Menu.choose_option()
+    choice = _table_menu("Find site", options)
+    if choice == 2:
+        return None
+    if choice == 3:
+        exit(0)
 
     projects = Project.get_all_projects()
     if choice == 0:
@@ -62,16 +58,16 @@ def _search_and_save() -> dict[str, str] | None:
     return project
 
 
-def _saved_or_search() -> dict[str, str] | None:
-    return saved_project.load() or _search_and_save()
-
-
 def reinstall_altuofianco():
     project = _search_and_save()
     if project is None:
         return
     print(f"[green]Site: [bold]{_project_label(project)}")
     open_browser = ask_open_browser()
+    if open_browser is None:
+        # Back: the project stays picked, its submenu is still useful
+        project_menu()
+        return
 
     # imported here: importing WPPlaywright configures logging for the whole process
     from classes.selenium.WPPlaywrightReinstallAltuofianco import (
@@ -84,6 +80,7 @@ def reinstall_altuofianco():
         ).start(),
         headless=not open_browser,
     )
+    project_menu()
 
 
 def _project_full_line(project: dict[str, str]) -> str:
@@ -102,6 +99,7 @@ def find_project():
         return
     saved_project.save(projects[index])
     print(f"[green]{lines[index]}")
+    project_menu()
 
 
 # pause between the two copies so the clipboard manager stores both entries
@@ -111,8 +109,9 @@ COPY_DELAY_SECONDS = 1.0
 def copy_credentials():
     """Password first, login after a delay: the login ends up in the clipboard,
     the password stays one entry back in the clipboard history."""
-    project = _saved_or_search()
+    project = saved_project.load()
     if project is None:
+        Print.error("No saved project (Reinstall / Find project first).")
         return
     print(f"[green]Site: [bold]{_project_label(project)}")
     Clipboard.write(project["password"], show=False)
@@ -121,31 +120,56 @@ def copy_credentials():
     print(f"[green]Copied: password, then login ({project['login']})")
 
 
-def use_from_list_menu():
-    saved_project.print_header()
-    options = [
-        "Reinstall Altuofianco",
-        "Find project",
-        "Add credentials to list",
-        "Change credentials",
-        "Copy credentials",
-        "Exit",
-    ]
+def _table_menu(title: str, options: list[str]) -> int:
+    """Table menu like the main one; Back / Exit rows are red."""
     row_styles = {
-        0: "bold blue",
-        1: "bold green",
-        2: "bold blue",
-        3: "bold green",
-        4: "bold blue",
-        5: "bold red",
+        i: "bold red"
+        if o in ("Back", "Exit")
+        else ("bold blue" if i % 2 == 0 else "bold green")
+        for i, o in enumerate(options)
     }
     Menu.display(
-        "Use from list",
+        title,
         ["Index", "Option"],
         [[str(i), o] for i, o in enumerate(options)],
         row_styles=row_styles,
     )
-    choice = Menu.choose_option()
+    return Menu.choose_option()
+
+
+def project_menu():
+    """Actions on the project saved by Reinstall / Find project
+    (saved-project.txt); shown right after one was picked."""
+    if saved_project.load() is None:
+        return
+    saved_project.print_header()
+    options = [
+        "Copy credentials",
+        "Change credentials",
+        "Back",
+        "Exit",
+    ]
+    choice = _table_menu("Project", options)
+    if choice == 0:
+        copy_credentials()
+        project_menu()
+    elif choice == 1:
+        change_credentials_in_list()
+        project_menu()
+    elif choice == 3:
+        exit(0)
+    # Back → return to Use from list
+
+
+def use_from_list_menu():
+    options = [
+        "Reinstall Altuofianco",
+        "Find project",
+        "Add credentials",
+        "Back",
+        "Exit",
+    ]
+    choice = _table_menu("Use from list", options)
     if choice == 0:
         reinstall_altuofianco()
         use_from_list_menu()
@@ -153,11 +177,10 @@ def use_from_list_menu():
         find_project()
         use_from_list_menu()
     elif choice == 2:
-        add_credentials_to_list()
-        use_from_list_menu()
-    elif choice == 3:
-        change_credentials_in_list()
+        # a new site isn't in list.csv yet — once added it's the saved project
+        if add_credentials_to_list():
+            project_menu()
         use_from_list_menu()
     elif choice == 4:
-        copy_credentials()
-        use_from_list_menu()
+        exit(0)
+    # Back → return to the main menu (main.py shows it after we return)

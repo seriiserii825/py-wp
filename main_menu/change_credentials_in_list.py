@@ -62,13 +62,23 @@ def change_credentials_in_list():
     line_index, row = entries[picked]
     row = row + [""] * (len(FIELDS) - len(row))
 
+    back, exit_index = len(FIELDS), len(FIELDS) + 1
     Menu.display(
         f"Change {row[0]}",
         ["Index", "Field", "Current value"],
-        [[str(i), name, row[i]] for i, name in enumerate(FIELDS)],
-        row_styles={i: "bold blue" if i % 2 == 0 else "bold green" for i in range(len(FIELDS))},
+        [[str(i), name, row[i]] for i, name in enumerate(FIELDS)]
+        + [[str(back), "Back", ""], [str(exit_index), "Exit", ""]],
+        row_styles={
+            **{i: "bold blue" if i % 2 == 0 else "bold green" for i in range(len(FIELDS))},
+            back: "bold red",
+            exit_index: "bold red",
+        },
     )
     field_index = Menu.choose_option()
+    if field_index == back:
+        return
+    if field_index == exit_index:
+        exit(0)
 
     value = _validate(field_index, input(f"New {FIELDS[field_index]}: ").strip())
     if value is None:

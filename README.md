@@ -52,24 +52,37 @@ The main menu and the "Use from list" submenu are colored tables
 
 ### Use from list
 
-Above the menu there is always a line with the project you're working with:
-`Project: <domain>  Theme: <list.csv title>  Site: <url>/<login path>`.
-The project picked by **Reinstall Altuofianco** or **Find project** is remembered
-in `saved-project.txt` (next to `list.csv`, gitignored); **Copy credentials** and
-**Change credentials** use it without searching again, **Add credentials** offers
-its name as the default theme name. Reinstall / Find project replace it.
-
 Works with sites from `list.csv` (`title,login,password,url[,login_path]`).
 A url with a path (`https://site.it/gestione`) is split into the site url and
 the login path automatically.
 
+Menus (`Back` — one level up, `Exit` — quit the program; the small prompts
+"Find site", "Open browser?" and the Change credentials field table have them too):
+
+```
+Use from list                 Project  (opens after a project was picked/added)
+  0 Reinstall Altuofianco       0 Copy credentials
+  1 Find project                1 Change credentials
+  2 Add credentials             2 Back  → Use from list
+  3 Back  → main menu           3 Exit
+  4 Exit
+```
+
+The project picked by **Reinstall Altuofianco** / **Find project** (or just added
+by **Add credentials**) is saved to
+`saved-project.txt` (next to `list.csv`, gitignored) and the **Project** submenu
+opens. Above it there is always a line with what you're working with:
+`Project: <domain>  Theme: <list.csv title>  Site: <url>/<login path>`.
+The submenu items use that saved project — no search again. Reinstall / Find
+project replace it (the file is cleared first).
+
 | Option                  | What it does |
 | ----------------------- | ------------ |
-| Reinstall Altuofianco   | Pick a site (type a domain or search with fzf), choose browser / headless, then in wp-admin: skip reinstalling `altuofianco-theme-login` if the installed version equals the zip version (so a rerun is safe); if something has to be uploaded, first check that "Upload plugin" is available (if a security plugin like NinjaFirewall hides it — error and exit, nothing changed); deactivate + delete `disable-comments-altuofianco` and `altuofianco-theme-login` (skipped if not installed), upload the `altuofianco-theme-login` zip from `~/Documents/plugins-wp` (filename from `csv/base-plugins.csv`) and activate it; install `all-in-one-wp-migration` from its zip if the site doesn't have it or has another version than the zip (7.79; backup files on the server are kept); finally make sure `all-in-one-wp-migration` and its unlimited extension are deactivated and `wps-hide-login` is installed (from wordpress.org if missing) and active. With a visible browser it waits for Enter at the end so you can check the site. |
-| Find project            | fzf over all sites, one line each: `title \| url \| login \| password \| login_path`; prints the picked line. |
-| Add credentials to list | Reads 3 lines from the clipboard — domain, login, password. If they are missing/invalid, prints a hint and returns. Otherwise asks for the theme name and appends `theme,login,password,url` to `list.csv` (same rules as `set-theme-in-wp-list-csv.sh`: url reduced to `https://domain`, no duplicates, confirmation if the theme already exists with other data). `list.csv.gpg` is not updated. |
-| Copy credentials        | Pick a site (domain or fzf), copy the password, wait 1 s, copy the login — the clipboard manager keeps both: login is current, password is the previous entry. |
-| Change credentials      | Pick a site in fzf, pick the field (Title / Login / Password / Url / Login path) from a table with current values, type the new value, confirm `y/n` — only that line of `list.csv` is rewritten. Url is reduced to `https://domain`; an empty Login path removes the 5th column. |
+| Reinstall Altuofianco   | Pick a site (type a domain or search with fzf), choose browser / headless, then in wp-admin: skip reinstalling `altuofianco-theme-login` if the installed version equals the zip version (so a rerun is safe); if something has to be uploaded, first check that "Upload plugin" is available (if a security plugin like NinjaFirewall hides it — error and exit, nothing changed); deactivate + delete `disable-comments-altuofianco` and `altuofianco-theme-login` (skipped if not installed), upload the `altuofianco-theme-login` zip from `~/Documents/plugins-wp` (filename from `csv/base-plugins.csv`) and activate it; install `all-in-one-wp-migration` from its zip if the site doesn't have it or has another version than the zip (7.79; backup files on the server are kept); finally make sure `all-in-one-wp-migration` and its unlimited extension are deactivated and `wps-hide-login` is installed (from wordpress.org if missing) and active. With a visible browser it waits for Enter at the end so you can check the site. Then the Project submenu opens. |
+| Find project            | fzf over all sites, one line each: `title \| url \| login \| password \| login_path`; prints the picked line, saves it and opens the Project submenu. |
+| Add credentials         | Adds a NEW site (not in `list.csv` yet). Reads 3 lines from the clipboard — domain, login, password. If they are missing/invalid, prints a hint and returns. Otherwise asks for the theme name and appends `theme,login,password,url` to `list.csv` (same rules as `set-theme-in-wp-list-csv.sh`: url reduced to `https://domain`, no duplicates, confirmation if the theme already exists with other data). `list.csv.gpg` is not updated. The added site becomes the saved project and the Project submenu opens. |
+| Copy credentials        | *(Project submenu)* For the saved project: copy the password, wait 1 s, copy the login — the clipboard manager keeps both: login is current, password is the previous entry. |
+| Change credentials      | *(Project submenu)* For the saved project: pick the field (Title / Login / Password / Url / Login path) from a table with current values, type the new value, confirm `y/n` — only that line of `list.csv` is rewritten. Url is reduced to `https://domain`; an empty Login path removes the 5th column. |
 
 ### Browser: visible or headless
 

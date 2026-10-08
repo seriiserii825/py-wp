@@ -48,24 +48,22 @@ def _print_clipboard_hint() -> None:
     print("[blue]  password")
 
 
-def add_credentials_to_list():
+def add_credentials_to_list() -> bool:
+    """Append a new site to list.csv; True if added (it's then the saved project)."""
     credentials = _read_clipboard()
     if credentials is None:
         _print_clipboard_hint()
-        return
+        return False
     url, login, password = credentials
     print(f"[green]From clipboard: {url} | {login}")
 
-    saved = saved_project.load()
-    default = saved["title"] if saved else ""
-    hint = f" [Enter = {default}]" if default else ""
-    theme = input(f"Theme name{hint}: ").strip() or default
+    theme = input("Theme name: ").strip()
     if not theme:
         Print.error("Theme name can't be empty.")
-        return
+        return False
     if "," in theme:
         Print.error("Theme name must not contain a comma.")
-        return
+        return False
     new_row = [theme, login, password, url]
     new_line = ",".join(new_row)
 
@@ -75,7 +73,7 @@ def add_credentials_to_list():
 
     if any(row[:4] == new_row for row in rows):
         Print.error(f"Theme '{theme}' with this url/login/password is already in {csv_path}")
-        return
+        return False
 
     existing = next((row for row in rows if row and row[0] == theme), None)
     if existing:
@@ -83,7 +81,7 @@ def add_credentials_to_list():
         print(f"New:      {new_line}")
         if not InputValidator.get_bool("Data differs. Append a new row? [y/n]: "):
             print("Cancelled.")
-            return
+            return False
 
     content = csv_path.read_bytes()
     needs_newline = bool(content) and not content.endswith(b"\n")
@@ -92,3 +90,4 @@ def add_credentials_to_list():
 
     saved_project.save(Project.from_row(new_row))
     print(f"[green]Added to {csv_path}: {new_line}")
+    return True
