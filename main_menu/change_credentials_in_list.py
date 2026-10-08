@@ -3,7 +3,9 @@ import re
 
 from rich import print
 
+from classes.projects.Project import Project
 from classes.utils.WPPaths import WPPaths
+from main_menu import saved_project
 from py_libs.InputValidator import InputValidator
 from py_libs.Menu import Menu
 from py_libs.Print import Print
@@ -42,10 +44,21 @@ def change_credentials_in_list():
         for i, line in enumerate(lines)
         if line.strip()
     ]
-    labels = [" | ".join(row) for _, row in entries]
-    picked = Menu.select_fzf(labels)
+    # the project saved in "Use from list" — no search then
+    saved_key = saved_project.load_key()
+    picked = next(
+        (
+            i
+            for i, (_, row) in enumerate(entries)
+            if saved_key and len(row) >= 4 and saved_project.matches(Project.from_row(row), saved_key)
+        ),
+        -1,
+    )
     if picked == -1:
-        return
+        labels = [" | ".join(row) for _, row in entries]
+        picked = Menu.select_fzf(labels)
+        if picked == -1:
+            return
     line_index, row = entries[picked]
     row = row + [""] * (len(FIELDS) - len(row))
 
@@ -77,4 +90,6 @@ def change_credentials_in_list():
 
     lines[line_index] = new_line
     csv_path.write_text("\n".join(lines) + "\n")
+    # title/url may have changed — keep the saved project pointing at this row
+    saved_project.save(Project.from_row(new_line.split(",")))
     print(f"[green]Saved to {csv_path}")

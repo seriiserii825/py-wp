@@ -52,6 +52,13 @@ The main menu and the "Use from list" submenu are colored tables
 
 ### Use from list
 
+Above the menu there is always a line with the project you're working with:
+`Project: <domain>  Theme: <list.csv title>  Site: <url>/<login path>`.
+The project picked by **Reinstall Altuofianco** or **Find project** is remembered
+in `saved-project.txt` (next to `list.csv`, gitignored); **Copy credentials** and
+**Change credentials** use it without searching again, **Add credentials** offers
+its name as the default theme name. Reinstall / Find project replace it.
+
 Works with sites from `list.csv` (`title,login,password,url[,login_path]`).
 A url with a path (`https://site.it/gestione`) is split into the site url and
 the login path automatically.

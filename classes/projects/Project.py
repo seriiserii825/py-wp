@@ -12,29 +12,31 @@ class Project:
         self.project = self.getProject()
 
     @staticmethod
+    def from_row(row: list[str]) -> dict[str, str]:
+        """One list.csv row → project dict (url normalized, see get_all_projects)."""
+        project: dict[str, str] = {
+            "title": row[0],
+            "login": row[1],
+            "password": row[2],
+            "url": row[3],
+        }
+        if len(row) > 4:
+            project["gestione"] = row[4]
+        # some rows store the login page in the url itself
+        # (https://site.it/gestione) — split it into site url + login path
+        parsed = urlparse(project["url"].strip())
+        login_path = parsed.path.strip("/")
+        if login_path:
+            project["url"] = f"{parsed.scheme}://{parsed.netloc}"
+            project.setdefault("gestione", login_path)
+        return project
+
+    @staticmethod
     def get_all_projects() -> list[dict[str, str]]:
-        projects: list[dict[str, str]] = []
         csv_file_path = WPPaths.get_list_csv_path()
         with open(csv_file_path) as my_file:
             reader = csv.reader(my_file, delimiter=",")
-            for row in reader:
-                project: dict[str, str] = {
-                    "title": row[0],
-                    "login": row[1],
-                    "password": row[2],
-                    "url": row[3],
-                }
-                if len(row) > 4:
-                    project["gestione"] = row[4]
-                # some rows store the login page in the url itself
-                # (https://site.it/gestione) — split it into site url + login path
-                parsed = urlparse(project["url"].strip())
-                login_path = parsed.path.strip("/")
-                if login_path:
-                    project["url"] = f"{parsed.scheme}://{parsed.netloc}"
-                    project.setdefault("gestione", login_path)
-                projects.append(project)
-        return projects
+            return [Project.from_row(row) for row in reader if row]
 
     def getProject(self) -> dict[str, str]:
         projects = self.get_all_projects()

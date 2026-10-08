@@ -76,12 +76,15 @@ The most complex subsystem, split into two concerns:
 The top-level menu (`main.py`) and `main_menu/use_from_list_menu.py` use the **table** menu, not fzf: `Menu.display(title, ["Index", "Option"], rows, row_styles=...)` + `Menu.choose_option()`. Main-menu colors are computed: `bold red` for Init / Reset Settings / Exit, otherwise alternating `bold blue` / `bold green` by index — adding an item needs no manual recoloring. Each menu item that should be reachable directly gets a `--flag` in `main.py` (e.g. `--use-from-list`) and a matching `menu_*` kwarg of `menu()`.
 
 ### Use from list (`main_menu/use_from_list_menu.py`)
-Actions on any site from `list.csv`, not the cwd theme:
+Actions on any site from `list.csv`, not the cwd theme.
+
+**Saved project** (`main_menu/saved_project.py`): the project picked last is kept in `saved-project.txt` next to `list.csv` (gitignored) — only `title` + `url` (two lines), credentials are always re-read from `list.csv` (`saved_project.load()` matches on `Project.from_row()`-normalized title+url). Reinstall and Find project `clear()` it and `save()` the new pick (`_search_and_save()`); Copy and Change credentials use it without asking (`_saved_or_search()` — search only if nothing saved); Change credentials re-saves after editing (title/url may change); Add credentials offers the saved title as the `Theme name` default (Enter) and saves the added row. `saved_project.print_header()` prints `Project: <domain>  Theme: <title>  Site: <url>/<login path>` above the menu on every redraw.
+
 - **Reinstall Altuofianco** — site picked by domain substring (input → filter `url`; several matches → fzf) or fzf over all; then `WPPlaywrightReinstallAltuofianco(title, headless=...)`. Returns to the Use from list menu when done.
 - **Find project** — fzf over one-line `title | url | login | password | gestione`, prints the pick.
 - **Add credentials to list** (`main_menu/add_credentials_to_list.py`) — Python port of `~/Documents/bash/bash-scripts/set-theme-in-wp-list-csv.sh`. Clipboard is read and validated FIRST (3 lines: url, login, password); only if invalid is the hint printed. Then asks the theme name and appends to `list.csv`. Doesn't touch `list.csv.gpg` / `.sha256`.
-- **Copy credentials** — `_select_project()`, then `Clipboard.write(password, show=False)`, `COPY_DELAY_SECONDS` (1 s) pause so the clipboard manager records both, `Clipboard.write(login)`.
-- **Change credentials** (`main_menu/change_credentials_in_list.py`) — fzf over the RAW `list.csv` lines (not `Project.get_all_projects()`, which normalizes urls), table of fields with current values, new value validated (no commas; url → origin; empty login path drops column 5), `y/n`, then only that line is replaced in the file.
+- **Copy credentials** — `_saved_or_search()`, then `Clipboard.write(password, show=False)`, `COPY_DELAY_SECONDS` (1 s) pause so the clipboard manager records both, `Clipboard.write(login)`.
+- **Change credentials** (`main_menu/change_credentials_in_list.py`) — the saved project's RAW `list.csv` line (else fzf over the raw lines; not `Project.get_all_projects()`, which normalizes urls), table of fields with current values, new value validated (no commas; url → origin; empty login path drops column 5), `y/n`, then only that line is replaced in the file.
 
 `Project.get_all_projects()` (`classes/projects/Project.py`) is the `list.csv` reader for anything that USES a site (only the list-editing menus read raw lines). It normalizes urls stored with a login path (`https://site.it/gestione` → url `https://site.it`, `gestione` = `gestione` unless column 5 sets it) — anything building `{url}/wp-admin` relies on that.
 

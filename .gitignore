@@ -51,6 +51,8 @@ venv/
 docs/_build/
 uv.lock
 list.csv
+# project picked last in "Use from list"
+saved-project.txt
 google-data.csv
 sessions/
 list.csv.sha256

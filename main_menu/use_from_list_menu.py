@@ -5,6 +5,7 @@ from rich import print
 from classes.projects.Project import Project
 from main_menu.add_credentials_to_list import add_credentials_to_list
 from main_menu.ask_open_browser import ask_open_browser, run_browser_flow
+from main_menu import saved_project
 from main_menu.change_credentials_in_list import change_credentials_in_list
 from py_libs.Clipboard import Clipboard
 from py_libs.Menu import Menu
@@ -52,8 +53,21 @@ def _select_project() -> dict[str, str] | None:
     return projects[index]
 
 
-def reinstall_altuofianco():
+def _search_and_save() -> dict[str, str] | None:
+    """Search a project anew: the saved one is dropped, the found one saved."""
+    saved_project.clear()
     project = _select_project()
+    if project is not None:
+        saved_project.save(project)
+    return project
+
+
+def _saved_or_search() -> dict[str, str] | None:
+    return saved_project.load() or _search_and_save()
+
+
+def reinstall_altuofianco():
+    project = _search_and_save()
     if project is None:
         return
     print(f"[green]Site: [bold]{_project_label(project)}")
@@ -80,11 +94,13 @@ def _project_full_line(project: dict[str, str]) -> str:
 
 
 def find_project():
+    saved_project.clear()
     projects = Project.get_all_projects()
     lines = [_project_full_line(p) for p in projects]
     index = Menu.select_fzf(lines)
     if index == -1:
         return
+    saved_project.save(projects[index])
     print(f"[green]{lines[index]}")
 
 
@@ -95,7 +111,7 @@ COPY_DELAY_SECONDS = 1.0
 def copy_credentials():
     """Password first, login after a delay: the login ends up in the clipboard,
     the password stays one entry back in the clipboard history."""
-    project = _select_project()
+    project = _saved_or_search()
     if project is None:
         return
     print(f"[green]Site: [bold]{_project_label(project)}")
@@ -106,6 +122,7 @@ def copy_credentials():
 
 
 def use_from_list_menu():
+    saved_project.print_header()
     options = [
         "Reinstall Altuofianco",
         "Find project",

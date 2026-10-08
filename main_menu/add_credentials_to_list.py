@@ -3,7 +3,9 @@ import re
 
 from rich import print
 
+from classes.projects.Project import Project
 from classes.utils.WPPaths import WPPaths
+from main_menu import saved_project
 from py_libs.Clipboard import Clipboard
 from py_libs.InputValidator import InputValidator
 from py_libs.Print import Print
@@ -54,7 +56,10 @@ def add_credentials_to_list():
     url, login, password = credentials
     print(f"[green]From clipboard: {url} | {login}")
 
-    theme = input("Theme name: ").strip()
+    saved = saved_project.load()
+    default = saved["title"] if saved else ""
+    hint = f" [Enter = {default}]" if default else ""
+    theme = input(f"Theme name{hint}: ").strip() or default
     if not theme:
         Print.error("Theme name can't be empty.")
         return
@@ -85,4 +90,5 @@ def add_credentials_to_list():
     with open(csv_path, "a") as f:
         f.write(("\n" if needs_newline else "") + new_line + "\n")
 
+    saved_project.save(Project.from_row(new_row))
     print(f"[green]Added to {csv_path}: {new_line}")
