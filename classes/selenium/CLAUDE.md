@@ -25,6 +25,8 @@ Login form is searched at `login_candidates()` (`WPPlaywright.py`, shared with `
 - `goToUsers()` doesn't wait for Enter in the browser; it uses **`WPUsers`** (`WPUsers.py`): reads `users.php` (all pages), prints a table, fzf-multi to pick users to delete, `y/n` confirm, deletes via each row's delete link; if the user has content, asks delete content vs. attribute to the preselected user.
 - Deleting backups uses **`AI1WMBackups`** (`AI1WMBackups.py`) instead of "enter a count": prints the `ai1wm_backups` table, fzf-multi, `y/n`, deletes the picked rows by filename (waits for each row to detach).
 - `chrome://downloads` isn't opened after a download.
+- (Both modes) Create backup shows a Rich status line while the server builds the archive: elapsed `mm:ss` + the AI1WM export modal text (`.ai1wm-modal-container` innerText, e.g. "Archiving files… 45%"), polled every 1 s until the download link appears (`_show_export_progress()`, 1800 s timeout).
+- (Both modes) Downloads (`_download_from_link()`, used by create + download backup) show a Rich progress bar (size, speed, ETA): `_stream_download()` fetches the file with `requests` using the context's cookies + user agent (`verify=False`, like `ignore_https_errors`), writes `<name>.part` and renames when complete. Playwright's own download has no progress API. If streaming fails (HTTP error, HTML page instead of the file, network/OS error) it falls back to `_browser_download()` (the old Playwright download, no progress).
 With a visible browser both steps behave as before (browser pause / count prompt).
 
 ## Logging

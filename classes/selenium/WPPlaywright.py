@@ -12,7 +12,16 @@ from playwright.sync_api import (
     Page,
     TimeoutError as PlaywrightTimeoutError,
 )
+import requests
+import urllib3
 from rich.logging import RichHandler
+from rich.progress import (
+    BarColumn,
+    DownloadColumn,
+    Progress,
+    TimeRemainingColumn,
+    TransferSpeedColumn,
+)
 
 from classes.projects.Project import Project
 
@@ -28,6 +37,8 @@ logging.basicConfig(
     ],
 )
 log = logging.getLogger("WPPlaywright")
+# root is DEBUG — keep requests' connection lines out of the download progress
+logging.getLogger("urllib3").setLevel(logging.WARNING)
 
 
 SESSIONS_DIR = Path(__file__).resolve().parent.parent.parent / "sessions"
@@ -301,6 +312,61 @@ class WPPlaywright:
         )
         log.info(f"Starting download from: {href}")
 
+        try:
+            save_path = self._stream_download(href, fallback_filename)
+        except (requests.RequestException, OSError) as e:
+            log.warning(f"Streamed download failed ({e}), downloading through the browser")
+            save_path = self._browser_download(href, fallback_filename)
+        log.info(f"Downloaded → {save_path}")
+        return save_path
+
+    def _stream_download(self, href: str, filename: str) -> Path:
+        """Download with the browser's cookies + user agent and a progress bar.
+
+        Playwright's download has no progress — in headless mode there was
+        nothing to see until the whole file was saved.
+        """
+        urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
+        session = requests.Session()
+        session.headers["User-Agent"] = self.page.evaluate("navigator.userAgent")
+        for cookie in self.context.cookies(href):
+            session.cookies.set(
+                cookie["name"], cookie["value"],
+                domain=cookie.get("domain", ""), path=cookie.get("path", "/"),
+            )
+
+        # verify=False: same as ignore_https_errors on the browser context
+        with session.get(href, stream=True, verify=False, timeout=60) as response:
+            response.raise_for_status()
+            if "text/html" in response.headers.get("Content-Type", ""):
+                raise requests.RequestException(
+                    f"got an HTML page instead of the file ({response.url})"
+                )
+            total = int(response.headers.get("Content-Length") or 0) or None
+            save_path = Path(self.download_dir) / filename
+            part_path = save_path.with_name(save_path.name + ".part")
+
+            with Progress(
+                "[progress.description]{task.description}",
+                BarColumn(),
+                DownloadColumn(),
+                TransferSpeedColumn(),
+                TimeRemainingColumn(),
+            ) as progress:
+                task = progress.add_task(f"Downloading {filename}", total=total)
+                try:
+                    with open(part_path, "wb") as f:
+                        for chunk in response.iter_content(chunk_size=1 << 20):
+                            f.write(chunk)
+                            progress.advance(task, len(chunk))
+                except BaseException:
+                    part_path.unlink(missing_ok=True)
+                    raise
+
+        part_path.replace(save_path)
+        return save_path
+
+    def _browser_download(self, href: str, fallback_filename: str) -> Path:
         with self.page.expect_download(timeout=3_600_000) as download_info:
             self.page.evaluate("url => window.location.assign(url)", href)
 
@@ -316,5 +382,4 @@ class WPPlaywright:
         download.save_as(str(save_path))
         if downloads_page:
             downloads_page.close()
-        log.info(f"Downloaded → {save_path}")
         return save_path
