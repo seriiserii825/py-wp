@@ -1,4 +1,4 @@
-from py_libs.Menu import Menu
+from classes.utils.ColorMenu import ColorMenu
 from classes.wp_menus.WpMenu import WpMenu
 
 
@@ -11,11 +11,10 @@ def wp_menu_handler(location: str):
             return
 
     options = [
-        "0.Create Item",
-        "1.Edit Item",
-        "2.Move Item",
-        "3.Delete Item",
-        "4.Exit",
+        "[blue]Create Item",
+        "[yellow]Edit Item",
+        "[yellow]Move Item",
+        "[red]Delete Item",
     ]
 
     def render() -> list:
@@ -23,7 +22,7 @@ def wp_menu_handler(location: str):
 
     items = render()
     while True:
-        choice = Menu.select_fzf(options)
+        choice = ColorMenu.select(options)
         if choice == 0:
             wp_menu.create_item(items)
             items = render()

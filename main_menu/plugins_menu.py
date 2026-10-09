@@ -1,20 +1,19 @@
 from classes.csv.BasePluginsCsv import BasePluginsCsv
 from classes.csv.OtherPluginsCsv import OtherPluginsCsv
 from classes.plugin.Plugin import Plugin
-from py_libs.Menu import Menu
+from classes.utils.ColorMenu import ColorMenu
 
 
 def plugins_menu():
     rows = [
-        "0.List installed",
-        "1.List base from csv file",
-        "2.List other from csv file",
-        "3.Install base",
-        "4.Install other",
-        "5.Uninstall",
-        "6.Exit",
+        "[green]List installed",
+        "[green]List base from csv file",
+        "[green]List other from csv file",
+        "[blue]Install base",
+        "[blue]Install other",
+        "[red]Uninstall",
     ]
-    choice = Menu.select_fzf(rows)
+    choice = ColorMenu.select(rows)
 
     if choice == 0:
         pi = Plugin()

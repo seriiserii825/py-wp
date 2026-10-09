@@ -3,7 +3,7 @@ from classes.acf.field.FieldBuilder import FieldBuilder
 from classes.utils.ExitApp import ExitApp
 from py_libs.InputValidator import InputValidator
 from py_libs.Print import Print
-from py_libs.Select import Select
+from classes.utils.ColorMenu import ColorMenu
 
 
 class FieldEditor:
@@ -34,7 +34,12 @@ class FieldEditor:
             editable["exit"] = "Exit"
             self._print_attributes(editable)
 
-            selected = Select.select_with_fzf(list(editable.keys()))[0]
+            keys = list(editable.keys())  # ..., "back", "exit"
+            index = ColorMenu.select(
+                [f"[green]{k}" for k in keys[:-2]] + ["[red]Back"],
+                esc=len(keys) - 2,
+            )
+            selected = keys[index]
             Print.info(f"Selected attribute: {selected}")
 
             if selected is None or selected == "back":

@@ -1,4 +1,4 @@
-from py_libs.Menu import Menu
+from classes.utils.ColorMenu import ColorMenu
 from classes.wp_menus.WpMenuLocations import WpMenuLocations
 from main_menu.wp_menu_handler import wp_menu_handler
 
@@ -9,17 +9,16 @@ def wp_menu_locations():
         wp_menu.show_missing_hint()
         return
     options = [
-        "0.Choose Location Slug",
-        "1.List Locations",
-        "2.Create Location",
-        "3.Edit Location",
-        "4.Delete Location",
-        "5.Exit",
+        "[green]Choose Location Slug",
+        "[green]List Locations",
+        "[blue]Create Location",
+        "[yellow]Edit Location",
+        "[red]Delete Location",
     ]
 
     while True:
         wp_menu.list_locations()
-        choice = Menu.select_fzf(options)
+        choice = ColorMenu.select(options)
         if choice == 0:
             location_slug = wp_menu.choose_location_slug()
             if location_slug:

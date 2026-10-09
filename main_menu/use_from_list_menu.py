@@ -9,6 +9,7 @@ from main_menu import saved_project
 from main_menu.change_credentials_in_list import change_credentials_in_list
 from py_libs.Clipboard import Clipboard
 from py_libs.Menu import Menu
+from classes.utils.ColorMenu import ColorMenu
 from py_libs.Print import Print
 
 
@@ -121,20 +122,13 @@ def copy_credentials():
 
 
 def _table_menu(title: str, options: list[str]) -> int:
-    """Table menu like the main one; Back / Exit rows are red."""
-    row_styles = {
-        i: "bold red"
-        if o in ("Back", "Exit")
-        else ("bold blue" if i % 2 == 0 else "bold green")
-        for i, o in enumerate(options)
-    }
-    Menu.display(
-        title,
-        ["Index", "Option"],
-        [[str(i), o] for i, o in enumerate(options)],
-        row_styles=row_styles,
-    )
-    return Menu.choose_option()
+    """Colored fzf menu; options end with "Back", "Exit" (Esc = Back).
+    Returns the index in options."""
+    labels = [
+        f"[red]{o}" if o == "Back" else f"[{'green' if i % 2 else 'blue'}]{o}"
+        for i, o in enumerate(options[:-1])
+    ]
+    return ColorMenu.select(labels, title=title, esc=options.index("Back"))
 
 
 def project_menu():

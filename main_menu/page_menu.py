@@ -2,12 +2,12 @@ from rich import print
 from classes.pages.Page import Page
 from classes.pages.RankMathMetabox import RankMathMetabox
 from main_menu.post_menu import post_menu
-from py_libs.Menu import Menu
+from classes.utils.ColorMenu import ColorMenu
 
 
 def page_menu():
-    options = ["0).Pages", "1).Posts", "2).Exit"]
-    choice = Menu.select_fzf(options)
+    options = ["[green]Pages", "[blue]Posts"]
+    choice = ColorMenu.select(options)
     if choice == 0:
         pages_menu()
     elif choice == 1:
@@ -19,44 +19,21 @@ def page_menu():
 def pages_menu():
     Page.list_all()
 
-    menu_header = ["Index", "Option"]
-    menu_colors = {
-        0: "green",
-        1: "blue",
-        2: "blue",
-        3: "red",
-        4: "red",
-        5: "yellow",
-        6: "blue",
-        7: "blue",
-        8: "blue",
-        9: "blue",
-        10: "yellow",
-        11: "red",
-    }
     menu_items = [
-        ["0", "List Pages"],
-        ["1", "Create One Page"],
-        ["2", "Create Multiple Pages"],
-        ["3", "Delete One Page"],
-        ["4", "Delete Multiple Pages"],
-        ["5", "Ignore page"],
-        ["6", "Rename Page"],
-        ["7", "Change Template"],
-        ["8", "Set Front Page"],
-        ["9", "Toggle Rank Math metabox"],
-        ["10", "Ignore page & Exit"],
-        ["11", "Exit"],
+        "[green]List Pages",
+        "[blue]Create One Page",
+        "[blue]Create Multiple Pages",
+        "[red]Delete One Page",
+        "[red]Delete Multiple Pages",
+        "[yellow]Ignore page",
+        "[blue]Rename Page",
+        "[blue]Change Template",
+        "[blue]Set Front Page",
+        "[blue]Toggle Rank Math metabox",
+        "[yellow]Ignore page & Exit",
     ]
 
-    Menu.display(
-        title="Page Menu",
-        columns=menu_header,
-        rows=menu_items,
-        row_styles=menu_colors,
-    )
-
-    choice = Menu.choose_option()
+    choice = ColorMenu.select(menu_items, title="Page Menu")
 
     if choice == 0:
         print("Listing pages...")

@@ -3,7 +3,7 @@ from acf.section.select_section import select_section
 from acf.section.show_sections import show_sections
 from classes.acf.AcfTransfer import AcfTransfer
 from classes.utils.ExitApp import ExitApp
-from py_libs.Menu import Menu
+from classes.utils.ColorMenu import ColorMenu
 from py_libs.Print import Print
 
 
@@ -17,9 +17,14 @@ def acf_func(to_import: bool = False):
 
 
 def _choose_section():
-    menu_options = ["Select section",
-                    "Edit Section", "Create new section", "Delete Section", "Back", "Exit"]
-    choice = Menu.select_with_fzf(menu_options)
+    menu_options = [
+        "[green]Select section",
+        "[yellow]Edit Section",
+        "[blue]Create new section",
+        "[red]Delete Section",
+        "[red]Back",
+    ]
+    choice = ColorMenu.select(menu_options, esc=4)
 
     if choice == 0:
         Print.info("Select section selected.")

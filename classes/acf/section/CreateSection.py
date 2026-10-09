@@ -9,6 +9,7 @@ from classes.exception.NewSectionException import NewSectionException
 from classes.utils.Generate import Generate
 from py_libs.InputValidator import InputValidator
 from py_libs.Menu import Menu
+from classes.utils.ColorMenu import ColorMenu
 from py_libs.Print import Print
 from py_libs.Select import Select
 from classes.utils.WPPaths import WPPaths
@@ -44,14 +45,13 @@ class CreateSection:
     @staticmethod
     def choose_type() -> int:
         rows = [
-            "Page",
-            "Custom Post Type",
-            "Taxonomy",
-            "Options Page",
-            "Block",
-            "Exit",
+            "[green]Page",
+            "[blue]Custom Post Type",
+            "[yellow]Taxonomy",
+            "[green]Options Page",
+            "[blue]Block",
         ]
-        choice = Menu.select_with_fzf(rows)
+        choice = ColorMenu.select(rows)
         print(f"choose_type: {choice}")
         return choice
 

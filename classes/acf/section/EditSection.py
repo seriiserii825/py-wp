@@ -11,6 +11,7 @@ from classes.pages.Page import Page
 from py_libs.Command import Command
 from py_libs.InputValidator import InputValidator
 from py_libs.Menu import Menu
+from classes.utils.ColorMenu import ColorMenu
 from py_libs.Print import Print
 from py_libs.Select import Select
 
@@ -81,13 +82,15 @@ class EditSection:
                     print(f"{i}. {cond['param']} == {cond['value']}")
 
             menu = [
-                "Replace all locations",
-                "Append new location",
-                "Remove a location",
-                "Edit a location",
-                "Save and Exit",
+                "[yellow]Replace all locations",
+                "[blue]Append new location",
+                "[red]Remove a location",
+                "[yellow]Edit a location",
             ]
-            choice = Menu.select_with_fzf(menu)
+            # Esc → -1: nothing matches, the menu is shown again
+            choice = ColorMenu.select(
+                menu, exit_label="[green]Save and Exit", esc=-1
+            )
 
             if choice == 0:
                 new_cond = EditSection._prompt_location()

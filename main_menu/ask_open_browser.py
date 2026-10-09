@@ -1,6 +1,6 @@
 from typing import Callable
 
-from py_libs.Menu import Menu
+from classes.utils.ColorMenu import ColorMenu
 from py_libs.Notification import Notification
 
 
@@ -8,24 +8,11 @@ def ask_open_browser() -> bool | None:
     """True → show the browser window, False → run Playwright headless,
     None → Back (cancel); Exit quits the program."""
     options = [
-        "Yes (show browser)",
-        "No (headless)",
-        "Back",
-        "Exit",
+        "[blue]Yes (show browser)",
+        "[green]No (headless)",
+        "[red]Back",
     ]
-    row_styles = {
-        0: "bold blue",
-        1: "bold green",
-        2: "bold red",
-        3: "bold red",
-    }
-    Menu.display(
-        "Open browser?",
-        ["Index", "Option"],
-        [[str(i), o] for i, o in enumerate(options)],
-        row_styles=row_styles,
-    )
-    choice = Menu.choose_option()
+    choice = ColorMenu.select(options, title="Open browser?", esc=2)
     if choice == 3:
         exit(0)
     return None if choice == 2 else choice == 0

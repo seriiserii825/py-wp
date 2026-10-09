@@ -4,6 +4,7 @@ from rich import print
 
 from py_libs.Command import Command
 from py_libs.Menu import Menu
+from classes.utils.ColorMenu import ColorMenu
 from py_libs.Print import Print
 
 
@@ -181,14 +182,14 @@ class WpMenu:
 
         parent_id, position = self._ask_insert(flat)
 
-        choice = Menu.select_fzf([
-            "0.Custom link",
-            "1.Post",
-            "2.Page",
-            "3.Category",
-            "4.Post type archive",
-            "5.Taxonomy term",
-        ])
+        choice = ColorMenu.select([
+            "[yellow]Custom link",
+            "[green]Post",
+            "[green]Page",
+            "[blue]Category",
+            "[blue]Post type archive",
+            "[blue]Taxonomy term",
+        ], exit_label=None)
         if choice == -1:
             return
 
@@ -303,14 +304,14 @@ class WpMenu:
         position = int(item.get("position", 0))
         parent_id = int(item.get("menu_item_parent", 0))
 
-        edit_mode = Menu.select_fzf([
-            "0.Edit label / URL",
-            "1.Change to Custom link",
-            "2.Change to Post",
-            "3.Change to Page",
-            "4.Change to Category",
-            "5.Change to Taxonomy term",
-        ])
+        edit_mode = ColorMenu.select([
+            "[yellow]Edit label / URL",
+            "[blue]Change to Custom link",
+            "[green]Change to Post",
+            "[green]Change to Page",
+            "[blue]Change to Category",
+            "[blue]Change to Taxonomy term",
+        ], exit_label=None)
         if edit_mode == -1:
             return
 

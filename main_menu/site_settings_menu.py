@@ -2,6 +2,7 @@ from rich import print
 
 from py_libs.Command import Command
 from py_libs.Menu import Menu
+from classes.utils.ColorMenu import ColorMenu
 from py_libs.Print import Print
 
 
@@ -103,13 +104,12 @@ def _delete_language():
 def change_site_language_menu():
     _print_language_status()
     options = [
-        "0).Add new",
-        "1).Select one",
-        "2).Delete one",
-        "3).Show all",
-        "4).Back",
+        "[blue]Add new",
+        "[green]Select one",
+        "[red]Delete one",
+        "[green]Show all",
     ]
-    choice = Menu.select_fzf(options)
+    choice = ColorMenu.select(options, exit_label="[red]Back")
     if choice == 0:
         _add_language()
         change_site_language_menu()
@@ -126,11 +126,10 @@ def change_site_language_menu():
 
 def site_settings_menu():
     options = [
-        "0).Update Translations",
-        "1).Change Site Language",
-        "2).Back",
+        "[blue]Update Translations",
+        "[yellow]Change Site Language",
     ]
-    choice = Menu.select_fzf(options)
+    choice = ColorMenu.select(options, exit_label="[red]Back")
     if choice == 0:
         update_translations()
         site_settings_menu()

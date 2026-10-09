@@ -6,7 +6,7 @@ from classes.acf.section.SectionMenu import SectionMenu
 from classes.data.WpData import WpData
 from classes.utils.Generate import Generate
 from py_libs.InputValidator import InputValidator
-from py_libs.Menu import Menu
+from classes.utils.ColorMenu import ColorMenu
 from py_libs.Select import Select
 
 
@@ -131,11 +131,10 @@ class FieldBuilder:
 
     def _choose_type(self) -> int:
         rows = [
-            "Page",
-            "Custom Post Type",
-            "Exit",
+            "[green]Page",
+            "[blue]Custom Post Type",
         ]
-        choice = Menu.select_with_fzf(rows)
+        choice = ColorMenu.select(rows)
         return choice
 
     def _select_custom_post_type(self) -> str:

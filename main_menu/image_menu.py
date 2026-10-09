@@ -1,34 +1,31 @@
 from classes.images.ImageClass import ImagesClass
-from rich import print
+from classes.utils.ColorMenu import ColorMenu
 
 
 def image_menu():
     image_class = ImagesClass()
     image_class.replace_space_with_uderscore()
     image_class.show_downloads_images()
-    print("[green]1) Show all")
-    print("[green]2) Upload all")
-    print("[blue]3) Select")
-    print("[red]4) Delete images by select")
-    print("[red]5) Exit")
-
-    choice = input("Make your choice:")
-    if choice == "1":
+    choice = ColorMenu.select([
+        "[green]Show all",
+        "[green]Upload all",
+        "[blue]Select",
+        "[red]Delete images by select",
+    ])
+    if choice == 0:
         image_class.show_images_with_sizes_json()
         image_menu()
-    elif choice == "2":
+    elif choice == 1:
         image_class.upload_all()
         image_class.show_images_with_sizes_json()
         image_menu()
-    elif choice == "3":
+    elif choice == 2:
         image_class.select_images()
         image_class.show_images_with_sizes_json()
         image_menu()
-    elif choice == "4":
+    elif choice == 3:
         image_class.delete_image()
         image_class.show_images_with_sizes_json()
         image_menu()
-    elif choice == "5":
-        exit("Goodbye!")
     else:
         exit("Goodbye!")

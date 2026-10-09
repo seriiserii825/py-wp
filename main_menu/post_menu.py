@@ -1,40 +1,22 @@
 from rich import print
 from classes.pages.RankMathMetabox import RankMathMetabox
 from classes.posts.Post import Post
-from py_libs.Menu import Menu
+from classes.utils.ColorMenu import ColorMenu
 
 
 def post_menu():
     Post.list_all()
 
-    menu_header = ["Index", "Option"]
-    menu_colors = {
-        0: "green",
-        1: "blue",
-        2: "blue",
-        3: "red",
-        4: "blue",
-        5: "blue",
-        6: "red",
-    }
     menu_items = [
-        ["0", "List Posts"],
-        ["1", "Create One Post"],
-        ["2", "Create Multiple Posts"],
-        ["3", "Delete Posts"],
-        ["4", "Rename Post"],
-        ["5", "Toggle Rank Math metabox"],
-        ["6", "Exit"],
+        "[green]List Posts",
+        "[blue]Create One Post",
+        "[blue]Create Multiple Posts",
+        "[red]Delete Posts",
+        "[blue]Rename Post",
+        "[blue]Toggle Rank Math metabox",
     ]
 
-    Menu.display(
-        title="Post Menu",
-        columns=menu_header,
-        rows=menu_items,
-        row_styles=menu_colors,
-    )
-
-    choice = Menu.choose_option()
+    choice = ColorMenu.select(menu_items, title="Post Menu")
 
     if choice == 0:
         Post.list_all()

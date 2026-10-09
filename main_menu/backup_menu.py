@@ -1,6 +1,6 @@
 from classes.backup.Backup import Backup
 from main_menu.ask_open_browser import ask_and_run_browser_flow
-from py_libs.Menu import Menu
+from classes.utils.ColorMenu import ColorMenu
 from main_menu.check_for_base_plugins import check_for_base_plugins
 
 
@@ -8,19 +8,18 @@ def backup_menu():
     check_for_base_plugins()
 
     menu_items = [
-        "0).List Backups",
-        "1).Create Backup",
-        "2).Create and Copy to Mount",
-        "3).Create Backup on Server",
-        "4).Restore Backup",
-        "5).Restore from Downloads",
-        "6).Restore in Browser",
-        "7).Delete in Browser",
-        "8).Download Last Backup from Server",
-        "9).Exit",
+        "[green]List Backups",
+        "[blue]Create Backup",
+        "[blue]Create and Copy to Mount",
+        "[blue]Create Backup on Server",
+        "[yellow]Restore Backup",
+        "[yellow]Restore from Downloads",
+        "[yellow]Restore in Browser",
+        "[red]Delete in Browser",
+        "[green]Download Last Backup from Server",
     ]
 
-    choice = Menu.select_fzf(menu_items)
+    choice = ColorMenu.select(menu_items)
     if choice == 0:
         print("Listing backups...")
         bc = Backup()

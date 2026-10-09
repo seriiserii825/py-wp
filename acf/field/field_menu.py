@@ -4,7 +4,7 @@ from pathlib import Path
 from rich import print
 from classes.acf.AcfTransfer import AcfTransfer
 from classes.acf.field.FieldMenu import FieldMenu
-from py_libs.Menu import Menu
+from classes.utils.ColorMenu import ColorMenu
 from classes.utils.ExitApp import ExitApp
 from classes.utils.WPPaths import WPPaths
 
@@ -38,25 +38,24 @@ def acf_menu(section_file_json_path):
 
     while True:
         menu_options = [
-            "0.Show All Fields",
-            "1.Show Only Tab/Group Fields",
-            "2.Collapse All",
-            "3.Order Fields",
-            "4.Create new field",
-            "5.Move field",
-            "6.Move multiple fields",
-            "7.Edit field",
-            "8.Delete field",
-            "9.Delete multiple fields",
-            "10.Duplicate field",
-            "11.Toggle required by indexes",
-            "12.Copy group to clipboard",
-            "13.Upload changes to WordPress",
-            "14.Reorder from snapshot",
-            "15.Back",
-            "16.Exit",
+            "[green]Show All Fields",
+            "[green]Show Only Tab/Group Fields",
+            "[green]Collapse All",
+            "[yellow]Order Fields",
+            "[blue]Create new field",
+            "[yellow]Move field",
+            "[yellow]Move multiple fields",
+            "[yellow]Edit field",
+            "[red]Delete field",
+            "[red]Delete multiple fields",
+            "[blue]Duplicate field",
+            "[yellow]Toggle required by indexes",
+            "[blue]Copy group to clipboard",
+            "[blue]Upload changes to WordPress",
+            "[yellow]Reorder from snapshot",
+            "[red]Back",
         ]
-        choice = Menu.select_fzf(menu_options)
+        choice = ColorMenu.select(menu_options, esc=15)
         if choice == 0:
             current_view = VIEW_ALL
             render()

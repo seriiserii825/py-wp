@@ -1,22 +1,21 @@
-from py_libs.Menu import Menu
+from classes.utils.ColorMenu import ColorMenu
 from enum_folder.FileTypeEnum import FileTypeEnum
 
 
 def file_type_menu() -> FileTypeEnum:
     rows = [
-        f"0.{FileTypeEnum.PHP.label} (php)",
-        f"1.{FileTypeEnum.SCSS.label} (scss)",
-        f"2.{FileTypeEnum.PHPBlock.label} (phpb)",
-        f"3.{FileTypeEnum.PHPS.label} (php and css)",
-        f"4.{FileTypeEnum.PHPBS.label} (php and block and css)",
-        f"5.{FileTypeEnum.PHPP.label} (php page)",
-        f"6.{FileTypeEnum.PHPI.label} (php icon)",
-        f"7.{FileTypeEnum.JS.label} (js)",
-        f"8.{FileTypeEnum.PHPAPI.label} (php api)",
-        "9.Back",
+        f"[green]{FileTypeEnum.PHP.label} (php)",
+        f"[blue]{FileTypeEnum.SCSS.label} (scss)",
+        f"[green]{FileTypeEnum.PHPBlock.label} (phpb)",
+        f"[green]{FileTypeEnum.PHPS.label} (php and css)",
+        f"[green]{FileTypeEnum.PHPBS.label} (php and block and css)",
+        f"[green]{FileTypeEnum.PHPP.label} (php page)",
+        f"[green]{FileTypeEnum.PHPI.label} (php icon)",
+        f"[yellow]{FileTypeEnum.JS.label} (js)",
+        f"[green]{FileTypeEnum.PHPAPI.label} (php api)",
     ]
 
-    choice = Menu.select_fzf(rows)
+    choice = ColorMenu.select(rows, exit_label="[red]Back")
     if choice == 0:
         return FileTypeEnum.PHP
     if choice == 1:
