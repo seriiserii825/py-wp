@@ -6,11 +6,11 @@ from typing import Any, Optional
 from classes.acf.AcfTransfer import AcfTransfer
 from classes.acf.section.AcfBlock import AcfBlock
 from classes.acf.section.CreateSection import CreateSection
+from classes.acf.section.SelectSection import SelectSection
 from classes.exception.NewSectionException import NewSectionException
 from classes.pages.Page import Page
 from py_libs.Command import Command
 from py_libs.InputValidator import InputValidator
-from py_libs.Menu import Menu
 from classes.utils.ColorMenu import ColorMenu
 from py_libs.Print import Print
 from py_libs.Select import Select
@@ -18,17 +18,17 @@ from py_libs.Select import Select
 
 class EditSection:
     @staticmethod
-    def choose_file() -> str:
+    def choose_file() -> str | None:
         files = os.listdir("acf")
         if not files:
             raise NewSectionException("No ACF files found to edit.")
-        Print.info("Choose a file to edit:")
-        chosen = Menu.select_fzf(files)
-        return files[chosen]
+        return SelectSection.choose(files, "Choose a file to edit")
 
     @staticmethod
     def show_section_info():
         file_name = EditSection.choose_file()
+        if file_name is None:
+            return
         file_path = f"acf/{file_name}"
 
         if not os.path.exists(file_path):
@@ -57,6 +57,8 @@ class EditSection:
     @staticmethod
     def edit_location() -> None:
         file_name = EditSection.choose_file()
+        if file_name is None:
+            return
         file_path = f"acf/{file_name}"
 
         with open(file_path, "r") as f:
@@ -125,6 +127,8 @@ class EditSection:
     @staticmethod
     def delete_section() -> None:
         file_name = EditSection.choose_file()
+        if file_name is None:
+            return
         file_path = f"acf/{file_name}"
         confirm = InputValidator.get_bool(
             f"Delete '{file_name}'? (y/n): "
