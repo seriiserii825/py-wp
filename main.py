@@ -102,20 +102,7 @@ def menu(
         use_from_list_menu()
         return menu()
 
-    red_options = {"Init", "Reset Settings", "Exit"}
-    row_styles = {
-        i: "bold red"
-        if o in red_options
-        else ("bold blue" if i % 2 == 0 else "bold green")
-        for i, o in enumerate(options)
-    }
-    Menu.display(
-        "Main Menu",
-        ["Index", "Option"],
-        [[str(i), o] for i, o in enumerate(options)],
-        row_styles=row_styles,
-    )
-    choice = Menu.choose_option()
+    choice = Menu.select_fzf([f"{i:02d}).{o}" for i, o in enumerate(options)])
     if choice == 0:
         acf_func(to_import)
         menu()
