@@ -2,7 +2,10 @@ from dataclasses import dataclass
 
 from playwright.sync_api import Page
 
+from rich.markup import escape
+
 from classes.selenium.WPPlaywright import log
+from classes.utils.ColorMenu import ColorMenu
 from py_libs.InputValidator import InputValidator
 from py_libs.Menu import Menu
 
@@ -72,6 +75,9 @@ class WPUsers:
         if not deletable:
             log.info("No users that can be deleted")
             return
+        if not self._ask_delete():
+            log.info("Continuing without deleting users")
+            return
         lines = [f"{u.id} | {u.login} | {u.email} | {u.role}" for u in deletable]
         log.info("Pick suspicious users to delete (Esc — delete nobody)")
         picked = [deletable[i] for i in Menu.select_fzf_multi(lines)]
@@ -85,6 +91,17 @@ class WPUsers:
         for user in picked:
             self._delete(user)
 
+    @staticmethod
+    def _ask_delete() -> bool:
+        """'d' → pick users to delete, Enter → continue without deleting."""
+        while True:
+            answer = InputValidator.get_string(
+                "[bold red]d[/bold red] — delete users, [bold green]Enter[/bold green] — continue: ",
+                allow_empty=True,
+            ).lower()
+            if answer in ("", "d"):
+                return answer == "d"
+
     def _delete(self, user: WPUserRow) -> None:
         log.info(f"Deleting user [bold]{user.login}[/bold] (ID {user.id})")
         self.page.goto(user.delete_href)
@@ -93,13 +110,13 @@ class WPUsers:
         if self.page.locator("#delete_option0").count():
             reassign = self.page.locator("#reassign_user option:checked")
             reassign_to = reassign.first.inner_text().strip() if reassign.count() else "?"
-            Menu.display(
-                f"User {user.login} has content",
-                ["Index", "Option"],
-                [["0", "Delete all content"], ["1", f"Attribute to: {reassign_to}"]],
-                row_styles={0: "bold red", 1: "bold blue"},
+            # Esc → -1 → attribute (the safe option)
+            choice = ColorMenu.select(
+                ["[red]Delete all content", f"[blue]Attribute to: {escape(reassign_to)}"],
+                title=f"User {user.login} has content",
+                exit_label=None,
             )
-            option = "#delete_option0" if Menu.choose_option() == 0 else "#delete_option1"
+            option = "#delete_option0" if choice == 0 else "#delete_option1"
             self.page.check(option)
         self.page.click("#submit")
         self.page.wait_for_load_state("load")

@@ -33,11 +33,12 @@ class AI1WMBackups:
             backups.append(cells)
         return backups
 
-    def choose_and_delete(self) -> None:
+    def show(self) -> list[list[str]]:
+        """Print the backups table, return the backups (newest first, as on the page)."""
         backups = self._list()
         if not backups:
             log.info("No backups on server")
-            return
+            return backups
         width = max(len(b) for b in backups)
         columns = ["Index", "Backup"] + [""] * (width - 1)
         Menu.display(
@@ -45,6 +46,14 @@ class AI1WMBackups:
             columns,
             [[str(i)] + b + [""] * (width - len(b)) for i, b in enumerate(backups)],
         )
+        return backups
+
+    def choose_and_delete(self, backups: list[list[str]] | None = None) -> None:
+        """Pass `backups` from show() to skip printing the table again."""
+        if backups is None:
+            backups = self.show()
+        if not backups:
+            return
         lines = [" | ".join(b) for b in backups]
         log.info("Pick backups to delete (Esc — delete nothing)")
         picked = [backups[i][0] for i in Menu.select_fzf_multi(lines)]

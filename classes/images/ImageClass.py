@@ -5,6 +5,7 @@ from rich import print
 
 from py_libs.Command import Command
 from py_libs.InputValidator import InputValidator
+from classes.utils.ColorMenu import ColorMenu
 from py_libs.Menu import Menu
 from py_libs.Print import Print
 from py_libs.Select import Select
@@ -214,12 +215,12 @@ class ImagesClass:
             return set()
 
         options = [
-            "Convert all to jpg",
-            "Convert some of them to jpg",
-            "Leave all png",
+            "[blue]Convert all to jpg",
+            "[yellow]Convert some of them to jpg",
+            "[green]Leave all png",
         ]
         print(f"[yellow]PNG images found: {len(png_images)}")
-        match Menu.select_fzf(options):
+        match ColorMenu.select(options, exit_label=None):
             case 0:
                 return set(png_images)
             case 1:

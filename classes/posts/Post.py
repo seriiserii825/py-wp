@@ -2,6 +2,7 @@ from classes.pages.PageManager import PageManager
 from dto.PostDto import PostDto
 from py_libs.Command import Command
 from py_libs.Menu import Menu
+from classes.utils.ColorMenu import ColorMenu
 from py_libs.Print import Print
 from py_libs.Select import Select
 
@@ -38,13 +39,17 @@ class Post:
 
     @classmethod
     def create_many(cls):
-        mode = Select.select_fzf_one(
-            ["Different titles (separated by |)", "One title x N times"]
+        mode = ColorMenu.select(
+            [
+                "[blue]Different titles (separated by |)",
+                "[green]One title x N times",
+            ],
+            exit_label=None,
         )
-        if mode is None:
+        if mode == -1:
             Print.error("Nothing selected.")
             return
-        if mode.startswith("One title"):
+        if mode == 1:
             titles = cls.ask_repeated_title()
         else:
             titles = [

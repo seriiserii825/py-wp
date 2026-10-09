@@ -4,4 +4,6 @@ from classes.acf.section.SelectSection import SelectSection
 
 def select_section():
     section = SelectSection.select_section()
+    if section is None:
+        return
     field_menu(section_file_json_path=section)

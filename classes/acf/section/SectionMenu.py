@@ -1,41 +1,35 @@
 from typing import List
 
-from rich import print
+from rich.markup import escape
 
-from py_libs.MyTable import MyTable
+from classes.utils.ColorMenu import ColorMenu
 
 
 class SectionMenu:
-    rows_count = 0
+    title = ""
+    labels: List[str] = []
 
     @staticmethod
     def display(title: str, columns: List[str], rows: List[List[str]]):
         """
-        Display the main menu options.
+        Remember the options; choose_option() shows them in a colored fzf
+        menu (last column of each row is the label, columns are unused).
         """
-
-        SectionMenu.rows_count = 0
-        SectionMenu.rows_count += len(rows)
-
-        tb = MyTable()
-        tb.show(title, columns, rows)
+        SectionMenu.title = title
+        SectionMenu.labels = [
+            f"[{'blue' if i % 2 == 0 else 'green'}]{escape(row[-1])}"
+            for i, row in enumerate(rows)
+        ]
 
     @staticmethod
-    def choose_option():
+    def choose_option() -> int:
         """
-        Prompt the user to choose an option from the menu.
+        Index of the chosen row. A choice is required (callers index the
+        rows with it), so Esc shows the menu again.
         """
         while True:
-            try:
-                count_range = "Please enter a number: "
-                f"between 0 and {SectionMenu.rows_count - 1}: "
-                choice = int(input(count_range))
-                if choice in range(0, SectionMenu.rows_count):
-                    return choice
-                else:
-                    print(
-                        f"[red]Invalid input."
-                        f"Enter a number between 0 and {SectionMenu.rows_count - 1}."
-                    )
-            except ValueError:
-                print("[red] Input must be a number. Please try again.[/red]")
+            choice = ColorMenu.select(
+                SectionMenu.labels, title=SectionMenu.title, exit_label=None
+            )
+            if choice != -1:
+                return choice

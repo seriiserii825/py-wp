@@ -1,9 +1,10 @@
 from rich import print
+from rich.markup import escape
 
 from classes.files.FileWriter import FileWriter
 from py_libs.Command import Command
 from py_libs.InputValidator import InputValidator
-from py_libs.Select import Select
+from classes.utils.ColorMenu import ColorMenu
 from classes.utils.WPPaths import WPPaths
 
 
@@ -18,13 +19,16 @@ class PHPPageDuplicator:
             print("[yellow]No PHP files found in theme root.[/yellow]")
             return
 
-        selected = Select.select_fzf_one([*php_files, "Back", "Exit"])
-        if not selected or selected == "Back":
+        back = len(php_files)
+        labels = [f"[green]{escape(f)}" for f in php_files] + ["[red]Back"]
+        index = ColorMenu.select(labels, esc=back)
+        if index == back:
             return
-        if selected == "Exit":
+        if index == back + 1:
             print("Exiting the program. Goodbye!")
             exit(0)
 
+        selected = php_files[index]
         source_path = theme_dir / selected
 
         file_name = InputValidator.get_string(
