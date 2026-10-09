@@ -327,12 +327,11 @@ class MySelenium:
         except PluginNotInstalledError:
             self._close()
             raise
-        backups_url = f"{self.project_url}/wp-admin/admin.php?page=ai1wm_backups"
-        self.page.goto(backups_url)
+        backups = AI1WMBackups(self.page, self.project_url).show()
 
         agree_to_delete = InputValidator.get_bool("[red]Do you want to delete existing backups? [y/n]: ")
         if agree_to_delete:
-            self.choose_backups_to_delete()
+            self.choose_backups_to_delete(backups)
         else:
             print("Not deleting existing backups")
 
@@ -399,9 +398,9 @@ class MySelenium:
         self.page.goto(backups_url)
         self.choose_backups_to_delete()
 
-    def choose_backups_to_delete(self):
+    def choose_backups_to_delete(self, backups: list[list[str]] | None = None):
         if self.headless:
-            AI1WMBackups(self.page, self.project_url).choose_and_delete()
+            AI1WMBackups(self.page, self.project_url).choose_and_delete(backups)
             return
         num_backups = InputValidator.get_positive_int("Enter number of backups to delete: ")
         print(f"Number of backups: {num_backups}")
