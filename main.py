@@ -24,6 +24,37 @@ from main_menu.wp_menu_locations import wp_menu_locations
 from modules.check_is_wp import check_is_wp
 
 
+def menu_items(to_import: bool = False):
+    """
+    (label, action, loop_back, color) — loop_back=False exits after action.
+    """
+    return [
+        # wp content
+        ("ACF", lambda: acf_func(to_import), True, "green"),
+        ("Plugins", plugins_menu, True, "green"),
+        ("Backups", backup_menu, True, "green"),
+        ("Images", image_menu, True, "green"),
+        ("Pages / Posts", page_menu, False, "green"),
+        ("Taxonomy", taxonomy_menu, True, "green"),
+        ("Themes", theme_menu, True, "green"),
+        ("Menus", wp_menu_locations, True, "green"),
+        # files / forms
+        ("Contact Form", contact_form_menu, True, "blue"),
+        ("Files", file_menu, True, "blue"),
+        ("Root template", page_theme_file_menu, True, "blue"),
+        ("Use from list", use_from_list_menu, True, "blue"),
+        # settings
+        ("Site Settings", site_settings_menu, True, "yellow"),
+        ("Init", init, False, "yellow"),
+        ("Reset Settings", reset_settings, False, "yellow"),
+    ]
+
+
+def select_menu_option() -> int:
+    labels = [f"[{color}]{label}" for label, _, _, color in menu_items()]
+    return Menu.select_fzf_menu(labels) or 0
+
+
 def menu(
     to_import: bool = False,
     menu_acf: bool = False,
@@ -41,24 +72,6 @@ def menu(
     menu_page_theme_file: bool = False,
     menu_use_from_list: bool = False,
 ):
-    options = [
-        "ACF",
-        "Plugins",
-        "Backups",
-        "Images",
-        "Pages / Posts",
-        "Taxonomy",
-        "Themes",
-        "Menus",
-        "Contact Form",
-        "Files",
-        "Root template",
-        "Site Settings",
-        "Init",
-        "Reset Settings",
-        "Use from list",
-        "Exit",
-    ]
     if menu_acf:
         acf_func(to_import)
         return menu()
@@ -102,58 +115,16 @@ def menu(
         use_from_list_menu()
         return menu()
 
-    choice = Menu.select_fzf([f"{i:02d}).{o}" for i, o in enumerate(options)])
+    choice = select_menu_option()
     if choice == 0:
-        acf_func(to_import)
-        menu()
-    elif choice == 1:
-        plugins_menu()
-        menu()
-    elif choice == 2:
-        backup_menu()  # noqa: F821
-        menu()
-    elif choice == 3:
-        image_menu()
-        menu()
-    elif choice == 4:
-        page_menu()
-        exit(0)
-    elif choice == 5:
-        taxonomy_menu()
-        menu()
-    elif choice == 6:
-        theme_menu()
-        menu()
-    elif choice == 7:
-        wp_menu_locations()
-        menu()
-    elif choice == 8:
-        contact_form_menu()
-        menu()
-    elif choice == 9:
-        file_menu()
-        menu()
-    elif choice == 10:
-        page_theme_file_menu()
-        menu()
-    elif choice == 11:
-        site_settings_menu()
-        menu()
-    elif choice == 12:
-        init()
-        exit(0)
-    elif choice == 13:
-        reset_settings()
-        exit(0)
-    elif choice == 14:
-        use_from_list_menu()
-        menu()
-    elif choice == 15:
         print("Exiting the program. Goodbye!")
         exit(0)
-    else:
-        print("Invalid choice. Please try again.")
-        exit(0)
+
+    _, action, loop_back, _ = menu_items(to_import)[choice - 1]
+    action()
+    if loop_back:
+        menu()
+    exit(0)
 
 
 if __name__ == "__main__":
