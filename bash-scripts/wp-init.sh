@@ -12,6 +12,10 @@ if [[ ! -f style.css ]]; then
   exit 1
 fi
 
+if command -v local-cli >/dev/null 2>&1; then
+  local-cli copy-socket "$(pwd)"
+fi
+
 clipboard=$(xclip -o -selection clipboard)
 # echo $clipboard
 if [[ "$clipboard" != *"mysqld"* ]]; then
@@ -34,8 +38,8 @@ cd ../../../../../
 if [[ ! -f wp-cli.local.yml ]]
 then
   rm wp-cli*
-  echo "${tgreen}need to enter mysql code from clipboard${treset}"
-  curl -O https://raw.githubusercontent.com/salcode/wpcli-localwp-setup/main/wpcli-localwp-setup  && bash wpcli-localwp-setup && rm -rf ./wpcli-localwp-setup
+  echo "${tgreen}Using mysql socket: $clipboard${treset}"
+  curl -O https://raw.githubusercontent.com/salcode/wpcli-localwp-setup/main/wpcli-localwp-setup  && echo "$clipboard" | bash wpcli-localwp-setup && rm -rf ./wpcli-localwp-setup
 fi
 
 
