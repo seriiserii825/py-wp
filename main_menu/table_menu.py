@@ -1,6 +1,7 @@
 from rich import print
+from rich.markup import escape
 
-from py_libs.Menu import Menu
+from classes.utils.ColorMenu import ColorMenu
 
 # table_menu() result for the Back row
 BACK = -1
@@ -12,25 +13,22 @@ def table_menu(
     back: bool = True,
     red_options: set[str] | None = None,
 ) -> int:
-    """Table menu like the main one with Back / Exit rows appended (red).
-    Returns the index of the picked option, BACK for Back; Exit quits the
-    program. `back=False` — top-level menu, only Exit is added."""
-    rows = options + (["Back"] if back else []) + ["Exit"]
-    red = (red_options or set()) | {"Back", "Exit"}
-    row_styles = {
-        i: "bold red"
-        if i >= len(options) or o in red
-        else ("bold blue" if i % 2 == 0 else "bold green")
+    """Colored fzf menu (py_libs Menu.select_fzf_menu) with Back / Exit
+    rows appended (red). Returns the index of the picked option, BACK for
+    Back (or Esc); Exit quits the program. `back=False` — top-level menu,
+    only Exit is added and Esc exits too."""
+    rows = options + (["Back"] if back else [])
+    red = (red_options or set()) | {"Back"}
+    labels = [
+        f"[{'red' if o in red else ('blue' if i % 2 == 0 else 'green')}]"
+        f"{escape(o)}"
         for i, o in enumerate(rows)
-    }
-    Menu.display(
-        title,
-        ["Index", "Option"],
-        [[str(i), o] for i, o in enumerate(rows)],
-        row_styles=row_styles,
+    ]
+    exit_index = len(rows)
+    choice = ColorMenu.select(
+        labels, title=title, esc=len(options) if back else exit_index
     )
-    choice = Menu.choose_option()
-    if choice == len(rows) - 1:
+    if choice == exit_index:
         print("[red]Exiting the program. Goodbye!")
         exit(0)
     if choice >= len(options):
