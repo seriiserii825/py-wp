@@ -24,15 +24,20 @@ class PHPIconCreator(AbstractFileCreator):
     def get_extension(self) -> str:
         return "php"
 
+    def _name_prefix(self) -> str:
+        return "icon-"
+
     def _file_path(self, path_to_dir) -> str:
         self._multiple = not InputValidator.confirm("Create one icon?")
-        FilesHandle().list_files(path_to_dir, file_extension=".php")
+        FilesHandle().list_files(
+            path_to_dir, file_extension=f".{self.get_extension()}")
         file_name = InputValidator.get_string(
-            "Enter icon name, icon- will be added: ")
+            f"Enter icon name, {self._name_prefix()} will be added: "
+            if self._name_prefix() else "Enter icon name: ")
         return self._build_icon_path(path_to_dir, file_name)
 
     def _build_icon_path(self, path_to_dir: str, file_name: str) -> str:
-        file_name = f"icon-{file_name}"
+        file_name = f"{self._name_prefix()}{file_name}"
         file_name = self._remove_extension(file_name)
         file_name = self._clear_whitespaces(file_name)
         file_name = self._add_extension(file_name, self.get_extension())
@@ -45,7 +50,8 @@ class PHPIconCreator(AbstractFileCreator):
 
         dir_path = str(Path(file_path).parent)
         while True:
-            FilesHandle().list_files(dir_path, file_extension=".php")
+            FilesHandle().list_files(
+                dir_path, file_extension=f".{self.get_extension()}")
             file_name = InputValidator.get_string(
                 "Copy next SVG, then enter icon name (or 'exit'): ")
             if file_name.lower() == "exit":
@@ -65,7 +71,10 @@ class PHPIconCreator(AbstractFileCreator):
         FileWriter.write_file(Path(file_path), html)
         template_path = file_path
         Command.run(f"bat '{str(Path(template_path).resolve())}'")
-        self._copy_template_part_to_clipboard(template_part=template_path)
+        self._after_write(template_path)
+
+    def _after_write(self, file_path: str) -> None:
+        self._copy_template_part_to_clipboard(template_part=file_path)
 
     def _get_svg_from_clipboard(self) -> str:
         svg = pyperclip.paste()

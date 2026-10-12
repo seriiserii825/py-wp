@@ -9,6 +9,7 @@ from classes.files.PHPIconCreator import PHPIconCreator
 from classes.files.PHPPageCreator import PHPPageCreator
 from classes.files.PHPSFileCreator import PHPSFileCreator
 from classes.files.SCSSFileCreator import SCSSFileCreator
+from classes.files.SVGIconCreator import SVGIconCreator
 from enum_folder.FileTypeEnum import FileTypeEnum
 
 
@@ -30,6 +31,8 @@ class FileCreatorFactory:
                 return PHPPageCreator()
             case FileTypeEnum.PHPI:
                 return PHPIconCreator()
+            case FileTypeEnum.SVGI:
+                return SVGIconCreator()
             case FileTypeEnum.JS:
                 return JsFileCreator()
             case FileTypeEnum.PHPAPI:

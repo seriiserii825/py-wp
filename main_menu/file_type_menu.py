@@ -9,6 +9,7 @@ FILE_TYPES = [
     (FileTypeEnum.PHPBS, "php and block and css"),
     (FileTypeEnum.PHPP, "php page"),
     (FileTypeEnum.PHPI, "php icon"),
+    (FileTypeEnum.SVGI, "svg icon"),
     (FileTypeEnum.JS, "js"),
     (FileTypeEnum.PHPAPI, "php api"),
 ]

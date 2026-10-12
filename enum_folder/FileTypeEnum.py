@@ -8,6 +8,7 @@ class FileTypeEnum(Enum):
     PHPBS = ("phpbs", True)
     PHPP = ("phpp", False)
     PHPI = ("phpi", False)
+    SVGI = ("svgi", False)
     SCSS = ("scss", True)
     JS = ("js", True)
     PHPAPI = ("phpapi", False)
