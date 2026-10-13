@@ -1,3 +1,4 @@
+import pyperclip
 from pathlib import Path
 from classes.files.PHPIconCreator import PHPIconCreator
 from py_libs.Notification import Notification
@@ -22,6 +23,6 @@ class SVGIconCreator(PHPIconCreator):
         return ""
 
     def _after_write(self, file_path: str) -> None:
-        Notification(
-            title=Path(file_path).name, message="SVG icon created"
-        ).notify()
+        text = f"<?php bsIcon('{Path(file_path).stem}') ?>"
+        pyperclip.copy(text)
+        Notification(title=text, message="Copied to clipboard").notify()

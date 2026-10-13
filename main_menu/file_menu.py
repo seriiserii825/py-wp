@@ -5,6 +5,7 @@ from py_libs.FilesHandle import FilesHandle
 from classes.files.ModuleFileCreator import ModuleFileCreator
 from py_libs.InputValidator import InputValidator
 from classes.utils.ModuleSystemDetector import ModuleSystemDetector
+from enum_folder.FileTypeEnum import FileTypeEnum
 from main_menu.file_type_menu import file_type_menu
 from main_menu.table_menu import BACK, table_menu
 from rich import print
@@ -38,6 +39,10 @@ def _standard_menu():
     file_type = file_type_menu()
     if file_type.name == "NONE":
         return
+    _create_from_factory(file_type)
+
+
+def _create_from_factory(file_type: FileTypeEnum):
     try:
         file = FileCreatorFactory.get_creator(file_type)
         file_path = file.create_file(use_dir=file_type.use_dir)
@@ -52,11 +57,15 @@ def _module_menu():
     print(f"[green]Module: {module_path}[/green]")
     FilesHandle().list_files(module_path)
 
-    file_types = ["api", "icon", "js", "php", "phps", "scss"]
+    file_types = ["api", "icon", "js", "php", "phps", "scss", "svg"]
     choice = table_menu("File type", file_types)
     if choice == BACK:
         return
     file_type = file_types[choice]
+
+    if file_type == "svg":
+        _create_from_factory(FileTypeEnum.SVGI)
+        return
 
     preset_name = None
     module_name = Path(module_path).name
