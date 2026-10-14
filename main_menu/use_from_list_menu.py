@@ -80,7 +80,9 @@ def reinstall_altuofianco():
     project_menu()
 
 
-def create_backup_on_server():
+def _run_backup_flow(playwright_cls):
+    """Pick a site, ask browser / headless, run a WPPlaywright*Backup subclass
+    on it, then open the Project submenu."""
     project = _search_and_save()
     if project is None:
         return
@@ -93,16 +95,25 @@ def create_backup_on_server():
         project_menu()
         return
 
-    # imported here: importing WPPlaywright configures logging for the whole process
-    from classes.selenium.WPPlaywrightCreateBackup import WPPlaywrightCreateBackup
-
     run_browser_flow(
-        lambda headless: WPPlaywrightCreateBackup(
-            theme_name, headless=headless
-        ).start(),
+        lambda headless: playwright_cls(theme_name, headless=headless).start(),
         headless=not open_browser,
     )
     project_menu()
+
+
+def create_backup_on_server():
+    # imported here: importing WPPlaywright configures logging for the whole process
+    from classes.selenium.WPPlaywrightCreateBackup import WPPlaywrightCreateBackup
+
+    _run_backup_flow(WPPlaywrightCreateBackup)
+
+
+def download_last_backup_from_server():
+    # imported here: importing WPPlaywright configures logging for the whole process
+    from classes.selenium.WPPlaywrightDownloadBackup import WPPlaywrightDownloadBackup
+
+    _run_backup_flow(WPPlaywrightDownloadBackup)
 
 
 def _project_full_line(project: dict[str, str]) -> str:
@@ -166,6 +177,7 @@ def use_from_list_menu():
     options = [
         "Reinstall Altuofianco",
         "Create Backup on Server",
+        "Download Last Backup from Server",
         "Find project",
         "Add credentials",
     ]
@@ -177,9 +189,12 @@ def use_from_list_menu():
         create_backup_on_server()
         use_from_list_menu()
     elif choice == 2:
-        find_project()
+        download_last_backup_from_server()
         use_from_list_menu()
     elif choice == 3:
+        find_project()
+        use_from_list_menu()
+    elif choice == 4:
         # a new site isn't in list.csv yet — once added it's the saved project
         if add_credentials_to_list():
             project_menu()

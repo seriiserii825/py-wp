@@ -60,13 +60,14 @@ Menus (`Back` — one level up, `Exit` — quit the program; the small prompts
 "Find site", "Open browser?" and the Change credentials field table have them too):
 
 ```
-Use from list                 Project  (opens after a project was picked/added)
-  0 Reinstall Altuofianco       0 Copy credentials
-  1 Create Backup on Server     1 Change credentials
-  2 Find project                2 Back  → Use from list
-  3 Add credentials             3 Exit
-  4 Back  → main menu
-  5 Exit
+Use from list                       Project  (opens after a project was picked/added)
+  0 Reinstall Altuofianco            0 Copy credentials
+  1 Create Backup on Server          1 Change credentials
+  2 Download Last Backup from Server 2 Back  → Use from list
+  3 Find project                     3 Exit
+  4 Add credentials
+  5 Back  → main menu
+  6 Exit
 ```
 
 The project picked by **Reinstall Altuofianco** / **Find project** (or just added
@@ -81,6 +82,7 @@ project replace it (the file is cleared first).
 | ----------------------- | ------------ |
 | Reinstall Altuofianco   | Pick a site (type a domain or search with fzf), choose browser / headless, then in wp-admin: skip reinstalling `altuofianco-theme-login` if the installed version equals the zip version (so a rerun is safe); if something has to be uploaded, first check that "Upload plugin" is available (if a security plugin like NinjaFirewall hides it — error and exit, nothing changed); deactivate + delete `disable-comments-altuofianco` and `altuofianco-theme-login` (skipped if not installed), upload the `altuofianco-theme-login` zip from `~/Documents/plugins-wp` (filename from `csv/base-plugins.csv`) and activate it; install `all-in-one-wp-migration` from its zip if the site doesn't have it or has another version than the zip (7.79; backup files on the server are kept); finally make sure `all-in-one-wp-migration` and its unlimited extension are deactivated and `wps-hide-login` is installed (from wordpress.org if missing) and active. With a visible browser it waits for Enter at the end so you can check the site. Then the Project submenu opens. |
 | Create Backup on Server | Pick a site (type a domain or search with fzf), choose browser / headless, then creates and downloads an All-in-One WP Migration backup through wp-admin for that site. Then the Project submenu opens. |
+| Download Last Backup from Server | Pick a site (type a domain or search with fzf), choose browser / headless, then downloads the newest existing backup from that site's wp-admin. Then the Project submenu opens. |
 | Find project            | fzf over all sites, one line each: `title \| url \| login \| password \| login_path`; prints the picked line, saves it and opens the Project submenu. |
 | Add credentials         | Adds a NEW site (not in `list.csv` yet). Reads 3 lines from the clipboard — domain, login, password. If they are missing/invalid, prints a hint and returns. Otherwise asks for the theme name and appends `theme,login,password,url` to `list.csv` (same rules as `set-theme-in-wp-list-csv.sh`: url reduced to `https://domain`, no duplicates, confirmation if the theme already exists with other data). `list.csv.gpg` is not updated. The added site becomes the saved project and the Project submenu opens. |
 | Copy credentials        | *(Project submenu)* For the saved project: copy the password, wait 1 s, copy the login — the clipboard manager keeps both: login is current, password is the previous entry. |
