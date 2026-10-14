@@ -80,6 +80,31 @@ def reinstall_altuofianco():
     project_menu()
 
 
+def create_backup_on_server():
+    project = _search_and_save()
+    if project is None:
+        return
+    theme_name = project["title"]
+
+    print(f"[green]Site: [bold]{_project_label(project)}")
+    open_browser = ask_open_browser()
+    if open_browser is None:
+        # Back: the project stays picked, its submenu is still useful
+        project_menu()
+        return
+
+    # imported here: importing WPPlaywright configures logging for the whole process
+    from classes.selenium.WPPlaywrightCreateBackup import WPPlaywrightCreateBackup
+
+    run_browser_flow(
+        lambda headless: WPPlaywrightCreateBackup(
+            theme_name, headless=headless
+        ).start(),
+        headless=not open_browser,
+    )
+    project_menu()
+
+
 def _project_full_line(project: dict[str, str]) -> str:
     fields = [project["title"], project["url"], project["login"], project["password"]]
     if project.get("gestione"):
@@ -140,6 +165,7 @@ def project_menu():
 def use_from_list_menu():
     options = [
         "Reinstall Altuofianco",
+        "Create Backup on Server",
         "Find project",
         "Add credentials",
     ]
@@ -148,9 +174,12 @@ def use_from_list_menu():
         reinstall_altuofianco()
         use_from_list_menu()
     elif choice == 1:
-        find_project()
+        create_backup_on_server()
         use_from_list_menu()
     elif choice == 2:
+        find_project()
+        use_from_list_menu()
+    elif choice == 3:
         # a new site isn't in list.csv yet — once added it's the saved project
         if add_credentials_to_list():
             project_menu()
