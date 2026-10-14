@@ -42,6 +42,7 @@ def acf_menu(section_file_json_path):
             "Collapse All",
             "Order Fields",
             "Create new field",
+            "Create predefined fields (from CSV)",
             "Move field",
             "Move multiple fields",
             "Edit field",
@@ -77,6 +78,9 @@ def acf_menu(section_file_json_path):
             f_menu.create_field()
             render()
         elif choice == 5:
+            f_menu.create_predefined_fields()
+            render()
+        elif choice == 6:
             print(
                 "[yellow]Note: if the field is moved into another group/tab, "
                 "that group must be opened ('Show Only Tab/Group Fields' or "
@@ -88,7 +92,7 @@ def acf_menu(section_file_json_path):
             except Exception as e:
                 print(f"Error moving field: {e}")
                 render()
-        elif choice == 6:
+        elif choice == 7:
             print(
                 "[yellow]Note: if the fields are moved into another group/tab, "
                 "that group must be opened ('Show Only Tab/Group Fields' or "
@@ -96,27 +100,27 @@ def acf_menu(section_file_json_path):
             )
             f_menu.move_multiple_fields()
             render()
-        elif choice == 7:
+        elif choice == 8:
             f_menu.edit_field()
             render()
-        elif choice == 8:
+        elif choice == 9:
             f_menu.delete_field()
             render()
-        elif choice == 9:
+        elif choice == 10:
             f_menu.delete_fields()
             render()
-        elif choice == 10:
+        elif choice == 11:
             f_menu.duplicate_field()
             render()
-        elif choice == 11:
+        elif choice == 12:
             f_menu.toggle_required()
             render()
-        elif choice == 12:
+        elif choice == 13:
             f_menu.copy_group_to_clipboard()
             render()
-        elif choice == 13:
-            upload_changes(section_file_json_path=section_file_json_path)
         elif choice == 14:
+            upload_changes(section_file_json_path=section_file_json_path)
+        elif choice == 15:
             try:
                 f_menu.reorder_from_snapshot(WPPaths.get_theme_path())
                 render()
