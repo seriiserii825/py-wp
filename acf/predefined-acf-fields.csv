@@ -1,8 +1,6 @@
 title,type
-label,text
-title,text
-subtitle,text
-image,image
-text,wysiwyg
-icon,textarea
-button-text,text
+t,text
+ta,textarea
+i,image
+g,gallery
+f,file

@@ -1,3 +1,4 @@
+import readline
 from pathlib import Path
 from typing import cast
 
@@ -15,7 +16,6 @@ from classes.acf.field.FieldRepository import FieldRepository
 from classes.acf.field.GroupCopy import GroupCopy
 from classes.acf.field.PredefinedFieldCreator import PredefinedFieldCreator
 from py_libs.InputValidator import InputValidator
-from py_libs.Select import Select
 
 
 class FieldMenu:
@@ -111,30 +111,46 @@ class FieldMenu:
             return
         if not type_map:
             print(
-                f"[red]No field slugs found in "
+                f"[red]No type shortcuts found in "
                 f"{self.predefined_creator.type_csv_path}.[/red]"
             )
             return
 
-        group_slug = InputValidator.get_string(
-            "Enter new Tab+Group slug (e.g. page-intro): "
+        print("Available type shortcuts:")
+        for shortcut, field_type in type_map.items():
+            if field_type == "text":
+                color = "blue"
+            elif field_type == "image":
+                color = "green"
+            else:
+                color = "yellow"
+            print(f"  {shortcut} [{color}]({field_type})[/{color}]")
+
+        print(
+            "Enter group slug and field specs separated by comma. "
+            "Field: name/type, optional width: name/type/width (default 100). "
+            "Repeater: name[sub1/type,sub2/type/width]. "
+            "E.g. tabgroup,title/t/40,description/ta/30,"
+            "items[image/i/30,subtitle/t] ('q' to cancel)"
         )
-        if not group_slug.strip():
-            print("[red]Group slug cannot be empty.[/red]")
-            return
 
-        options = [f"{slug} ({field_type})" for slug, field_type in type_map.items()]
-        selected = Select.select_with_fzf(options)
-        if not selected:
-            print("No fields selected, nothing created.")
-            return
-        field_slugs = [s.split(" (", 1)[0] for s in selected]
+        raw = ""
+        new_fields: list[dict] | None = None
+        while new_fields is None:
+            raw = self._prompt_with_prefill("> ", raw)
+            if raw.strip().lower() == "q":
+                print("Cancelled.")
+                return
+            tokens = self.predefined_creator.split_top_level(raw)
+            if len(tokens) < 2:
+                print("[red]Enter at least a group slug and one field slug.[/red]")
+                continue
+            group_slug, *field_slugs = tokens
+            try:
+                new_fields = self.predefined_creator.build(group_slug, field_slugs)
+            except ValueError as e:
+                print(f"[red]{e}[/red]")
 
-        try:
-            new_fields = self.predefined_creator.build(group_slug, field_slugs)
-        except ValueError as e:
-            print(f"[red]{e}[/red]")
-            return
         fields.extend(new_fields)
         self.repo.save(data)
         label = new_fields[1]["label"]
@@ -384,3 +400,18 @@ class FieldMenu:
         if not fields:
             print("No fields to move.")
             return
+
+    @staticmethod
+    def _prompt_with_prefill(prompt: str, prefill: str) -> str:
+        """input() with the line pre-filled and editable (e.g. re-showing an
+        invalid entry so the user can fix it instead of retyping it)."""
+
+        def hook() -> None:
+            readline.insert_text(prefill)
+            readline.redisplay()
+
+        readline.set_startup_hook(hook)
+        try:
+            return input(prompt)
+        finally:
+            readline.set_startup_hook()
