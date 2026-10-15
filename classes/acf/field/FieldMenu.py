@@ -122,11 +122,12 @@ class FieldMenu:
         self._print_type_shortcuts(type_map)
 
         print(
-            "Enter group slug and field specs separated by comma. "
-            "Field: name/type, optional width: name/type/width (default 100). "
-            "Repeater: name[sub1/type,sub2/type/width]. "
-            "E.g. tabgroup,title/t/40,description/ta/30,"
-            "items[image/i/30,subtitle/t] ('q' to cancel)"
+            "Insert Group and Field names as strings, with spaces "
+            "(slug/name will be converted automatically), everything separated by '/'. "
+            "Field: Label/type, optional width: Label/type/width (default 100). "
+            "Repeater: Label[Sub label/type/Sub label/type/width], optional /width after ']'. "
+            "E.g. Info/Title/t/40/Description/ta/30/Items[Image/i/30/Subtitle/t] "
+            "('q' to cancel)"
         )
 
         raw = ""
@@ -136,13 +137,9 @@ class FieldMenu:
             if raw.strip().lower() == "q":
                 print("Cancelled.")
                 return
-            tokens = self.predefined_creator.split_top_level(raw)
-            if len(tokens) < 2:
-                print("[red]Enter at least a group slug and one field slug.[/red]")
-                continue
-            group_slug, *field_slugs = tokens
             try:
-                new_fields = self.predefined_creator.build(group_slug, field_slugs)
+                group_label, specs = self.predefined_creator.parse(raw)
+                new_fields = self.predefined_creator.build(group_label, specs)
             except ValueError as e:
                 print(f"[red]{e}[/red]")
 
