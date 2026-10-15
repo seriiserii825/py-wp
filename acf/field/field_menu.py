@@ -46,6 +46,7 @@ def acf_menu(section_file_json_path):
             "Move field",
             "Move multiple fields",
             "Edit field",
+            "Edit multiple fields",
             "Delete field",
             "Delete multiple fields",
             "Duplicate field",
@@ -104,23 +105,26 @@ def acf_menu(section_file_json_path):
             f_menu.edit_field()
             render()
         elif choice == 9:
-            f_menu.delete_field()
+            f_menu.edit_multiple_fields()
             render()
         elif choice == 10:
-            f_menu.delete_fields()
+            f_menu.delete_field()
             render()
         elif choice == 11:
-            f_menu.duplicate_field()
+            f_menu.delete_fields()
             render()
         elif choice == 12:
-            f_menu.toggle_required()
+            f_menu.duplicate_field()
             render()
         elif choice == 13:
-            f_menu.copy_group_to_clipboard()
+            f_menu.toggle_required()
             render()
         elif choice == 14:
-            upload_changes(section_file_json_path=section_file_json_path)
+            f_menu.copy_group_to_clipboard()
+            render()
         elif choice == 15:
+            upload_changes(section_file_json_path=section_file_json_path)
+        elif choice == 16:
             try:
                 f_menu.reorder_from_snapshot(WPPaths.get_theme_path())
                 render()

@@ -14,6 +14,7 @@ from classes.acf.field.FieldEditor import FieldEditor
 from classes.acf.field.FieldMover import FieldMover
 from classes.acf.field.FieldRepository import FieldRepository
 from classes.acf.field.GroupCopy import GroupCopy
+from classes.acf.field.MultipleFieldEditor import MultipleFieldEditor
 from classes.acf.field.PredefinedFieldCreator import PredefinedFieldCreator
 from py_libs.InputValidator import InputValidator
 
@@ -25,6 +26,7 @@ class FieldMenu:
         self.predefined_creator = PredefinedFieldCreator()
         self.mover = FieldMover()
         self.editor = FieldEditor(self.repo, self.mover)
+        self.multi_editor = MultipleFieldEditor(self.mover)
         self.deleter = FieldDeleter(self.repo, self.mover)
         self.duplicator = FieldDuplicator(self.repo, self.mover)
         self.copy_group = GroupCopy(file_path)
@@ -117,14 +119,7 @@ class FieldMenu:
             return
 
         print("Available type shortcuts:")
-        for shortcut, field_type in type_map.items():
-            if field_type == "text":
-                color = "blue"
-            elif field_type == "image":
-                color = "green"
-            else:
-                color = "yellow"
-            print(f"  {shortcut} [{color}]({field_type})[/{color}]")
+        self._print_type_shortcuts(type_map)
 
         print(
             "Enter group slug and field specs separated by comma. "
@@ -244,6 +239,85 @@ class FieldMenu:
         data, fields = self._load_fields()
         self._check_field_is_empty(fields)
         self.editor.edit_field(data, fields)
+
+    def edit_multiple_fields(self) -> None:
+        from main_menu.table_menu import BACK, table_menu
+
+        data, fields = self._load_fields()
+        if not fields:
+            print("No fields to edit.")
+            return
+
+        attrs = [
+            MultipleFieldEditor.LABEL,
+            MultipleFieldEditor.WIDTH,
+            MultipleFieldEditor.TYPE,
+        ]
+        choice = table_menu("Edit multiple: attribute", [a.title() for a in attrs])
+        if choice == BACK:
+            return
+        attr = attrs[choice]
+
+        type_map: dict[str, str] = {}
+        if attr == MultipleFieldEditor.TYPE:
+            try:
+                type_map = self.predefined_creator.load_type_map()
+            except ValueError as e:
+                print(f"[red]{e}[/red]")
+                return
+            if not type_map:
+                print(
+                    f"[red]No type shortcuts found in "
+                    f"{self.predefined_creator.type_csv_path}.[/red]"
+                )
+                return
+
+        if attr == MultipleFieldEditor.LABEL:
+            print(
+                "Insert Field name as string, with spaces "
+                "(slug/name will be converted automatically). "
+                "E.g. 1.2/My label/2.4/New label ('q' to cancel)"
+            )
+        elif attr == MultipleFieldEditor.WIDTH:
+            print(
+                f"Insert number from {MultipleFieldEditor.MIN_WIDTH} "
+                f"to {MultipleFieldEditor.MAX_WIDTH}. "
+                "E.g. 1.2/30/2.4/50 ('q' to cancel)"
+            )
+        else:
+            print("Insert type from predefined CSV:")
+            self._print_type_shortcuts(type_map)
+            print("E.g. 1.2/t/2.4/i ('q' to cancel)")
+
+        raw = ""
+        changes: list[tuple[str, dict, str]] | None = None
+        while changes is None:
+            raw = self._prompt_with_prefill("> ", raw)
+            if raw.strip().lower() == "q":
+                print("Cancelled.")
+                return
+            try:
+                changes = self.multi_editor.parse(raw, attr, fields, type_map)
+            except ValueError as e:
+                print(f"[red]{e}[/red]")
+
+        for index, field, value in changes:
+            old = self.multi_editor.apply(attr, field, value, type_map)
+            new_value = type_map[value] if attr == MultipleFieldEditor.TYPE else value
+            print(f"  [{index}] {attr}: '{old}' → '{new_value}'")
+        self.repo.save(data)
+        print(f"[green]Done. {len(changes)} field(s) updated.[/green]")
+
+    @staticmethod
+    def _print_type_shortcuts(type_map: dict[str, str]) -> None:
+        for shortcut, field_type in type_map.items():
+            if field_type == "text":
+                color = "blue"
+            elif field_type == "image":
+                color = "green"
+            else:
+                color = "yellow"
+            print(f"  {shortcut} [{color}]({field_type})[/{color}]")
 
     def delete_field(self) -> None:
         data, fields = self._load_fields()
