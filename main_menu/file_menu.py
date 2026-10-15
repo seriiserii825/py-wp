@@ -101,9 +101,14 @@ def _module_menu():
             preset_name = name if name else module_name
 
     elif file_type == "js":
-        is_animation = InputValidator.confirm("Is this an animation file?")
-        if is_animation:
-            preset_name = f"{_to_camel_case(module_name)}Animation"
+        animation_name = f"{_to_camel_case(module_name)}Animation"
+        animation_exists = any(
+            (Path(module_path) / f"{animation_name}.{ext}").exists()
+            for ext in ("ts", "js")
+        )
+        if not animation_exists and InputValidator.confirm(
+                "Is this an animation file?"):
+            preset_name = animation_name
         else:
             print(f"[dim]Enter file name (Enter = '{module_name}'):[/dim]")
             name = input("  ").strip()
