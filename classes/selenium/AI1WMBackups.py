@@ -54,9 +54,7 @@ class AI1WMBackups:
             backups = self.show()
         if not backups:
             return
-        lines = [" | ".join(b) for b in backups]
-        log.info("Pick backups to delete (Esc — delete nothing)")
-        picked = [backups[i][0] for i in Menu.select_fzf_multi(lines)]
+        picked = [backups[i][0] for i in self._ask_indexes(len(backups))]
         if not picked:
             log.info("No backups selected")
             return
@@ -65,6 +63,28 @@ class AI1WMBackups:
             return
         for filename in picked:
             self._delete(filename)
+
+    @staticmethod
+    def _ask_indexes(count: int) -> list[int]:
+        """Indexes from the table, comma separated (e.g. `0, 2`); empty — none.
+        Asks again until every index is a real one."""
+        while True:
+            value = InputValidator.get_string(
+                f"Backup indexes to delete, comma separated (0-{count - 1}, "
+                "Enter — delete nothing): ",
+                allow_empty=True,
+            )
+            if not value:
+                return []
+            parts = [p.strip() for p in value.split(",") if p.strip()]
+            invalid = [p for p in parts if not p.isdigit() or int(p) >= count]
+            if invalid:
+                log.warning(
+                    f"Invalid indexes: {', '.join(invalid)}, use 0-{count - 1}"
+                )
+                continue
+            # keep input order, drop duplicates
+            return list(dict.fromkeys(int(p) for p in parts))
 
     def _delete(self, filename: str) -> None:
         log.info(f"Deleting backup [bold]{filename}[/bold]")

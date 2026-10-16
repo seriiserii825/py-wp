@@ -23,7 +23,7 @@ Login form is searched at `login_candidates()` (`WPPlaywright.py`, shared with `
 
 `WPPlaywright(headless=...)` / `MySelenium(headless=...)`, default `False`; stored as `self.headless`. The menu asks via `main_menu/ask_open_browser.py`. When headless:
 - `goToUsers()` doesn't wait for Enter in the browser; it uses **`WPUsers`** (`WPUsers.py`): reads `users.php` (all pages), prints a table, asks `d` — delete users or Enter — continue (no deletion), on `d` fzf-multi to pick users to delete, `y/n` confirm, deletes via each row's delete link; if the user has content, asks delete content vs. attribute to the preselected user.
-- Deleting backups uses **`AI1WMBackups`** (`AI1WMBackups.py`) instead of "enter a count": prints the `ai1wm_backups` table (`show()`), fzf-multi, `y/n`, deletes the picked rows by filename (waits for each row to detach).
+- Deleting backups uses **`AI1WMBackups`** (`AI1WMBackups.py`) instead of "enter a count": prints the `ai1wm_backups` table (`show()`), asks the indexes from that table comma separated (`0, 2`; validated, re-asked until all are real; Enter — none), `y/n`, deletes the picked rows by filename (waits for each row to detach).
 - (Both modes) Restore prints the backups table (`AI1WMBackups.show()`) before "Do you want to delete existing backups?"; headless deletion reuses it instead of printing it again. The restore then uses the top row (newest).
 - `chrome://downloads` isn't opened after a download.
 - (Both modes) Create backup shows a Rich status line while the server builds the archive: elapsed `mm:ss` + the AI1WM export modal text (`.ai1wm-modal-container` innerText, e.g. "Archiving files… 45%"), polled every 1 s until the download link appears (`_show_export_progress()`, 1800 s timeout).
