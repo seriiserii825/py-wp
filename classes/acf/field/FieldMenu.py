@@ -9,9 +9,7 @@ from rich.panel import Panel
 from rich.table import Table
 
 from classes.acf.AcfSnapshotService import AcfSnapshotService
-from classes.acf.enum.EFieldType import EFieldType
 from classes.acf.field.factories.FieldFactory import create_field
-from classes.acf.field.FieldCreator import FieldCreator
 from classes.acf.field.FieldDeleter import FieldDeleter
 from classes.acf.field.FieldDuplicator import FieldDuplicator
 from classes.acf.field.FieldEditor import FieldEditor
@@ -26,7 +24,6 @@ from py_libs.InputValidator import InputValidator
 class FieldMenu:
     def __init__(self, file_path: str):
         self.repo = FieldRepository(file_path)
-        self.creator = FieldCreator()
         self.predefined_creator = PredefinedFieldCreator()
         self.mover = FieldMover()
         self.editor = FieldEditor(self.repo, self.mover)
@@ -87,108 +84,121 @@ class FieldMenu:
         pos = options.index(selected[0])
         return tab_groups[pos][0]
 
-    def create_field(self) -> None:
+    def create_with_group(self) -> None:
+        """Predefined fields wrapped in a Tab + Group, appended at the end."""
         data, fields = self._load_fields()
-        label, selected_type = self.creator.ask_label_and_type()
-        new_field = self.creator.create(label, selected_type)
-        if selected_type == EFieldType.TAB:
-            dest = str(len(fields))
-        else:
-            dest = self._ask_destination_for_new_field(fields)
-        dest_path = self.mover.parse_index_path(dest)
-        inside_repeater = self.mover.is_path_inside_repeater(fields, dest_path)
-        if inside_repeater:
-            self._strip_default_value(new_field, selected_type)
-        count = len(new_field) if isinstance(new_field, list) else 1
-        if isinstance(new_field, list):
-            fields.extend(new_field)
-        else:
-            fields.append(new_field)
-        self._move_to_destination(fields, data, count, dest)
+        result = self._ask_predefined_fields(with_group=True)
+        if result is None:
+            return
+        fields.extend(result)
         self.repo.save(data)
-        print("Field created and saved.")
+        label = result[1]["label"]
+        sub_labels = ", ".join(f["label"] for f in result[1]["sub_fields"])
+        print(f"Predefined fields created: Tab+Group '{label}' with fields: {sub_labels}")
 
-    def create_predefined_fields(self) -> None:
+    def create_field_in_group(self) -> None:
+        """Predefined fields (no Tab + Group) inserted at an index inside a group."""
         data, fields = self._load_fields()
+        new_fields = self._ask_predefined_fields(with_group=False)
+        if new_fields is None:
+            return
+        dest = self._ask_group_insert_index(fields)
+        if dest is None:
+            print("Cancelled.")
+            return
+        parent = self.mover.get_field_container(fields, dest)
+        insert_at = dest[-1] if dest[-1] is not None else len(parent)
+        for offset, field in enumerate(new_fields):
+            self.mover.insert_field_into(parent, insert_at + offset, field)
+        self.repo.save(data)
+        self.last_created_index = cast(list[int], dest[:-1] + [insert_at + len(new_fields) - 1])
+        labels = ", ".join(f["label"] for f in new_fields)
+        dest_str = ".".join(str(p) for p in dest[:-1] + [insert_at])
+        print(f"Predefined fields created at {dest_str}: {labels}")
+
+    def _ask_predefined_fields(self, with_group: bool) -> list[dict] | None:
+        """Show the help and read the predefined line until it is valid.
+        None = cancelled ('q') or no type shortcuts."""
         try:
             type_map = self.predefined_creator.load_type_map()
         except ValueError as e:
             print(f"[red]{e}[/red]")
-            return
+            return None
         if not type_map:
             print(
                 f"[red]No type shortcuts found in "
                 f"{self.predefined_creator.type_csv_path}.[/red]"
             )
-            return
+            return None
 
-        self._print_predefined_help(type_map)
+        self._print_predefined_help(type_map, with_group)
 
         raw = ""
-        new_fields: list[dict] | None = None
-        while new_fields is None:
+        while True:
             raw = self._prompt_with_prefill("> ", raw)
             if raw.strip().lower() == "q":
                 print("Cancelled.")
-                return
+                return None
             try:
-                group_label, specs = self.predefined_creator.parse(raw)
-                new_fields = self.predefined_creator.build(group_label, specs)
+                if with_group:
+                    group_label, specs = self.predefined_creator.parse(raw)
+                    return self.predefined_creator.build(group_label, specs)
+                return self.predefined_creator.build_fields(
+                    self.predefined_creator.parse_fields(raw)
+                )
             except ValueError as e:
                 print(f"[red]{e}[/red]")
 
-        fields.extend(new_fields)
-        self.repo.save(data)
-        label = new_fields[1]["label"]
-        sub_labels = ", ".join(f["label"] for f in new_fields[1]["sub_fields"])
-        print(f"Predefined fields created: Tab+Group '{label}' with fields: {sub_labels}")
+    def _ask_group_insert_index(self, fields: list) -> list[int | None] | None:
+        """Ask for an index inside a group/repeater (e.g. 1.0, or 1. to append)
+        until it is valid, pre-filled with the index right after the last
+        created field. None = cancelled ('q')."""
+        raw = self._suggest_next_index(fields) or ""
+        while True:
+            raw = self._prompt_with_prefill(
+                "Insert at index inside a group (e.g. 1.0, 1. = append, 'q' to cancel): ",
+                raw,
+            ).strip()
+            if raw.lower() == "q":
+                return None
+            try:
+                return self._validate_group_insert_index(fields, raw)
+            except ValueError as e:
+                print(f"[red]{e}[/red]")
 
-    def _strip_default_value(
-        self, new_field: dict | list[dict], selected_type: EFieldType
-    ) -> None:
-        entries = new_field if isinstance(new_field, list) else [new_field]
-        empty_value = self.creator.builder.empty_default_value(selected_type)
-        for entry in entries:
-            if "default_value" in entry:
-                entry["default_value"] = empty_value
-
-    def _move_to_destination(self, fields: list, data, count: int, dest: str) -> None:
+    def _validate_group_insert_index(self, fields: list, raw: str) -> list[int | None]:
         try:
-            if count > 1:
-                final_path = self._move_block(fields, count, dest)
-            else:
-                source_index = str(len(fields) - 1)
-                final_path = self.mover.move_field(fields, source_index, dest)
-            self.repo.save(data)
-            self.last_created_index = final_path
-            print("Field moved successfully.")
-        except Exception as e:
-            print(f"Error moving newly created field: {e}")
-
-    def _move_block(self, fields: list, count: int, dest: str) -> list[int]:
-        source_start = len(fields) - count
-        block = [fields.pop(source_start) for _ in range(count)]
-
-        dest_path = self.mover.parse_index_path(dest)
-        dest_parent = self.mover.get_field_container(fields, dest_path, create=True)
-        insert_at = dest_path[-1]
-        if insert_at is None:
-            insert_at = len(dest_parent)
-
-        for offset, field in enumerate(block):
-            self.mover.insert_field_into(dest_parent, insert_at + offset, field)
-
-        return cast(list[int], dest_path[:-1] + [insert_at + len(block) - 1])
-
-    def _ask_destination_for_new_field(self, fields: list) -> str:
-        suggested = self._suggest_next_index(fields)
-        if suggested is not None:
-            use_suggested = InputValidator.confirm(
-                f"Insert right after the last created field, at index {suggested}?"
+            path = self.mover.parse_index_path(raw)
+        except ValueError:
+            raise ValueError(f"Invalid index '{raw}', use numbers separated by '.' (e.g. 1.0).")
+        if len(path) < 2:
+            raise ValueError(
+                f"Index '{raw}' is not inside a group, use e.g. {raw.rstrip('.')}.0."
             )
-            if use_suggested:
-                return suggested
-        return InputValidator.get_string("Enter destination index (e.g. 0.1): ")
+        if any(p is None or p < 0 for p in path[:-1]) or (path[-1] is not None and path[-1] < 0):
+            raise ValueError(f"Invalid index '{raw}'.")
+
+        container = fields
+        for depth, idx in enumerate(path[:-1]):
+            assert idx is not None
+            prefix = ".".join(str(p) for p in path[: depth + 1])
+            if idx >= len(container):
+                raise ValueError(f"Field at index '{prefix}' does not exist.")
+            field = container[idx]
+            if field.get("type") not in ("group", "repeater"):
+                raise ValueError(
+                    f"Field at index '{prefix}' ('{field.get('label', '')}') is "
+                    f"a {field.get('type')}, not a group/repeater."
+                )
+            container = field.setdefault("sub_fields", [])
+
+        last = path[-1]
+        if last is not None and last > len(container):
+            raise ValueError(
+                f"Index '{raw}' is out of range, the group has {len(container)} "
+                f"field(s) (max {len(container)} or use a trailing '.')."
+            )
+        return path
 
     def _suggest_next_index(self, fields: list) -> str | None:
         if self.last_created_index is None:
@@ -300,7 +310,7 @@ class FieldMenu:
         print(f"[green]Done. {len(changes)} field(s) updated.[/green]")
 
     @staticmethod
-    def _print_predefined_help(type_map: dict[str, str]) -> None:
+    def _print_predefined_help(type_map: dict[str, str], with_group: bool = True) -> None:
         shortcuts = "   ".join(
             f"[bold cyan]{shortcut}[/bold cyan] [dim]{field_type}[/dim]"
             for shortcut, field_type in type_map.items()
@@ -309,10 +319,11 @@ class FieldMenu:
         syntax = Table.grid(padding=(0, 2))
         syntax.add_column(style="bold")
         syntax.add_column()
-        syntax.add_row(
-            "Group",
-            "[yellow]Info[/yellow]  [dim]first item → Tab + Group with this label[/dim]",
-        )
+        if with_group:
+            syntax.add_row(
+                "Group",
+                "[yellow]Info[/yellow]  [dim]first item → Tab + Group with this label[/dim]",
+            )
         syntax.add_row(
             "Field",
             "[green]Title[/green]/[cyan]t[/cyan]  "
@@ -328,19 +339,28 @@ class FieldMenu:
         syntax.add_row("Types", shortcuts)
 
         example = (
-            "[yellow]Info[/yellow]/[green]Title[/green]/[cyan]t[/cyan]/[magenta]40[/magenta]/"
+            ("[yellow]Info[/yellow]/" if with_group else "")
+            + "[green]Title[/green]/[cyan]t[/cyan]/[magenta]40[/magenta]/"
             "[green]Description[/green]/[cyan]ta[/cyan]/[magenta]60[/magenta]/"
             "[green]Items[/green][[green]Image[/green]/[cyan]i[/cyan]/[magenta]30[/magenta]/"
             "[green]Subtitle[/green]/[cyan]t[/cyan]]"
         )
         result = Table.grid(padding=(0, 1))
         result.add_column()
-        result.add_row("[yellow]Info[/yellow] [dim](tab + group)[/dim]")
-        result.add_row(" ├─ [green]Title[/green] [dim]text, 40%[/dim]")
-        result.add_row(" ├─ [green]Description[/green] [dim]textarea, 60%[/dim]")
-        result.add_row(" └─ [green]Items[/green] [dim]repeater, 100%[/dim]")
-        result.add_row("     ├─ [green]Image[/green] [dim]image, 30%[/dim]")
-        result.add_row("     └─ [green]Subtitle[/green] [dim]text, 100%[/dim]")
+        if with_group:
+            result.add_row("[yellow]Info[/yellow] [dim](tab + group)[/dim]")
+            result.add_row(" ├─ [green]Title[/green] [dim]text, 40%[/dim]")
+            result.add_row(" ├─ [green]Description[/green] [dim]textarea, 60%[/dim]")
+            result.add_row(" └─ [green]Items[/green] [dim]repeater, 100%[/dim]")
+            result.add_row("     ├─ [green]Image[/green] [dim]image, 30%[/dim]")
+            result.add_row("     └─ [green]Subtitle[/green] [dim]text, 100%[/dim]")
+        else:
+            result.add_row("[green]Title[/green] [dim]text, 40%[/dim]")
+            result.add_row("[green]Description[/green] [dim]textarea, 60%[/dim]")
+            result.add_row("[green]Items[/green] [dim]repeater, 100%[/dim]")
+            result.add_row(" ├─ [green]Image[/green] [dim]image, 30%[/dim]")
+            result.add_row(" └─ [green]Subtitle[/green] [dim]text, 100%[/dim]")
+            result.add_row("[dim]→ then asked for the index inside a group[/dim]")
 
         body = Group(
             "[dim]Everything is separated by[/dim] [bold]/[/bold][dim]. "
@@ -355,7 +375,8 @@ class FieldMenu:
             "",
             "[dim]Enter the line below ·[/dim] [bold red]q[/bold red] [dim]to cancel[/dim]",
         )
-        print(Panel(body, title="[bold]Create predefined fields[/bold]",
+        title = "Create with group" if with_group else "Create field in group"
+        print(Panel(body, title=f"[bold]{title}[/bold]",
                     title_align="left", border_style="blue", expand=False))
 
     @staticmethod

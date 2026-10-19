@@ -41,8 +41,8 @@ def acf_menu(section_file_json_path):
             "Show Only Tab/Group Fields",
             "Collapse All",
             "Order Fields",
-            "Create new field",
-            "Create predefined fields (from CSV)",
+            "Create with group",
+            "Create field in group",
             "Move field",
             "Move multiple fields",
             "Edit multiple fields",
@@ -75,10 +75,10 @@ def acf_menu(section_file_json_path):
             f_menu.reorder_fields()
             render()
         elif choice == 4:
-            f_menu.create_field()
+            f_menu.create_with_group()
             render()
         elif choice == 5:
-            f_menu.create_predefined_fields()
+            f_menu.create_field_in_group()
             render()
         elif choice == 6:
             print(

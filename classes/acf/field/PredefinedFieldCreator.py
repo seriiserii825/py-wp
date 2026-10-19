@@ -69,6 +69,11 @@ class PredefinedFieldCreator:
         group_label = self._validate_label(tokens[0])
         return group_label, self._parse_specs(tokens[1:])
 
+    def parse_fields(self, raw: str) -> list[_FieldSpec]:
+        """Same as parse() but without the leading group label:
+        Label/type[/width]/Repeater[...][/width]..."""
+        return self._parse_specs(self.split_top_level(raw))
+
     def _parse_specs(self, tokens: list[str]) -> list[_FieldSpec]:
         specs: list[_FieldSpec] = []
         i = 0
@@ -114,13 +119,7 @@ class PredefinedFieldCreator:
         return label[0].upper() + label[1:]
 
     def build(self, group_label: str, specs: list[_FieldSpec]) -> list[dict]:
-        type_map = self.load_type_map()
-        missing = self._collect_missing_shortcuts(specs, type_map)
-        if missing:
-            raise ValueError(
-                f"Unknown type shortcut(s): {', '.join(missing)}. "
-                f"Add them to {self.type_csv_path} first."
-            )
+        sub_fields = self.build_fields(specs)
 
         tab_field = FieldTemplateFactory.create(
             FieldDTO(
@@ -141,11 +140,20 @@ class PredefinedFieldCreator:
                 width=self.DEFAULT_WIDTH,
             )
         )
-        group_field["sub_fields"] = [
-            self._build_from_spec(spec, type_map) for spec in specs
-        ]
+        group_field["sub_fields"] = sub_fields
 
         return [tab_field, group_field]
+
+    def build_fields(self, specs: list[_FieldSpec]) -> list[dict]:
+        """Fields only, without the Tab + Group wrapper."""
+        type_map = self.load_type_map()
+        missing = self._collect_missing_shortcuts(specs, type_map)
+        if missing:
+            raise ValueError(
+                f"Unknown type shortcut(s): {', '.join(missing)}. "
+                f"Add them to {self.type_csv_path} first."
+            )
+        return [self._build_from_spec(spec, type_map) for spec in specs]
 
     def _collect_missing_shortcuts(
         self, specs: list[_FieldSpec], type_map: dict[str, str]
