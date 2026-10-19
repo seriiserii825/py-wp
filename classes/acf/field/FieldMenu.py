@@ -3,6 +3,10 @@ from pathlib import Path
 from typing import cast
 
 from rich import print
+from rich.console import Group
+from rich.padding import Padding
+from rich.panel import Panel
+from rich.table import Table
 
 from classes.acf.AcfSnapshotService import AcfSnapshotService
 from classes.acf.enum.EFieldType import EFieldType
@@ -118,17 +122,7 @@ class FieldMenu:
             )
             return
 
-        print("Available type shortcuts:")
-        self._print_type_shortcuts(type_map)
-
-        print(
-            "Insert Group and Field names as strings, with spaces "
-            "(slug/name will be converted automatically), everything separated by '/'. "
-            "Field: Label/type, optional width: Label/type/width (default 100). "
-            "Repeater: Label[Sub label/type/Sub label/type/width], optional /width after ']'. "
-            "E.g. Info/Title/t/40/Description/ta/30/Items[Image/i/30/Subtitle/t] "
-            "('q' to cancel)"
-        )
+        self._print_predefined_help(type_map)
 
         raw = ""
         new_fields: list[dict] | None = None
@@ -304,6 +298,65 @@ class FieldMenu:
             print(f"  [{index}] {attr}: '{old}' → '{new_value}'")
         self.repo.save(data)
         print(f"[green]Done. {len(changes)} field(s) updated.[/green]")
+
+    @staticmethod
+    def _print_predefined_help(type_map: dict[str, str]) -> None:
+        shortcuts = "   ".join(
+            f"[bold cyan]{shortcut}[/bold cyan] [dim]{field_type}[/dim]"
+            for shortcut, field_type in type_map.items()
+        )
+
+        syntax = Table.grid(padding=(0, 2))
+        syntax.add_column(style="bold")
+        syntax.add_column()
+        syntax.add_row(
+            "Group",
+            "[yellow]Info[/yellow]  [dim]first item → Tab + Group with this label[/dim]",
+        )
+        syntax.add_row(
+            "Field",
+            "[green]Title[/green]/[cyan]t[/cyan]  "
+            "[dim]or with width:[/dim] [green]Title[/green]/[cyan]t[/cyan]/[magenta]40[/magenta]"
+            "  [dim](default 100)[/dim]",
+        )
+        syntax.add_row(
+            "Repeater",
+            "[green]Items[/green][[green]Image[/green]/[cyan]i[/cyan]/"
+            "[green]Subtitle[/green]/[cyan]t[/cyan]]  [dim]or with width:[/dim] "
+            "[green]Items[/green][…]/[magenta]50[/magenta]",
+        )
+        syntax.add_row("Types", shortcuts)
+
+        example = (
+            "[yellow]Info[/yellow]/[green]Title[/green]/[cyan]t[/cyan]/[magenta]40[/magenta]/"
+            "[green]Description[/green]/[cyan]ta[/cyan]/[magenta]60[/magenta]/"
+            "[green]Items[/green][[green]Image[/green]/[cyan]i[/cyan]/[magenta]30[/magenta]/"
+            "[green]Subtitle[/green]/[cyan]t[/cyan]]"
+        )
+        result = Table.grid(padding=(0, 1))
+        result.add_column()
+        result.add_row("[yellow]Info[/yellow] [dim](tab + group)[/dim]")
+        result.add_row(" ├─ [green]Title[/green] [dim]text, 40%[/dim]")
+        result.add_row(" ├─ [green]Description[/green] [dim]textarea, 60%[/dim]")
+        result.add_row(" └─ [green]Items[/green] [dim]repeater, 100%[/dim]")
+        result.add_row("     ├─ [green]Image[/green] [dim]image, 30%[/dim]")
+        result.add_row("     └─ [green]Subtitle[/green] [dim]text, 100%[/dim]")
+
+        body = Group(
+            "[dim]Everything is separated by[/dim] [bold]/[/bold][dim]. "
+            "Labels may contain spaces — names are generated automatically.[/dim]",
+            "",
+            syntax,
+            "",
+            "[bold]Example[/bold]",
+            f"  {example}",
+            "",
+            Padding(result, (0, 0, 0, 2)),
+            "",
+            "[dim]Enter the line below ·[/dim] [bold red]q[/bold red] [dim]to cancel[/dim]",
+        )
+        print(Panel(body, title="[bold]Create predefined fields[/bold]",
+                    title_align="left", border_style="blue", expand=False))
 
     @staticmethod
     def _print_type_shortcuts(type_map: dict[str, str]) -> None:
