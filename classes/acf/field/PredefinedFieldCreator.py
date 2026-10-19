@@ -64,7 +64,7 @@ class PredefinedFieldCreator:
         """Group/Label/type[/width]/Repeater[Label/type[/width]...][/width]...
         e.g. Info/Title/t/30/Items[Image/i/Subtitle/t]/50."""
         tokens = self.split_top_level(raw)
-        if len(tokens) < 3:
+        if len(tokens) < 2:
             raise ValueError("Enter a group label and at least one field (label/type).")
         group_label = self._validate_label(tokens[0])
         return group_label, self._parse_specs(tokens[1:])
