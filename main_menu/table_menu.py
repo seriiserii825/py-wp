@@ -17,11 +17,10 @@ def table_menu(
     rows appended (red). Returns the index of the picked option, BACK for
     Back (or Esc); Exit quits the program. `back=False` — top-level menu,
     only Exit is added and Esc exits too."""
-    rows = options + (["Back"] if back else [])
+    rows = options + (["Go Back"] if back else [])
     red = (red_options or set()) | {"Back"}
     labels = [
-        f"[{'red' if o in red else ('blue' if i % 2 == 0 else 'green')}]"
-        f"{escape(o)}"
+        f"[{'red' if o in red else ('blue' if i % 2 == 0 else 'green')}]{escape(o)}"
         for i, o in enumerate(rows)
     ]
     exit_index = len(rows)
