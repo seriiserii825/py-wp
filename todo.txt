@@ -1,6 +1,3 @@
 marelli
-<<<<<<< Updated upstream
 distilleria-scaramellini
-=======
-manitoba
->>>>>>> Stashed changes
+elmarx update
