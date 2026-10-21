@@ -37,6 +37,8 @@ def menu(
     menu_images: bool = False,
     menu_menus: bool = False,
     menu_files: bool = False,
+    files_create: bool = False,
+    files_select: bool = False,
     menu_taxonomy: bool = False,
     menu_page_theme_file: bool = False,
     menu_use_from_list: bool = False,
@@ -75,6 +77,12 @@ def menu(
         return menu()
     elif menu_files:
         file_menu()
+        return menu()
+    elif files_create:
+        file_menu(module_dir_mode="create")
+        return menu()
+    elif files_select:
+        file_menu(module_dir_mode="select")
         return menu()
     elif menu_page_theme_file:
         page_theme_file_menu()
@@ -169,6 +177,8 @@ Shell aliases (defined in ~/dotfiles/zsh_modules/zsh_python):
   wbi   -> main.py --menu-images
   wbm   -> main.py --menu-wp-menus
   wbf   -> main.py --menu-files
+  wbfc  -> main.py --files-create        (Files: create a new module)
+  wbfs  -> main.py --files-select        (Files: select an existing module)
   wbfp  -> main.py --menu-page-theme-file
 """,
         epilog="""\
@@ -264,6 +274,16 @@ ACF import/export notes:
         "--menu-files", action="store_true", help="Directly open the Files menu"
     )
     parser.add_argument(
+        "--files-create",
+        action="store_true",
+        help="Files menu: create a new module directory (no Select/Create prompt)",
+    )
+    parser.add_argument(
+        "--files-select",
+        action="store_true",
+        help="Files menu: select an existing module directory (no Select/Create prompt)",
+    )
+    parser.add_argument(
         "--menu-taxonomy",
         action="store_true",
         help="Directly open the Taxonomy menu",
@@ -295,6 +315,8 @@ ACF import/export notes:
         menu_images=args.menu_images,
         menu_menus=args.menu_wp_menus,
         menu_files=args.menu_files,
+        files_create=args.files_create,
+        files_select=args.files_select,
         menu_taxonomy=args.menu_taxonomy,
         menu_page_theme_file=args.menu_page_theme_file,
         menu_use_from_list=args.use_from_list,

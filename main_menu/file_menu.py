@@ -18,7 +18,9 @@ def _to_camel_case(name: str) -> str:
     )
 
 
-def file_menu():
+def file_menu(module_dir_mode: str | None = None):
+    """module_dir_mode: "create" / "select" skips the Select/Create prompt
+    for the module directory (module system only)."""
     is_modules = ModuleSystemDetector.load()
 
     if is_modules is None:
@@ -35,7 +37,7 @@ def file_menu():
         ModuleSystemDetector.save(is_modules)
 
     if is_modules:
-        _module_menu()
+        _module_menu(module_dir_mode)
     else:
         _standard_menu()
 
@@ -57,8 +59,30 @@ def _create_from_factory(file_type: FileTypeEnum):
         exit(1)
 
 
-def _module_menu():
-    module_path = FilesHandle().create_or_choose_directory("modules")
+def _choose_module_dir(module_dir_mode: str | None) -> str:
+    files = FilesHandle()
+    if module_dir_mode is None:
+        return files.create_or_choose_directory("modules")
+
+    modules_dir = files.ensure_dir("modules")
+    files.list_dir(modules_dir)
+    has_dirs = any(p.is_dir() for p in Path(modules_dir).iterdir())
+
+    if module_dir_mode == "select" and has_dirs:
+        return str(Path(modules_dir) / files.choose_dir(modules_dir))
+
+    dir_name = InputValidator.get_string("Enter directory name: ")
+    module_path = Path(modules_dir) / dir_name
+    if module_path.exists():
+        print(f"[red]Directory '{dir_name}' already exists.[/red]")
+        exit(1)
+    module_path.mkdir(parents=True)
+    print("[green]Directory created[/green]")
+    return str(module_path)
+
+
+def _module_menu(module_dir_mode: str | None = None):
+    module_path = _choose_module_dir(module_dir_mode)
     print(f"[green]Module: {module_path}[/green]")
     FilesHandle().list_files(module_path)
 
