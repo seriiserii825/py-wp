@@ -19,15 +19,20 @@ def _to_camel_case(name: str) -> str:
 
 
 def file_menu():
-    is_modules = ModuleSystemDetector.detect()
+    is_modules = ModuleSystemDetector.load()
 
-    if is_modules:
-        print("[bold green]✓ Module system detected[/bold green]")
-    else:
-        print("[bold yellow]Standard system detected[/bold yellow]")
+    if is_modules is None:
+        is_modules = ModuleSystemDetector.detect()
 
-    if not InputValidator.confirm("Continue?"):
-        return
+        if is_modules:
+            print("[bold green]✓ Module system detected[/bold green]")
+        else:
+            print("[bold yellow]Standard system detected[/bold yellow]")
+
+        if not InputValidator.confirm("Continue?"):
+            return
+
+        ModuleSystemDetector.save(is_modules)
 
     if is_modules:
         _module_menu()
